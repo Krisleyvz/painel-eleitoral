@@ -108,7 +108,7 @@ opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_dispo
 ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
 col_municipio = None
-texto_local = "em Todo o Estado" # Padrão inicial
+texto_local = "em Todo o Estado" 
 
 for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
     if col in dados.columns:
@@ -120,7 +120,6 @@ if col_municipio:
     municipios_selecionados = st.sidebar.multiselect("Filtrar por Município(s):", municipios_disponiveis, default=municipios_disponiveis)
     dados = dados[dados[col_municipio].isin(municipios_selecionados)]
     
-    # === LÓGICA DO TÍTULO DINÂMICO ===
     if not municipios_selecionados or len(municipios_selecionados) == len(municipios_disponiveis):
         texto_local = "em Todo o Estado"
     elif len(municipios_selecionados) == 1:
@@ -159,7 +158,6 @@ else:
 st.markdown("---")
 
 # ======== ANÁLISE 1: MAPA LIMPO (PONTOS PRECISOS POR ESCOLA) ========
-# Título atualizado com a inteligência dinâmica
 st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo} {texto_local})")
 
 group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
@@ -177,7 +175,6 @@ else:
 st.markdown("---")
 
 # ======== ANÁLISE 2: RAIO-X COM GRÁFICO HORIZONTAL (ALTAIR) ========
-# Título atualizado com a inteligência dinâmica
 st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
@@ -194,12 +191,11 @@ else:
 
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
-# Título do gráfico atualizado
 st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos {texto_local})")
 
-# Gráfico Horizontal Inteligente com Altair (Legibilidade e Cor Azul Vibrante #1A73E8)
+# Gráfico Horizontal Inteligente com Altair (Números Inteiros)
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
-    x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos'),
+    x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
     y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação'),
     tooltip=[
         alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
