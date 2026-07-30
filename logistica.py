@@ -3,7 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-# 1. Configuração da Página
+# 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Logística", page_icon="🚚", layout="centered")
 
 # ==========================================
@@ -24,11 +24,17 @@ st.markdown("""
         border-left: 5px solid #1A73E8;
         margin-bottom: 15px;
     }
+    input, select {
+        background-color: #152b45 !important;
+        color: white !important;
+        border: 1px solid #1A73E8 !important;
+        border-radius: 5px !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para carregar os dados reais da planilha
+# Função para carregar os dados reais da planilha sem alterar nada
 @st.cache_data(ttl=60)
 def carregar_dados_planilha():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -45,12 +51,12 @@ def carregar_dados_planilha():
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     try:
-        st.image("IMG_6008.PNG", use_container_width=True)
+        st.image("IMG_6009.PNG", use_container_width=True)
     except:
         st.title("🚚 Logística de Entregas")
 
 st.markdown("---")
-st.subheader("📦 Rotas e Cadastros da Planilha")
+st.subheader("📦 Rotas e Endereços da Planilha")
 
 try:
     df = carregar_dados_planilha()
@@ -59,12 +65,12 @@ except Exception as e:
     df = pd.DataFrame()
 
 if not df.empty:
-    # Filtro por Regional baseada na coluna real da planilha
-    regionais_disponiveis = ["Todas"] + list(df['Regional'].dropna().unique()) if 'Regional' in df.columns else ["Todas"]
-    regional_filtro = st.selectbox("Filtrar por Regional de Atendimento:", regionais_disponiveis)
+    # Filtro rápido por Bairro (coluna F da planilha)
+    bairros_disponiveis = ["Todos"] + list(df['Bairro'].dropna().unique()) if 'Bairro' in df.columns else ["Todos"]
+    bairro_filtro = st.selectbox("Filtrar por Bairro:", bairros_disponiveis)
     
-    if regional_filtro != "Todas" and 'Regional' in df.columns:
-        df = df[df['Regional'] == regional_filtro]
+    if bairro_filtro != "Todos" and 'Bairro' in df.columns:
+        df = df[df['Bairro'] == bairro_filtro]
         
     st.markdown("---")
     
@@ -73,7 +79,7 @@ if not df.empty:
         telefone = str(row.get('Telefone', ''))
         rua = row.get('Rua e Número', '')
         bairro = row.get('Bairro', '')
-        regional = row.get('Regional', '')
+        complemento = row.get('Complemento', '')
         
         tel_num = ''.join(filter(str.isdigit, telefone))
         
@@ -81,13 +87,22 @@ if not df.empty:
         <div class="entrega-card">
             <b>👤 {nome}</b><br>
             📞 Tel: <a href="tel:{tel_num}" style="color: #4da6ff;">{telefone}</a><br>
-            📍 <b>Endereço:</b> {rua} - {bairro} ({regional})
+            📍 <b>Endereço:</b> {rua} - {bairro}<br>
+            💬 <b>Complemento:</b> {complemento if complemento else 'Nenhum'}
         </div>
         """, unsafe_allow_html=True)
         
+        # Links de Ação Rápida para o Motorista
         endereco_completo = f"{rua}, {bairro}, Rio Branco - AC"
         link_mapa = f"https://www.google.com/maps/search/?api=1&query={endereco_completo.replace(' ', '+')}"
-        st.markdown(f"[🗺️ Abrir Rota no Google Maps]({link_mapa})", unsafe_allow_html=True)
+        link_wpp = f"https://wa.me/55{tel_num}?text=Olá%20{nome.split()[0]},%20estamos%20a%20caminho%20da%20sua%20residência!"
+        
+        col_b1, col_b2 = st.columns(2)
+        with col_b1:
+            st.markdown(f"<a href='{link_mapa}' target='_blank' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>🗺️ Abrir Rota</a>", unsafe_allow_html=True)
+        with col_b2:
+            st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+            
         st.markdown("")
 else:
     st.info("Nenhum registro encontrado na planilha.")
