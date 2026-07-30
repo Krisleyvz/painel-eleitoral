@@ -34,15 +34,15 @@ col1, col2, col3 = st.columns(3)
 col1.metric(label=f"Total de Votos ({ano_selecionado})", value=f"{total_votos:,}".replace(",", "."))
 col2.metric(label="Locais de Votação Ativos", value=total_escolas)
 
-# Regra de Pareto 80/20 (Calcula a concentração dos votos nas principais escolas)
+# Regra de Pareto 80/20 (Foco Financeiro e de Tempo)
 if not dados_filtrados.empty:
     escolas_ranking = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().sort_values(ascending=False)
     top_20_porcento = max(1, int(len(escolas_ranking) * 0.2))
     votos_top_20 = escolas_ranking.head(top_20_porcento).sum()
     pct_pareto = (votos_top_20 / total_votos * 100) if total_votos > 0 else 0
-    col3.metric(label="Concentração (Top 20% Escolas)", value=f"{pct_pareto:.1f}%")
+    col3.metric(label="Concentração (Regra de Pareto)", value=f"{pct_pareto:.1f}%", help="Percentual de votos concentrados nos 20% principais redutos.")
 else:
-    col3.metric(label="Concentração (Top 20% Escolas)", value="0%")
+    col3.metric(label="Concentração (Regra de Pareto)", value="0%")
 
 st.markdown("---")
 
@@ -60,8 +60,8 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 2: RAIO-X CONSOLIDADO COM MARKET SHARE ========
-st.subheader("📊 Raio-X e Dominância por Escola (Top 10 Consolidado)")
+# ======== ANÁLISE 2: RAIO-X COM GRÁFICO VISUAL E MARKET SHARE ========
+st.subheader("📊 Raio-X, Dominância e Desempenho Visual (Top 10 Consolidado)")
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
@@ -77,11 +77,18 @@ else:
 
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(10)
 
+# INSERINDO GRÁFICO DE BARRAS VISUAL IMPACTANTE
+st.markdown("#### 📉 Gráfico de Desempenho dos Principais Redutos")
+chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
+st.bar_chart(chart_data)
+
+# Ajuste de colunas para exibição na tabela
 if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Market Share (%)']
 else:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Market Share (%)']
 
+st.markdown("#### 📋 Detalhamento Analítico")
 st.dataframe(top_escolas, use_container_width=True)
 
 st.markdown("---")
@@ -102,4 +109,4 @@ if len(anos_disponiveis) > 1:
         
     st.dataframe(tabela_comparativa, use_container_width=True)
 else:
-    st.info("Para ativar a Matriz de Evolução Histórica, garanta que sua planilha possua registros de mais de um ano eleitoral.")
+    st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado. Assim que houver múltiplos anos, a matriz e os comparativos temporais serão ativados.")
