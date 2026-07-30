@@ -59,13 +59,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Função Universal para Ler a Planilha (Via Link Público)
+# Função para Conectar e Ler a Planilha de forma segura via API
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
-    spreadsheet_id = "COLOQUE_O_ID_DA_PLANILHA_AQUI"  # Substitua pelo ID longo da sua URL
-    sheet_name = "Form_Responses"
-    url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-    return pd.read_csv(url)
+    scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds_dict = json.loads(st.secrets["gcp_json"])
+    if "private_key" in creds_dict:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+    client = gspread.authorize(creds)
+    planilha = client.open("Samir Bestene - Apoiadores (Respostas)")
+    aba = planilha.worksheet("Form_Responses")
+    dados = aba.get_all_records()
+    return pd.DataFrame(dados)
 
 # Função para Salvar Cadastro na Planilha
 def conectar_google_sheets():
@@ -79,7 +85,7 @@ def conectar_google_sheets():
     return planilha.worksheet("Form_Responses")
 
 # ==========================================
-# MENU DE NAVEGAÇÃO LATERAL (Apenas 3 seções essenciais)
+# MENU DE NAVEGAÇÃO LATERAL
 # ==========================================
 st.sidebar.markdown("## 🧭 Menu")
 menu = st.sidebar.radio("Escolha a seção:", ["📝 Novo Cadastro", "🚚 Logística de Entregas", "📱 Gestão de Contatos"])
@@ -157,7 +163,12 @@ elif menu == "🚚 Logística de Entregas":
     st.markdown("Rotas e endereços atualizados em tempo real.")
     st.markdown("---")
     
-    df = carregar_dados_planilha()
+    try:
+        df = carregar_dados_planilha()
+    except Exception as e:
+        st.error(f"Erro ao carregar dados da planilha: {e}")
+        df = pd.DataFrame()
+
     if not df.empty:
         bairros_disp = ["Todos"] + list(df['Bairro'].dropna().unique()) if 'Bairro' in df.columns else ["Todos"]
         bairro_filtro = st.selectbox("Filtrar por Bairro para Logística:", bairros_disp)
@@ -179,7 +190,7 @@ elif menu == "🚚 Logística de Entregas":
                 <b>👤 {nome}</b><br>
                 📞 Tel: <a href="tel:{tel_num}" style="color: #4da6ff;">{telefone}</a><br>
                 📍 <b>Endereço:</b> {rua} - {bairro}<br>
-                💬 <b>Complemento:</b> {complemento if complemento != 'nan' else 'Nenhum'}
+                💬 <b>Complemento:</b> {complemento if str(complemento) != 'nan' and str(complemento) != '' else 'Nenhum'}
             </div>
             """, unsafe_allow_html=True)
             
@@ -204,9 +215,12 @@ elif menu == "📱 Gestão de Contatos":
     st.markdown("Lista completa de apoiadores.")
     st.markdown("---")
     
-    df = carregar_dados_planilha()
+    try:
+        df = carregar_dados_planilha()
+    except Exception as e:
+        st.error(f"Erro ao carregar dados da planilha: {e}")
+        df = pd.DataFrame()
     
-    # Abas organizadas priorizando os aniversariantes do dia
     sub_tab1, sub_tab2, sub_tab3 = st.tabs(["🎂 Aniversariantes do Dia", "🔍 Pesquisar Nome", "📍 Por Bairro"])
     
     with sub_tab1:
@@ -215,7 +229,6 @@ elif menu == "📱 Gestão de Contatos":
         if not df.empty and 'Data de Nascimento' in df.columns:
             hoje_dia_mes = datetime.now().strftime("%d/%m")
             
-            # Filtra registros cuja data de nascimento comece com o dia e mês atuais (ex: "07/06")
             df['nasc_limpo'] = df['Data de Nascimento'].astype(str).str.strip()
             aniversariantes_hoje = df[df['nasc_limpo'].str.startswith(hoje_dia_mes, na=False)]
             
@@ -259,7 +272,6 @@ elif menu == "📱 Gestão de Contatos":
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Botão de WhatsApp em destaque máximo
                     link_wpp_aniver = f"https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!%20Desejamos%20muitas%20felicidades%20e%20sucesso!"
                     st.markdown(f"<a href='{link_wpp_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 12px; border-radius: 6px; text-decoration: none; font-size: 16px; font-weight: bold; margin-bottom: 10px;'>💬 ENVIAR PARABÉNS NO WHATSAPP</a>", unsafe_allow_html=True)
                     st.markdown("")
