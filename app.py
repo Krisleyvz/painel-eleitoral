@@ -55,7 +55,7 @@ st.markdown("""
 # Função Universal para Ler a Planilha (Via Link Público)
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
-    spreadsheet_id = "COLOQUE_O_ID_DA_PLANILHA_AQUI"  # Substitua pelo ID longo da sua URL
+    spreadsheet_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"  # Substitua pelo ID longo da sua URL
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     return pd.read_csv(url)
@@ -87,7 +87,7 @@ if menu == "📝 Novo Cadastro":
     col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
     with col_l2:
         try:
-            st.image("IMG_6009.PNG", use_container_width=True)
+            st.image("IMG_6008.PNG", use_container_width=True)
         except:
             st.title("📝 Cadastro")
     
