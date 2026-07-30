@@ -1,22 +1,15 @@
 import streamlit as st
 import pandas as pd
 import gspread
+import json
 from google.oauth2.service_account import Credentials
 
-# 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Logística", page_icon="🚚", layout="centered")
 
-# ==========================================
-# INJEÇÃO DE CSS: TEMA AZUL MARINHO E CARTÕES
-# ==========================================
 st.markdown("""
 <style>
-    .stApp {
-        background-color: #0A1C2E !important;
-    }
-    h1, h2, h3, p, label, div.stMarkdown {
-        color: #FFFFFF !important;
-    }
+    .stApp { background-color: #0A1C2E !important; }
+    h1, h2, h3, p, label, div.stMarkdown { color: #FFFFFF !important; }
     .entrega-card {
         background-color: #152b45;
         padding: 15px;
@@ -32,18 +25,14 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-# ==========================================
 
-# Função para conectar ao Google Sheets com correção automática da chave
 @st.cache_data(ttl=60)
 def carregar_dados_planilha():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_dict = dict(st.secrets["gcp_service_account"])
     
-    # Corrige automaticamente qualquer problema de formatação na chave privada
-    if "\\n" in creds_dict["private_key"]:
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
-
+    # Lê a string JSON única e converte direto para dicionário (sem erros de padding)
+    creds_dict = json.loads(st.secrets["gcp_json"])
+    
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
     
@@ -52,11 +41,10 @@ def carregar_dados_planilha():
     dados = aba.get_all_records()
     return pd.DataFrame(dados)
 
-# Logo Centralizada
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     try:
-        st.image("IMG_6009.PNG", use_container_width=True)
+        st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.title("🚚 Logística de Entregas")
 
@@ -70,7 +58,6 @@ except Exception as e:
     df = pd.DataFrame()
 
 if not df.empty:
-    # Filtro rápido por Bairro (coluna F da planilha)
     bairros_disponiveis = ["Todos"] + list(df['Bairro'].dropna().unique()) if 'Bairro' in df.columns else ["Todos"]
     bairro_filtro = st.selectbox("Filtrar por Bairro:", bairros_disponiveis)
     
@@ -97,7 +84,6 @@ if not df.empty:
         </div>
         """, unsafe_allow_html=True)
         
-        # Links de Ação Rápida para o Motorista
         endereco_completo = f"{rua}, {bairro}, Rio Branco - AC"
         link_mapa = f"https://www.google.com/maps/search/?api=1&query={endereco_completo.replace(' ', '+')}"
         link_wpp = f"https://wa.me/55{tel_num}?text=Olá%20{nome.split()[0]},%20estamos%20a%20caminho%20da%20sua%20residência!"
