@@ -167,6 +167,8 @@ st.markdown("---")
 # ======== ANÁLISE 2: RAIO-X COM GRÁFICO E MARKET SHARE ========
 st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
 
+import altair as alt
+
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     agg_dict['QT_VOTOS_VALIDOS_SECAO'] = 'sum'
@@ -179,17 +181,26 @@ if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
 else:
     top_escolas['MARKET_SHARE'] = 0.0
 
-# ORDENAÇÃO FORÇADA PARA O GRÁFICO (Do maior para o menor)
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
 st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos)")
-# GRÁFICO CORRIGIDO (Garante a ordem e aplica a cor Azul Marinho)
-try:
-    st.bar_chart(data=top_escolas, x='NM_LOCAL_VOTACAO', y='QT_VOTOS_SAMIR', color="#0A1C2E")
-except:
-    chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
-    st.bar_chart(chart_data)
 
+# Gráfico Horizontal Inteligente com Altair (Legibilidade e Cor Vibrante)
+grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
+    x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos'),
+    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação'),
+    tooltip=[
+        alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
+        alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos'),
+        alt.Tooltip('MARKET_SHARE:Q', title='Market Share (%)', format='.1f')
+    ]
+).properties(
+    height=max(400, limite_ranking * 20) # Ajusta a altura automaticamente dependendo de quantos itens o usuário filtrar
+)
+
+st.altair_chart(grafico_barras, use_container_width=True)
+
+# Nomenclatura das colunas da tabela
 if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Market Share (%)']
 else:
