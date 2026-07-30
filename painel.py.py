@@ -4,7 +4,7 @@ import numpy as np
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
 st.set_page_config(page_title="Monitor Estratégico de Campanha", page_icon="🎯", layout="wide")
-st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
+st.title("🎯 Painel Estratégico de Campanha")
 st.markdown("---")
 
 # 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
