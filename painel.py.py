@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
-st.set_page_config(page_title="Painel Estratégico de Campanha - Sala de Guerra", layout="wide")
+st.set_page_config(page_title="Painel Estratégico de Campanha", layout="wide")
 
 st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
