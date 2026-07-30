@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import altair as alt
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
 st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", page_icon="🎯", layout="wide")
@@ -35,10 +36,8 @@ st.markdown("""
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     try:
-        # ATUALIZADO PARA PUXAR O ARQUIVO .PNG
         st.image("IMG_6009.PNG", use_container_width=True)
     except:
-        # Título de segurança (Sem "Sala de Guerra")
         st.title("🎯 Painel Estratégico de Campanha")
 st.markdown("---")
 
@@ -109,6 +108,8 @@ opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_dispo
 ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
 col_municipio = None
+texto_local = "em Todo o Estado" # Padrão inicial
+
 for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
     if col in dados.columns:
         col_municipio = col
@@ -118,6 +119,16 @@ if col_municipio:
     municipios_disponiveis = sorted(dados[col_municipio].dropna().unique())
     municipios_selecionados = st.sidebar.multiselect("Filtrar por Município(s):", municipios_disponiveis, default=municipios_disponiveis)
     dados = dados[dados[col_municipio].isin(municipios_selecionados)]
+    
+    # === LÓGICA DO TÍTULO DINÂMICO ===
+    if not municipios_selecionados or len(municipios_selecionados) == len(municipios_disponiveis):
+        texto_local = "em Todo o Estado"
+    elif len(municipios_selecionados) == 1:
+        texto_local = f"em {municipios_selecionados[0].title()}"
+    elif len(municipios_selecionados) == 2:
+        texto_local = f"em {municipios_selecionados[0].title()} e {municipios_selecionados[1].title()}"
+    else:
+        texto_local = "nos Municípios Selecionados"
 
 limite_ranking = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5)
 
@@ -148,7 +159,8 @@ else:
 st.markdown("---")
 
 # ======== ANÁLISE 1: MAPA LIMPO (PONTOS PRECISOS POR ESCOLA) ========
-st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo})")
+# Título atualizado com a inteligência dinâmica
+st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo} {texto_local})")
 
 group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
 if col_municipio:
@@ -164,10 +176,9 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 2: RAIO-X COM GRÁFICO E MARKET SHARE ========
+# ======== ANÁLISE 2: RAIO-X COM GRÁFICO HORIZONTAL (ALTAIR) ========
+# Título atualizado com a inteligência dinâmica
 st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
-
-import altair as alt
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
@@ -183,9 +194,10 @@ else:
 
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
-st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos)")
+# Título do gráfico atualizado
+st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos {texto_local})")
 
-# Gráfico Horizontal Inteligente com Altair (Legibilidade e Cor Vibrante)
+# Gráfico Horizontal Inteligente com Altair (Legibilidade e Cor Azul Vibrante #1A73E8)
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
     x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos'),
     y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação'),
@@ -195,12 +207,11 @@ grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
         alt.Tooltip('MARKET_SHARE:Q', title='Market Share (%)', format='.1f')
     ]
 ).properties(
-    height=max(400, limite_ranking * 20) # Ajusta a altura automaticamente dependendo de quantos itens o usuário filtrar
+    height=max(400, limite_ranking * 20) 
 )
 
 st.altair_chart(grafico_barras, use_container_width=True)
 
-# Nomenclatura das colunas da tabela
 if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Market Share (%)']
 else:
