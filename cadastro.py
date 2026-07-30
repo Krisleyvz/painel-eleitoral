@@ -72,7 +72,7 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     regional_outra = st.text_input("Se escolheu 'Outra' acima, digite aqui o nome:")
     
     st.subheader("📦 Pedido de Material")
-    adesivo = st.checkbox("Adesivo para Residência")
+    adesivo = st.checkbox("Placas para Residência")
     perfurado = st.checkbox("Perfurado (Carro)")
     santinho = st.checkbox("Santinhos/Adesivos Menores")
     
