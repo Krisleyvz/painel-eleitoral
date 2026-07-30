@@ -9,7 +9,7 @@ st.set_page_config(page_title="| Inteligência Territorial", page_icon="🎯", l
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     try:
-        st.image("IMG_6008.jpg", use_container_width=True)
+       st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.title("🎯 Painel Estratégico de Campanha")
 st.markdown("---")
