@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
-st.set_page_config(page_title="Painel Estratégico de Campanha", layout="wide")
+st.set_page_config(page_title="Painel Estratégico de Campanha - Sala de Guerra", layout="wide")
 
 st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
@@ -18,23 +18,46 @@ except Exception as e:
     st.error(f"Erro ao carregar o arquivo 'dados.csv'. Certifique-se de que ele está na mesma pasta. Detalhe: {e}")
     st.stop()
 
-# 3. Barra Lateral (Filtros Mestres)
-st.sidebar.header("🎛️ Filtros de Controle")
+# 3. Barra Lateral (Filtros Mestres Avançados)
+st.sidebar.header("🎛️ Filtros de Controle Estratégico")
+
+# Filtro de Ano / Série Histórica
 anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
-ano_selecionado = st.sidebar.selectbox("Selecione o Ano de Referência:", anos_disponiveis)
+opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_disponiveis]
+ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
-# Filtragem de dados do ano escolhido
-dados_filtrados = dados[dados['ANO_ELEICAO'] == ano_selecionado].copy()
+# Filtro Dinâmico de Municípios (Se a coluna existir na base)
+col_municipio = None
+for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
+    if col in dados.columns:
+        col_municipio = col
+        break
 
-# 4. Cartões de Métricas Executivas no Topo
+if col_municipio:
+    municipios_disponiveis = sorted(dados[col_municipio].dropna().unique())
+    municipios_selecionados = st.sidebar.multiselect("Filtrar por Município(s):", municipios_disponiveis, default=municipios_disponiveis)
+    dados = dados[dados[col_municipio].isin(municipios_selecionados)]
+
+# Controle de Amplitude do Ranking (Adeus Top 10 fixo)
+limite_ranking = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5)
+
+# 4. Filtragem de Dados conforme escolha de Período
+if ano_selecionado == 'Todos os Anos (Série Histórica)':
+    dados_filtrados = dados.copy()
+    label_periodo = "Série Histórica Acumulada"
+else:
+    dados_filtrados = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].copy()
+    label_periodo = f"Ano de {ano_selecionado}"
+
+# 5. Cartões de Métricas Executivas no Topo
 total_votos = dados_filtrados['QT_VOTOS_SAMIR'].sum()
 total_escolas = dados_filtrados['NM_LOCAL_VOTACAO'].nunique()
 
 col1, col2, col3 = st.columns(3)
-col1.metric(label=f"Total de Votos ({ano_selecionado})", value=f"{total_votos:,}".replace(",", "."))
-col2.metric(label="Locais de Votação Ativos", value=total_escolas)
+col1.metric(label=f"Total de Votos ({label_periodo})", value=f"{total_votos:,}".replace(",", "."))
+col2.metric(label="Locais de Votação Mapeados", value=total_escolas)
 
-# Regra de Pareto 80/20 (Foco Financeiro e de Tempo)
+# Regra de Pareto 80/20
 if not dados_filtrados.empty:
     escolas_ranking = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().sort_values(ascending=False)
     top_20_porcento = max(1, int(len(escolas_ranking) * 0.2))
@@ -47,7 +70,7 @@ else:
 st.markdown("---")
 
 # ======== ANÁLISE 1: MAPA DE CALOR TERRITORIAL ========
-st.subheader("📍 Mapa de Calor - Distribuição Geográfica dos Votos")
+st.subheader(f"📍 Mapa de Calor - Distribuição Geográfica ({label_periodo})")
 if 'lat' in dados_filtrados.columns and 'lon' in dados_filtrados.columns:
     dados_mapa = dados_filtrados.dropna(subset=['lat', 'lon']).copy()
     if not dados_mapa.empty:
@@ -56,12 +79,12 @@ if 'lat' in dados_filtrados.columns and 'lon' in dados_filtrados.columns:
     else:
         st.info("Preencha as colunas 'lat' e 'lon' na planilha para visualizar o mapa interativo.")
 else:
-    st.info("💡 Dica Estratégica: Adicione as colunas 'lat' e 'lon' na sua planilha para acionar o mapa de calor da cidade.")
+    st.info("💡 Dica Estratégica: Adicione as colunas 'lat' e 'lon' na sua planilha para acionar o mapa de calor.")
 
 st.markdown("---")
 
-# ======== ANÁLISE 2: RAIO-X COM GRÁFICO VISUAL E MARKET SHARE ========
-st.subheader("📊 Raio-X, Dominância e Desempenho Visual (Top 10 Consolidado)")
+# ======== ANÁLISE 2: RAIO-X EXPANDIDO COM GRÁFICO E MARKET SHARE ========
+st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
@@ -75,10 +98,10 @@ if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
 else:
     top_escolas['MARKET_SHARE'] = 0.0
 
-top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(10)
+top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
-# INSERINDO GRÁFICO DE BARRAS VISUAL IMPACTANTE
-st.markdown("#### 📉 Gráfico de Desempenho dos Principais Redutos")
+# Gráfico de Barras Dinâmico com a amplitude escolhida
+st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos)")
 chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
 st.bar_chart(chart_data)
 
@@ -88,13 +111,13 @@ if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
 else:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Market Share (%)']
 
-st.markdown("#### 📋 Detalhamento Analítico")
+st.markdown("#### 📋 Detalhamento Analítico Completo")
 st.dataframe(top_escolas, use_container_width=True)
 
 st.markdown("---")
 
 # ======== ANÁLISE 3: MATRIZ DE EVOLUÇÃO E RETENÇÃO TEMPORAL ========
-st.subheader("📈 Matriz de Evolução Histórica (Comparativo de Eleições)")
+st.subheader("📈 Matriz de Evolução Histórica (Comparativo entre Eleições)")
 if len(anos_disponiveis) > 1:
     tabela_comparativa = dados.pivot_table(
         index='NM_LOCAL_VOTACAO', 
@@ -105,7 +128,7 @@ if len(anos_disponiveis) > 1:
     
     ano_recente = anos_disponiveis[0]
     if ano_recente in tabela_comparativa.columns:
-        tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(10)
+        tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(limite_ranking)
         
     st.dataframe(tabela_comparativa, use_container_width=True)
 else:
