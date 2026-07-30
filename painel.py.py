@@ -13,7 +13,6 @@ st.markdown("---")
 def carregar_dados():
     df = pd.read_csv("dados.csv")
     
-    # Dicionário de centros geográficos aproximados para os municípios do Acre
     centros_acre = {
         'RIO BRANCO': (-9.9749, -67.8243),
         'SENA MADUREIRA': (-9.3356, -68.6558),
@@ -28,7 +27,6 @@ def carregar_dados():
         'FEIJO': (-8.1642, -70.3556)
     }
     
-    # Identifica qual coluna é a de município
     col_mun = None
     for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
         if col in df.columns:
@@ -41,10 +39,7 @@ def carregar_dados():
         
         for _, row in df.iterrows():
             mun = str(row[col_mun]).strip().upper() if col_mun else 'RIO BRANCO'
-            # Pega o centro do município ou usa Rio Branco como padrão
             center_lat, center_lon = centros_acre.get(mun, (-9.9749, -67.8243))
-            
-            # Adiciona uma pequena variação para espalhar as escolas ao redor da cidade
             lats.append(center_lat + np.random.normal(0, 0.02))
             lons.append(center_lon + np.random.normal(0, 0.02))
             
@@ -59,17 +54,16 @@ def carregar_dados():
 try:
     dados = carregar_dados()
 except Exception as e:
-    st.error(f"Erro ao carregar o arquivo 'dados.csv'. Certifique-se de que ele está na mesma pasta. Detalhe: {e}")
+    st.error(f"Erro ao carregar o arquivo 'dados.csv'. Detalhe: {e}")
     st.stop()
 
-# 3. Barra Lateral (Filtros Mestres Avançados)
+# 3. Barra Lateral (Filtros Mestres)
 st.sidebar.header("🎛️ Filtros de Controle Estratégico")
 
 anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
 opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_disponiveis]
 ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
-# Filtro Dinâmico de Municípios
 col_municipio = None
 for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
     if col in dados.columns:
@@ -83,7 +77,6 @@ if col_municipio:
 
 limite_ranking = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5)
 
-# 4. Filtragem de Dados conforme Período
 if ano_selecionado == 'Todos os Anos (Série Histórica)':
     dados_filtrados = dados.copy()
     label_periodo = "Série Histórica Acumulada"
@@ -91,7 +84,7 @@ else:
     dados_filtrados = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].copy()
     label_periodo = f"Ano de {ano_selecionado}"
 
-# 5. Cartões de Métricas Executivas no Topo
+# 4. Cartões de Métricas Executivas
 total_votos = dados_filtrados['QT_VOTOS_SAMIR'].sum()
 total_escolas = dados_filtrados['NM_LOCAL_VOTACAO'].nunique()
 
@@ -99,7 +92,6 @@ col1, col2, col3 = st.columns(3)
 col1.metric(label=f"Total de Votos ({label_periodo})", value=f"{total_votos:,}".replace(",", "."))
 col2.metric(label="Locais de Votação Mapeados", value=total_escolas)
 
-# Regra de Pareto 80/20
 if not dados_filtrados.empty:
     escolas_ranking = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().sort_values(ascending=False)
     top_20_porcento = max(1, int(len(escolas_ranking) * 0.2))
@@ -111,18 +103,27 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 1: MAPA DE CALOR DINÂMICO POR MUNICÍPIO ========
+# ======== ANÁLISE 1: MAPA DE CALOR LIMPO (AGRUPADO POR ESCOLA) ========
 st.subheader(f"📍 Mapa de Calor - Distribuição Geográfica ({label_periodo})")
-dados_mapa = dados_filtrados.dropna(subset=['lat', 'lon']).copy()
+
+# Agrupa por escola para exibir apenas uma bolha limpa por local de votação
+if col_municipio:
+    group_cols = ['NM_LOCAL_VOTACAO', col_municipio, 'lat', 'lon']
+else:
+    group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
+
+dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR'].sum()
+dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
+
 if not dados_mapa.empty:
-    dados_mapa['tamanho_bolha'] = dados_mapa['QT_VOTOS_SAMIR'] * 35
+    dados_mapa['tamanho_bolha'] = dados_mapa['QT_VOTOS_SAMIR'] * 15
     st.map(dados_mapa, latitude='lat', longitude='lon', size='tamanho_bolha')
 else:
     st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
 
 st.markdown("---")
 
-# ======== ANÁLISE 2: RAIO-X EXPANDIDO COM GRÁFICO E MARKET SHARE ========
+# ======== ANÁLISE 2: RAIO-X COM GRÁFICO E MARKET SHARE ========
 st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
