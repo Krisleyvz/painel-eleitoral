@@ -9,12 +9,24 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Comitê Digital | Samir Bestene", page_icon="📱", layout="centered")
 
 # ==========================================
-# INJEÇÃO DE CSS: TEMA AZUL MARINHO PADRÃO
+# INJEÇÃO DE CSS: TEMA ESCURO UNIFICADO (COM MENU LATERAL)
 # ==========================================
 st.markdown("""
 <style>
     .stApp { background-color: #0A1C2E !important; }
-    h1, h2, h3, p, label, div.stMarkdown, .stRadio label span { color: #FFFFFF !important; }
+    
+    /* Força o menu lateral a ficar com o fundo escuro e texto visível */
+    [data-testid="stSidebar"] {
+        background-color: #0A1C2E !important;
+        border-right: 1px solid #152b45;
+    }
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] span {
+        color: #FFFFFF !important;
+    }
+    
+    h1, h2, h3, p, label, div.stMarkdown { color: #FFFFFF !important; }
+    
     .card-item {
         background-color: #152b45;
         padding: 12px 15px;
@@ -40,7 +52,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Função Universal para Ler a Planilha (Via Link Público - Zero Erros)
+# Função Universal para Ler a Planilha (Via Link Público)
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
     spreadsheet_id = "COLOQUE_O_ID_DA_PLANILHA_AQUI"  # Substitua pelo ID longo da sua URL
@@ -48,7 +60,7 @@ def carregar_dados_planilha():
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     return pd.read_csv(url)
 
-# Função para Salvar Cadastro na Planilha (Via API do Google Sheets)
+# Função para Salvar Cadastro na Planilha
 def conectar_google_sheets():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds_dict = json.loads(st.secrets["gcp_json"])
@@ -60,9 +72,9 @@ def conectar_google_sheets():
     return planilha.worksheet("Form_Responses")
 
 # ==========================================
-# MENU DE NAVEGAÇÃO LATERAL (O ÚNICO LINK QUE IMPORTA)
+# MENU DE NAVEGAÇÃO LATERAL
 # ==========================================
-st.sidebar.markdown("## 🧭 Menu de Navegação")
+st.sidebar.markdown("## 🧭 Menu")
 menu = st.sidebar.radio("Escolha a seção:", ["📝 Novo Cadastro", "🚚 Logística de Entregas", "📱 Gestão de Contatos", "📊 Painel Geral"])
 
 st.sidebar.markdown("---")
