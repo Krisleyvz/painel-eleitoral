@@ -3,15 +3,42 @@ import pandas as pd
 import numpy as np
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
-st.set_page_config(page_title="| Inteligência Territorial", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Sala de Guerra | Inteligência Territorial", page_icon="🎯", layout="wide")
+
+# ==========================================
+# INJEÇÃO DE CSS: IDENTIDADE VISUAL DA CAMPANHA
+# ==========================================
+st.markdown("""
+<style>
+    /* Cor de fundo da barra lateral (Azul Escuro elegante) */
+    [data-testid="stSidebar"] {
+        background-color: #0A1C2E !important;
+    }
+    /* Força a cor do texto e dos títulos da barra lateral para branco */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] div.stMarkdown {
+        color: #FFFFFF !important;
+    }
+    /* Garante que o texto dentro das caixinhas de filtro continue escuro e legível */
+    div[data-baseweb="select"] * {
+        color: #262730 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+# ==========================================
 
 # Insere a logo da campanha no topo (Centralizada)
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     try:
-       st.image("IMG_6008.PNG", use_container_width=True)
+        # Puxando a nova logo que você escolheu
+        st.image("IMG_6009.jpg", use_container_width=True)
     except:
-        st.title("🎯 Painel Estratégico de Campanha")
+        st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
 
 # 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
@@ -72,7 +99,7 @@ except Exception as e:
 try:
     st.sidebar.image("IMG_3571.PNG", use_container_width=True)
 except:
-    pass # Caso a imagem ainda não tenha sido enviada pro GitHub, o código não quebra
+    pass 
 
 st.sidebar.header("🎛️ Filtros de Controle Estratégico")
 
@@ -157,9 +184,8 @@ top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head
 st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos)")
 # GRÁFICO CORRIGIDO (Garante a ordem e aplica a cor Azul Marinho)
 try:
-    st.bar_chart(data=top_escolas, x='NM_LOCAL_VOTACAO', y='QT_VOTOS_SAMIR', color="#002147")
+    st.bar_chart(data=top_escolas, x='NM_LOCAL_VOTACAO', y='QT_VOTOS_SAMIR', color="#0A1C2E")
 except:
-    # Caso a versão do Streamlit seja muito antiga e não aceite a cor, ele renderiza o padrão ordenado
     chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
     st.bar_chart(chart_data)
 
