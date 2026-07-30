@@ -8,7 +8,7 @@ st.set_page_config(page_title="Painel Estratégico de Campanha - Sala de Guerra"
 st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
 
-# 2. Carregamento dos Dados com Cache e Geolocalização Inteligente por Município
+# 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados.csv")
@@ -33,18 +33,25 @@ def carregar_dados():
             col_mun = col
             break
 
+    # Se não houver lat/lon na planilha, criamos coordenadas fixas POR ESCOLA (evita sobreposição)
     if 'lat' not in df.columns or 'lon' not in df.columns or df['lat'].isnull().all():
         np.random.seed(42)
-        lats, lons = [], []
+        escolas_unicas = df['NM_LOCAL_VOTACAO'].unique()
+        escola_coords = {}
         
-        for _, row in df.iterrows():
-            mun = str(row[col_mun]).strip().upper() if col_mun else 'RIO BRANCO'
+        for esc in escolas_unicas:
+            sub = df[df['NM_LOCAL_VOTACAO'] == esc]
+            mun = str(sub[col_mun].iloc[0]).strip().upper() if col_mun and not sub.empty else 'RIO BRANCO'
             center_lat, center_lon = centros_acre.get(mun, (-9.9749, -67.8243))
-            lats.append(center_lat + np.random.normal(0, 0.02))
-            lons.append(center_lon + np.random.normal(0, 0.02))
             
-        df['lat'] = lats
-        df['lon'] = lons
+            # Atribui uma coordenada fixa e única para cada escola
+            escola_coords[esc] = (
+                center_lat + np.random.normal(0, 0.03),
+                center_lon + np.random.normal(0, 0.03)
+            )
+            
+        df['lat'] = df['NM_LOCAL_VOTACAO'].map(lambda x: escola_coords[x][0])
+        df['lon'] = df['NM_LOCAL_VOTACAO'].map(lambda x: escola_coords[x][1])
     else:
         df['lat'] = df['lat'].fillna(-9.9749)
         df['lon'] = df['lon'].fillna(-67.8243)
@@ -103,20 +110,19 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 1: MAPA DE CALOR LIMPO (AGRUPADO POR ESCOLA) ========
+# ======== ANÁLISE 1: MAPA DE CALOR LIMPO (1 PONTO POR ESCOLA) ========
 st.subheader(f"📍 Mapa de Calor - Distribuição Geográfica ({label_periodo})")
 
-# Agrupa por escola para exibir apenas uma bolha limpa por local de votação
+# Agrupa estritamente por escola para garantir apenas um ponto limpo no mapa
+group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
 if col_municipio:
-    group_cols = ['NM_LOCAL_VOTACAO', col_municipio, 'lat', 'lon']
-else:
-    group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
+    group_cols.append(col_municipio)
 
 dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR'].sum()
 dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
 
 if not dados_mapa.empty:
-    dados_mapa['tamanho_bolha'] = dados_mapa['QT_VOTOS_SAMIR'] * 15
+    dados_mapa['tamanho_bolha'] = dados_mapa['QT_VOTOS_SAMIR'] * 20
     st.map(dados_mapa, latitude='lat', longitude='lon', size='tamanho_bolha')
 else:
     st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
