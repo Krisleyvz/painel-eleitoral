@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
-st.set_page_config(page_title="Sala de Guerra | Inteligência Territorial", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="| Inteligência Territorial", page_icon="🎯", layout="wide")
 
 # Insere a logo da campanha no topo (Centralizada)
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
@@ -11,7 +11,7 @@ with col_logo2:
     try:
         st.image("IMG_6008.jpg", use_container_width=True)
     except:
-        st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
+        st.title("🎯 Painel Estratégico de Campanha")
 st.markdown("---")
 
 # 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
