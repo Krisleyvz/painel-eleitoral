@@ -40,20 +40,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# 2. Cabeçalho Visual (Lendo os nomes em .PNG exatos)
-col1, col2 = st.columns([1, 1.2], vertical_alignment="center")
-
-with col1:
-    try:
-        st.image("IMG_7402.PNG", use_container_width=True)
-    except:
-        pass
-
-with col2:
+# 2. Cabeçalho Visual (Apenas a Logo Centralizada)
+col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+with col_logo2:
     try:
         st.image("IMG_6009.PNG", use_container_width=True)
     except:
-        st.title("📝 Cadastro")
+        st.title("📝 Cadastro de Rua")
 
 st.markdown("---")
 
