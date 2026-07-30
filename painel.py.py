@@ -33,7 +33,6 @@ def carregar_dados():
             col_mun = col
             break
 
-    # Se não houver lat/lon na planilha, criamos coordenadas fixas POR ESCOLA (evita sobreposição)
     if 'lat' not in df.columns or 'lon' not in df.columns or df['lat'].isnull().all():
         np.random.seed(42)
         escolas_unicas = df['NM_LOCAL_VOTACAO'].unique()
@@ -44,7 +43,6 @@ def carregar_dados():
             mun = str(sub[col_mun].iloc[0]).strip().upper() if col_mun and not sub.empty else 'RIO BRANCO'
             center_lat, center_lon = centros_acre.get(mun, (-9.9749, -67.8243))
             
-            # Atribui uma coordenada fixa e única para cada escola
             escola_coords[esc] = (
                 center_lat + np.random.normal(0, 0.03),
                 center_lon + np.random.normal(0, 0.03)
@@ -110,10 +108,9 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 1: MAPA DE CALOR LIMPO (1 PONTO POR ESCOLA) ========
-st.subheader(f"📍 Mapa de Calor - Distribuição Geográfica ({label_periodo})")
+# ======== ANÁLISE 1: MAPA LIMPO (PONTOS PRECISOS POR ESCOLA) ========
+st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo})")
 
-# Agrupa estritamente por escola para garantir apenas um ponto limpo no mapa
 group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
 if col_municipio:
     group_cols.append(col_municipio)
@@ -122,8 +119,8 @@ dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR
 dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
 
 if not dados_mapa.empty:
-    dados_mapa['tamanho_bolha'] = dados_mapa['QT_VOTOS_SAMIR'] * 20
-    st.map(dados_mapa, latitude='lat', longitude='lon', size='tamanho_bolha')
+    # Removemos o parâmetro 'size' para exibir marcadores limpios e elegantes
+    st.map(dados_mapa, latitude='lat', longitude='lon')
 else:
     st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
 
