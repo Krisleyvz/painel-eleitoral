@@ -8,19 +8,49 @@ st.set_page_config(page_title="Painel Estratégico de Campanha - Sala de Guerra"
 st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
 
-# 2. Carregamento dos Dados com Cache
+# 2. Carregamento dos Dados com Cache e Geolocalização Inteligente por Município
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados.csv")
     
-    # TRUQUE INTELIGENTE: Se a planilha não tiver lat/lon, o Python gera coordenadas 
-    # realistas centradas em Rio Branco para que o mapa funcione instantaneamente.
-    if 'lat' not in df.columns or 'lon' not in df.columns:
-        np.random.seed(42) # Mantém as posições fixas e estáveis
-        df['lat'] = -9.9749 + np.random.normal(0, 0.025, len(df))
-        df['lon'] = -67.8243 + np.random.normal(0, 0.025, len(df))
+    # Dicionário de centros geográficos aproximados para os municípios do Acre
+    centros_acre = {
+        'RIO BRANCO': (-9.9749, -67.8243),
+        'SENA MADUREIRA': (-9.3356, -68.6558),
+        'TARAUACA': (-8.1578, -70.8675),
+        'XAPURI': (-10.6514, -68.5078),
+        'PORTO ACRE': (-9.5847, -67.5342),
+        'SENADOR GUIOMARD': (-10.1503, -67.7408),
+        'PLACIDO DE CASTRO': (-10.2742, -67.1908),
+        'RODRIGUES ALVES': (-7.7428, -72.6506),
+        'SANTA ROSA DO PURUS': (-9.4353, -70.4903),
+        'CRUZEIRO DO SUL': (-7.6311, -72.6756),
+        'FEIJO': (-8.1642, -70.3556)
+    }
+    
+    # Identifica qual coluna é a de município
+    col_mun = None
+    for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
+        if col in df.columns:
+            col_mun = col
+            break
+
+    if 'lat' not in df.columns or 'lon' not in df.columns or df['lat'].isnull().all():
+        np.random.seed(42)
+        lats, lons = [], []
+        
+        for _, row in df.iterrows():
+            mun = str(row[col_mun]).strip().upper() if col_mun else 'RIO BRANCO'
+            # Pega o centro do município ou usa Rio Branco como padrão
+            center_lat, center_lon = centros_acre.get(mun, (-9.9749, -67.8243))
+            
+            # Adiciona uma pequena variação para espalhar as escolas ao redor da cidade
+            lats.append(center_lat + np.random.normal(0, 0.02))
+            lons.append(center_lon + np.random.normal(0, 0.02))
+            
+        df['lat'] = lats
+        df['lon'] = lons
     else:
-        # Se houver linhas em branco, preenche com coordenadas padrão da cidade
         df['lat'] = df['lat'].fillna(-9.9749)
         df['lon'] = df['lon'].fillna(-67.8243)
         
@@ -39,7 +69,7 @@ anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
 opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_disponiveis]
 ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
-# Filtro Dinâmico de Municípios (Se a coluna existir)
+# Filtro Dinâmico de Municípios
 col_municipio = None
 for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
     if col in dados.columns:
@@ -81,7 +111,7 @@ else:
 
 st.markdown("---")
 
-# ======== ANÁLISE 1: MAPA DE CALOR ATIVO ========
+# ======== ANÁLISE 1: MAPA DE CALOR DINÂMICO POR MUNICÍPIO ========
 st.subheader(f"📍 Mapa de Calor - Distribuição Geográfica ({label_periodo})")
 dados_mapa = dados_filtrados.dropna(subset=['lat', 'lon']).copy()
 if not dados_mapa.empty:
