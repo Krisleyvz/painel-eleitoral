@@ -36,7 +36,7 @@ st.markdown("""
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
 with col_l2:
     try:
-        st.image("IMG_6009.PNG", use_container_width=True)
+        st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.title("📱 Gestão de Rua")
 
