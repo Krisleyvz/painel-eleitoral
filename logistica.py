@@ -34,11 +34,16 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para carregar os dados reais da planilha sem alterar nada
+# Função para conectar ao Google Sheets com correção automática da chave
 @st.cache_data(ttl=60)
 def carregar_dados_planilha():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds_dict = dict(st.secrets["gcp_service_account"])
+    
+    # Corrige automaticamente qualquer problema de formatação na chave privada
+    if "\\n" in creds_dict["private_key"]:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
     
