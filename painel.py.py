@@ -3,8 +3,15 @@ import pandas as pd
 import numpy as np
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
-st.set_page_config(page_title="Monitor Estratégico de Campanha", page_icon="🎯", layout="wide")
-st.title("🎯 Painel Estratégico de Campanha")
+st.set_page_config(page_title="Sala de Guerra | Inteligência Territorial", page_icon="🎯", layout="wide")
+
+# Insere a logo da campanha no topo (Centralizada)
+col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+with col_logo2:
+    try:
+        st.image("IMG_6008.jpg", use_container_width=True)
+    except:
+        st.title("🎯 Painel Estratégico de Campanha - Sala de Guerra")
 st.markdown("---")
 
 # 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
@@ -61,7 +68,12 @@ except Exception as e:
     st.error(f"Erro ao carregar o arquivo 'dados.csv'. Detalhe: {e}")
     st.stop()
 
-# 3. Barra Lateral (Filtros Mestres)
+# 3. Barra Lateral (Filtros Mestres e Identidade Visual)
+try:
+    st.sidebar.image("IMG_3571.PNG", use_container_width=True)
+except:
+    pass # Caso a imagem ainda não tenha sido enviada pro GitHub, o código não quebra
+
 st.sidebar.header("🎛️ Filtros de Controle Estratégico")
 
 anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
@@ -118,7 +130,6 @@ dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR
 dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
 
 if not dados_mapa.empty:
-    # Removemos o parâmetro 'size' para exibir marcadores limpios e elegantes
     st.map(dados_mapa, latitude='lat', longitude='lon')
 else:
     st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
@@ -140,11 +151,17 @@ if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
 else:
     top_escolas['MARKET_SHARE'] = 0.0
 
+# ORDENAÇÃO FORÇADA PARA O GRÁFICO (Do maior para o menor)
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
 st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos)")
-chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
-st.bar_chart(chart_data)
+# GRÁFICO CORRIGIDO (Garante a ordem e aplica a cor Azul Marinho)
+try:
+    st.bar_chart(data=top_escolas, x='NM_LOCAL_VOTACAO', y='QT_VOTOS_SAMIR', color="#002147")
+except:
+    # Caso a versão do Streamlit seja muito antiga e não aceite a cor, ele renderiza o padrão ordenado
+    chart_data = top_escolas.set_index('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR']
+    st.bar_chart(chart_data)
 
 if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
     top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Market Share (%)']
