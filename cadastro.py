@@ -1,5 +1,4 @@
 import streamlit as st
-from datetime import datetime
 
 # 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Cadastro", page_icon="📱", layout="centered")
@@ -21,7 +20,7 @@ st.markdown("""
 # ==========================================
 
 st.title("📝 Novo Cadastro")
-st.markdown("Preencha os dados abaixo para registrar uma nova liderança ou pedido de material.")
+st.markdown("Preencha os dados abaixo para registar uma nova liderança ou pedido de material.")
 
 # 2. Criação do Formulário de Coleta
 with st.form(key="form_cadastro", clear_on_submit=True):
@@ -39,17 +38,13 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     
     bairro = st.text_input("Bairro")
     
-    # --- LÓGICA INTELIGENTE DA REGIONAL (OPÇÃO B) ---
+    # --- CORREÇÃO: LÓGICA DA REGIONAL ---
     opcoes_regionais = ["Selecione", "Calafate", "São Francisco", "Baixada", "Estação Experimental", "Floresta", "Tancredo Neves", "Outra"]
     regional_selecionada = st.selectbox("Regional*", opcoes_regionais)
     
-    if regional_selecionada == "Outra":
-        # Se escolher "Outra", essa caixinha aparece magicamente
-        regional_final = st.text_input("Qual é a regional?*")
-    else:
-        # Se não, usa a que ele selecionou na lista
-        regional_final = regional_selecionada
-    # ------------------------------------------------
+    # A caixa fica sempre visível, mas com uma instrução de preenchimento condicional
+    regional_outra = st.text_input("Se escolheu 'Outra' acima, digite aqui o nome da regional:")
+    # ------------------------------------
     
     st.subheader("📦 Pedido de Material")
     adesivo = st.checkbox("Adesivo para Residência")
@@ -63,13 +58,19 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     
     # 3. Lógica ao Clicar no Botão Salvar
     if submit:
-        # Travas de segurança
+        # Define a regional final com base no preenchimento
+        if regional_selecionada == "Outra":
+            regional_final = regional_outra
+        else:
+            regional_final = regional_selecionada
+
+        # Travas de segurança e validação
         if nome.strip() == "" or telefone.strip() == "":
             st.error("⚠️ Os campos Nome e WhatsApp são obrigatórios!")
         elif regional_selecionada == "Selecione":
             st.error("⚠️ Por favor, selecione uma Regional.")
-        elif regional_selecionada == "Outra" and regional_final.strip() == "":
-            st.error("⚠️ Você marcou 'Outra'. Por favor, digite o nome da regional.")
+        elif regional_selecionada == "Outra" and regional_outra.strip() == "":
+            st.error("⚠️ Selecionou 'Outra'. Por favor, digite o nome da regional na caixa abaixo.")
         else:
-            st.success(f"🎉 Cadastro de {nome} realizado com sucesso na regional {regional_final}!")
+            st.success(f"🎉 Registo de {nome} realizado com sucesso na regional {regional_final}!")
             st.info("Status do pedido: Pendente de Entrega 🚚")
