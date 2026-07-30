@@ -20,7 +20,7 @@ st.markdown("""
     
     /* Estilo do botão de Salvar gigante e chamativo */
     div[data-testid="stFormSubmitButton"] button {
-        background-color: #1A73E8 !important; /* Azul mais claro para dar destaque no fundo escuro */
+        background-color: #1A73E8 !important;
         color: white !important;
         height: 55px !important;
         font-size: 20px !important;
@@ -29,7 +29,7 @@ st.markdown("""
         border-radius: 8px !important;
     }
     
-    /* Suaviza as caixinhas de preenchimento para não ficarem brancas demais no olho */
+    /* Suaviza as caixinhas de preenchimento */
     input, select, textarea {
         background-color: #152b45 !important;
         color: white !important;
@@ -40,19 +40,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# 2. Cabeçalho Visual (Foto + Logo)
-# Cria duas colunas para o celular: Foto na esquerda, Logo na direita
+# 2. Cabeçalho Visual (Lendo os nomes em .PNG exatos)
 col1, col2 = st.columns([1, 1.2], vertical_alignment="center")
 
 with col1:
     try:
-        st.image("IMG_7402.jpg", use_container_width=True)
+        st.image("IMG_7402.PNG", use_container_width=True)
     except:
         pass
 
 with col2:
     try:
-        st.image("IMG_6009.jpg", use_container_width=True)
+        st.image("IMG_6009.PNG", use_container_width=True)
     except:
         st.title("📝 Cadastro")
 
@@ -74,7 +73,6 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     
     bairro = st.text_input("Bairro")
     
-    # --- LÓGICA DA REGIONAL ---
     opcoes_regionais = ["Selecione", "Calafate", "São Francisco", "Baixada", "Estação Experimental", "Floresta", "Tancredo Neves", "Outra"]
     regional_selecionada = st.selectbox("Regional*", opcoes_regionais)
     
@@ -97,7 +95,6 @@ with st.form(key="form_cadastro", clear_on_submit=True):
         else:
             regional_final = regional_selecionada
 
-        # Travas de segurança e validação
         if nome.strip() == "" or telefone.strip() == "":
             st.error("⚠️ Os campos Nome e WhatsApp são obrigatórios!")
         elif regional_selecionada == "Selecione":
