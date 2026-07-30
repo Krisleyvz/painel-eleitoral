@@ -52,7 +52,7 @@ def conectar_google_sheets():
 col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
 with col_logo2:
     try:
-        st.image("IMG_6009.PNG", use_container_width=True)
+        st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.title("📝 Cadastro de Rua")
 
