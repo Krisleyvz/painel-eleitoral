@@ -9,7 +9,7 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="Comitê Digital | Samir Bestene", page_icon="📱", layout="centered")
 
 # ==========================================
-# INJEÇÃO DE CSS: TEMA ESCURO UNIFICADO (COM MENU LATERAL)
+# INJEÇÃO DE CSS: TEMA ESCURO UNIFICADO E LIMPO
 # ==========================================
 st.markdown("""
 <style>
@@ -34,6 +34,13 @@ st.markdown("""
         border-left: 4px solid #1A73E8;
         margin-bottom: 12px;
     }
+    .aniversario-card {
+        background-color: #1a3a5f;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 5px solid #25D366;
+        margin-bottom: 15px;
+    }
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1A73E8 !important;
         color: white !important;
@@ -55,7 +62,7 @@ st.markdown("""
 # Função Universal para Ler a Planilha (Via Link Público)
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
-    spreadsheet_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"  # Substitua pelo ID longo da sua URL
+    spreadsheet_id = "COLOQUE_O_ID_DA_PLANILHA_AQUI"  # Substitua pelo ID longo da sua URL
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     return pd.read_csv(url)
@@ -72,10 +79,10 @@ def conectar_google_sheets():
     return planilha.worksheet("Form_Responses")
 
 # ==========================================
-# MENU DE NAVEGAÇÃO LATERAL
+# MENU DE NAVEGAÇÃO LATERAL (Apenas 3 seções essenciais)
 # ==========================================
 st.sidebar.markdown("## 🧭 Menu")
-menu = st.sidebar.radio("Escolha a seção:", ["📝 Novo Cadastro", "🚚 Logística de Entregas", "📱 Gestão de Contatos", "📊 Painel Geral"])
+menu = st.sidebar.radio("Escolha a seção:", ["📝 Novo Cadastro", "🚚 Logística de Entregas", "📱 Gestão de Contatos"])
 
 st.sidebar.markdown("---")
 st.sidebar.info("💡 Samir Bestene | Comitê 2026")
@@ -87,7 +94,7 @@ if menu == "📝 Novo Cadastro":
     col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
     with col_l2:
         try:
-            st.image("IMG_6008.PNG", use_container_width=True)
+            st.image("IMG_6009.PNG", use_container_width=True)
         except:
             st.title("📝 Cadastro")
     
@@ -190,41 +197,74 @@ elif menu == "🚚 Logística de Entregas":
         st.info("Nenhum registro encontrado.")
 
 # ==========================================
-# SEÇÃO 3: GESTÃO DE CONTATOS
+# SEÇÃO 3: GESTÃO DE CONTATOS (ANIVERSARIANTES EM DESTAQUE)
 # ==========================================
 elif menu == "📱 Gestão de Contatos":
     st.title("📱 Gestão de Contatos")
-    st.markdown("Lista completa de apoiadores e aniversariantes.")
+    st.markdown("Lista completa de apoiadores.")
     st.markdown("---")
     
     df = carregar_dados_planilha()
-    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["🎂 Aniversariantes", "🔍 Pesquisar", "📍 Por Bairro"])
+    
+    # Abas organizadas priorizando os aniversariantes do dia
+    sub_tab1, sub_tab2, sub_tab3 = st.tabs(["🎂 Aniversariantes do Dia", "🔍 Pesquisar Nome", "📍 Por Bairro"])
     
     with sub_tab1:
+        st.subheader("🎉 Aniversariantes de Hoje")
+        
         if not df.empty and 'Data de Nascimento' in df.columns:
-            df_aniver = df.dropna(subset=['Data de Nascimento']).copy()
-            for idx, row in df_aniver.iterrows():
-                nome = str(row.get('Nome Completo', ''))
-                telefone = str(row.get('Telefone', ''))
-                bairro = str(row.get('Bairro', ''))
-                nascimento = str(row.get('Data de Nascimento', ''))
-                tel_num = ''.join(filter(str.isdigit, telefone))
-                
-                st.markdown(f"""
-                <div class="card-item">
-                    <b>🎂 {nome}</b> <span style="float: right; color: #4da6ff;">{nascimento}</span><br>
-                    📍 Bairro: {bairro} | 📞 {telefone}
-                </div>
-                """, unsafe_allow_html=True)
-                
-                bc1, bc2 = st.columns(2)
-                with bc1:
-                    st.markdown(f"<a href='https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold;'>💬 Parabéns</a>", unsafe_allow_html=True)
-                with bc2:
-                    st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
-                st.markdown("")
+            hoje_dia_mes = datetime.now().strftime("%d/%m")
+            
+            # Filtra registros cuja data de nascimento comece com o dia e mês atuais (ex: "07/06")
+            df['nasc_limpo'] = df['Data de Nascimento'].astype(str).str.strip()
+            aniversariantes_hoje = df[df['nasc_limpo'].str.startswith(hoje_dia_mes, na=False)]
+            
+            if aniversariantes_hoje.empty:
+                st.info(f"Nenhum aniversariante encontrado para hoje ({hoje_dia_mes}).")
+                st.markdown("---")
+                st.markdown("### 📋 Todos os Aniversariantes Cadastrados:")
+                df_aniver_todos = df.dropna(subset=['Data de Nascimento']).copy()
+                for idx, row in df_aniver_todos.iterrows():
+                    nome = str(row.get('Nome Completo', ''))
+                    telefone = str(row.get('Telefone', ''))
+                    bairro = str(row.get('Bairro', ''))
+                    nascimento = str(row.get('Data de Nascimento', ''))
+                    tel_num = ''.join(filter(str.isdigit, telefone))
+                    
+                    st.markdown(f"""
+                    <div class="card-item">
+                        <b>🎂 {nome}</b> <span style="float: right; color: #4da6ff;">{nascimento}</span><br>
+                        📍 Bairro: {bairro} | 📞 {telefone}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    bc1, bc2 = st.columns(2)
+                    with bc1:
+                        st.markdown(f"<a href='https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold;'>💬 Parabéns Wpp</a>", unsafe_allow_html=True)
+                    with bc2:
+                        st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                    st.markdown("")
+            else:
+                st.success(f"Encontrado(s) {len(aniversariantes_hoje)} aniversariante(s) hoje!")
+                for idx, row in aniversariantes_hoje.iterrows():
+                    nome = str(row.get('Nome Completo', ''))
+                    telefone = str(row.get('Telefone', ''))
+                    bairro = str(row.get('Bairro', ''))
+                    nascimento = str(row.get('Data de Nascimento', ''))
+                    tel_num = ''.join(filter(str.isdigit, telefone))
+                    
+                    st.markdown(f"""
+                    <div class="aniversario-card">
+                        <b>🎉 {nome}</b> <span style="float: right; color: #25D366; font-weight: bold;">{nascimento}</span><br>
+                        📍 <b>Bairro:</b> {bairro} | 📞 {telefone}
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Botão de WhatsApp em destaque máximo
+                    link_wpp_aniver = f"https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!%20Desejamos%20muitas%20felicidades%20e%20sucesso!"
+                    st.markdown(f"<a href='{link_wpp_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 12px; border-radius: 6px; text-decoration: none; font-size: 16px; font-weight: bold; margin-bottom: 10px;'>💬 ENVIAR PARABÉNS NO WHATSAPP</a>", unsafe_allow_html=True)
+                    st.markdown("")
         else:
-            st.info("Nenhum aniversariante cadastrado.")
+            st.info("Coluna de data de nascimento não localizada.")
             
     with sub_tab2:
         busca = st.text_input("Digite o nome do apoiador:", placeholder="Pesquisar...")
@@ -264,24 +304,3 @@ elif menu == "📱 Gestão de Contatos":
                     <b>👤 {nome}</b><br>📞 {telefone}
                 </div>
                 """, unsafe_allow_html=True)
-
-# ==========================================
-# SEÇÃO 4: PAINEL GERAL
-# ==========================================
-elif menu == "📊 Painel Geral":
-    st.title("📊 Painel Geral da Campanha")
-    st.markdown("Indicadores consolidados da base de apoiadores.")
-    st.markdown("---")
-    
-    df = carregar_dados_planilha()
-    if not df.empty:
-        total = len(df)
-        st.metric(label="Total de Cadastros", value=total)
-        st.markdown("---")
-        st.subheader("📍 Apoiadores por Bairro")
-        if 'Bairro' in df.columns:
-            contagem_bairros = df['Bairro'].value_counts().reset_index()
-            contagem_bairros.columns = ['Bairro', 'Total']
-            st.dataframe(contagem_bairros, use_container_width=True)
-    else:
-        st.info("Aguardando dados na planilha.")
