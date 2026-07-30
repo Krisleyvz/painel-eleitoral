@@ -30,8 +30,12 @@ st.markdown("""
 def carregar_dados_planilha():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     
-    # Lê a string JSON única e converte direto para dicionário (sem erros de padding)
+    # Carrega o JSON dos segredos
     creds_dict = json.loads(st.secrets["gcp_json"])
+    
+    # CORREÇÃO CRUCIAL: Substitui o '\n' literal por quebras de linha reais para sumir com o erro 92
+    if "private_key" in creds_dict:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
     
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
