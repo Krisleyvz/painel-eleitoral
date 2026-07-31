@@ -240,7 +240,6 @@ st.markdown("---")
 
 # ======== ANÁLISE 4: DIRECIONADOR DE AGENDA (RETORNO SOBRE ESFORÇO) ========
 st.subheader("🎯 Direcionador de Agenda (Otimização de Esforço Físico)")
-st.markdown("Classifica os locais de votação cruzando seus votos atuais com o volume de votos válidos da escola, revelando onde há maior margem para conversão.")
 
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     # Agrupa votos gerais e do candidato por escola
@@ -252,12 +251,12 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     # Calcula os votos que foram para outros candidatos (Oportunidade)
     agenda_df['VOTOS_EM_DISPUTA'] = agenda_df['QT_VOTOS_VALIDOS_SECAO'] - agenda_df['QT_VOTOS_SAMIR']
     
-    # Define a estratégia matemática
+    # Define a estratégia matemática (nomes encurtados para caber na legenda)
     limite_reduto = agenda_df['QT_VOTOS_SAMIR'].quantile(0.75)
     agenda_df['ESTRATEGIA'] = np.where(
         agenda_df['QT_VOTOS_SAMIR'] > limite_reduto, 
-        '🛡️ Defesa de Reduto (Fidelizar)', 
-        '⚔️ Mar Aberto (Conquistar Novos)'
+        '🛡️ Reduto (Fidelizar)', 
+        '⚔️ Expansão (Conquistar)'
     )
     
     # Ordena pelos locais com mais votos disponíveis
@@ -276,14 +275,25 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
             st.success(f"**🧠 Insight de Otimização de Sola de Sapato:**\n\nMatematicamente, 4 horas de corpo a corpo nos arredores da escola **{top_1['NM_LOCAL_VOTACAO'].title()}** tem o potencial de converter **{multiplicador:.1f} vezes mais votos** do que investir o mesmo tempo nos arredores da escola **{local_mediano['NM_LOCAL_VOTACAO'].title()}**.")
     # ---------------------------------------------------------------
     
-    # Gráfico de Dispersão (Scatter Plot) para visualizar a matriz de esforço
+    # --- EXPLICAÇÃO VISUAL NA TELA PARA A EQUIPE ---
+    with st.expander("💡 Como ler este gráfico?", expanded=True):
+        st.markdown("""
+        * **Eixo Horizontal (Deitado - Seus Votos):** Quanto mais para a **direita**, mais forte você já é naquela escola.
+        * **Eixo Vertical (Em pé - Votos em Disputa):** Quanto mais para **cima**, mais votos foram dados a *outros candidatos* (é o "ouro" a ser garimpado).
+        * 🎯 **A Melhor Estratégia:** As bolinhas que estão mais altas no gráfico são os seus melhores alvos para caminhadas e corpo a corpo. Lá existem muitos eleitores e a maioria votou em adversários no passado.
+        """)
+    
+    # Gráfico de Dispersão (Scatter Plot) com legenda ajustada para o TOPO
     scatter = alt.Chart(agenda_df).mark_circle(size=200).encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais'),
         y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Votos Disponíveis (Em Disputa)'),
-        color=alt.Color('ESTRATEGIA:N', title='Ação Recomendada', scale=alt.Scale(
-            domain=['🛡️ Defesa de Reduto (Fidelizar)', '⚔️ Mar Aberto (Conquistar Novos)'], 
-            range=['#25D366', '#E83E8C']
-        )),
+        color=alt.Color('ESTRATEGIA:N', 
+                        title='Recomendação', 
+                        legend=alt.Legend(orient='top', labelLimit=0), # Move a legenda para cima para não cortar
+                        scale=alt.Scale(
+                            domain=['🛡️ Reduto (Fidelizar)', '⚔️ Expansão (Conquistar)'], 
+                            range=['#25D366', '#E83E8C']
+                        )),
         tooltip=[
             alt.Tooltip('NM_LOCAL_VOTACAO', title='Local'),
             alt.Tooltip('VOTOS_EM_DISPUTA', title='Potencial de Crescimento'),
