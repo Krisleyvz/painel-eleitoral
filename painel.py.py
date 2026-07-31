@@ -36,7 +36,7 @@ st.markdown("""
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
-        st.image("IMG_6008.PNG", use_container_width=True)
+        st.image("IMG_6009.PNG", use_container_width=True)
     except:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
@@ -138,7 +138,7 @@ else:
     dados_filtrados = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].copy()
     label_periodo = f"Ano de {ano_selecionado}"
 
-# 4. Cartões de Métricas Executivas (Sem a regra de Pareto aqui)
+# 4. Cartões de Métricas Executivas
 total_votos = dados_filtrados['QT_VOTOS_SAMIR'].sum()
 total_escolas = dados_filtrados['NM_LOCAL_VOTACAO'].nunique()
 
@@ -195,7 +195,7 @@ grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
 ).properties(
     height=max(400, limite_ranking * 20) 
 )
-
+# Sem .interactive() para facilitar o toque no celular
 st.altair_chart(grafico_barras, use_container_width=True)
 
 if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
@@ -264,7 +264,6 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         * 🎯 **A Melhor Estratégia:** As bolinhas que estão mais altas no gráfico são os seus melhores alvos para caminhadas e corpo a corpo. Lá existem muitos eleitores e a maioria votou em adversários no passado.
         """)
     
-    # Legenda 100% Responsiva em HTML (Não quebra no celular)
     st.markdown("""
         <div style='display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 10px; font-weight: bold;'>
             <div><span style='color: #25D366; font-size: 1.2em;'>●</span> 🛡️ Reduto (Fidelizar)</div>
@@ -272,11 +271,12 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         </div>
     """, unsafe_allow_html=True)
     
-    scatter = alt.Chart(agenda_df).mark_circle(size=200).encode(
+    # Aumentado o size para 350 para facilitar o toque no celular e removido o interactive
+    scatter = alt.Chart(agenda_df).mark_circle(size=350).encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais'),
         y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Votos Disponíveis (Em Disputa)'),
         color=alt.Color('ESTRATEGIA:N', 
-                        legend=None, # Desativa legenda nativa para evitar cortes
+                        legend=None,
                         scale=alt.Scale(
                             domain=['🛡️ Reduto (Fidelizar)', '⚔️ Expansão (Conquistar)'], 
                             range=['#25D366', '#E83E8C']
@@ -289,7 +289,7 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         ]
     ).properties(
         height=450
-    ).interactive()
+    )
     
     st.altair_chart(scatter, use_container_width=True)
     
@@ -313,14 +313,11 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         'QT_VOTOS_SAMIR': 'sum'
     }).reset_index()
     
-    # Filtra apenas o Top Limite Ranking para não poluir
     matriz_df = matriz_df.sort_values(by='QT_VOTOS_VALIDOS_SECAO', ascending=False).head(limite_ranking)
     
-    # Calcula a média de tamanho da escola e a média de votos do Samir nesse grupo
     media_tamanho = matriz_df['QT_VOTOS_VALIDOS_SECAO'].mean()
     media_votos = matriz_df['QT_VOTOS_SAMIR'].mean()
     
-    # Função para classificar nos 4 quadrantes
     def classificar_quadrante(row):
         escola_grande = row['QT_VOTOS_VALIDOS_SECAO'] >= media_tamanho
         samir_forte = row['QT_VOTOS_SAMIR'] >= media_votos
@@ -345,7 +342,6 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
             st.markdown("**💎 Nicho Leal:** Escolas pequenas onde você tem o domínio. Não gaste muita energia, apenas mantenha o contato via WhatsApp.")
             st.markdown("**❌ Zona de Descarte:** Escolas pequenas onde você é muito fraco. O custo de campanha aqui não compensa. Evite investir tempo.")
 
-    # Legenda 100% Responsiva em HTML (Não quebra no celular)
     st.markdown("""
         <div style='display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 10px; font-weight: bold;'>
             <div><span style='color: #1A73E8; font-size: 1.2em;'>●</span> 🏆 Fortaleza</div>
@@ -355,11 +351,12 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         </div>
     """, unsafe_allow_html=True)
 
-    scatter_matriz = alt.Chart(matriz_df).mark_circle(size=250).encode(
+    # Aumentado o size para 400 e removido interactive
+    scatter_matriz = alt.Chart(matriz_df).mark_circle(size=400).encode(
         x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Tamanho da Escola (Votos Válidos)'),
         y=alt.Y('QT_VOTOS_SAMIR:Q', title='Seus Votos (Sua Força)'),
         color=alt.Color('CLASSIFICACAO:N', 
-                        legend=None, # Desativa legenda nativa
+                        legend=None,
                         scale=alt.Scale(
                             domain=["🏆 FORTALEZA (Defender)", "🚀 OCEANO AZUL (Atacar)", "💎 NICHO LEAL (Manter)", "❌ ZONA DE DESCARTE (Ignorar)"],
                             range=['#1A73E8', '#25D366', '#FFC107', '#E83E8C']
@@ -372,9 +369,8 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         ]
     ).properties(
         height=500
-    ).interactive()
+    )
     
-    # Adicionando as linhas cruzadas (Média) para desenhar os quadrantes visualmente
     regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
     regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
     
@@ -387,19 +383,15 @@ st.subheader("🎯 A Curva de Foco (Regra de Pareto 80/20)")
 st.markdown("Mostra visualmente o acúmulo de votos. Descubra exatamente quantas escolas são responsáveis por garantir a maior parte do seu mandato.")
 
 if not dados_filtrados.empty:
-    # Prepara os dados, ordenando das escolas mais fortes para as mais fracas
     pareto_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index()
     pareto_df = pareto_df.sort_values(by='QT_VOTOS_SAMIR', ascending=False)
     
-    # Calcula o acumulado de votos
     pareto_df['Votos Acumulados'] = pareto_df['QT_VOTOS_SAMIR'].cumsum()
     total_votos_pareto = pareto_df['QT_VOTOS_SAMIR'].sum()
     pareto_df['% Acumulado'] = (pareto_df['Votos Acumulados'] / total_votos_pareto) * 100
     
-    # Cria uma coluna de "Ordem" para o eixo horizontal ficar contínuo e ordenado
     pareto_df['Posição no Ranking'] = range(1, len(pareto_df) + 1)
     
-    # Tenta encontrar o ponto exato onde batemos ou passamos de 80% dos votos
     try:
         corte_80 = pareto_df[pareto_df['% Acumulado'] >= 80].iloc[0]
         qtd_escolas_80 = int(corte_80['Posição no Ranking'])
@@ -409,8 +401,8 @@ if not dados_filtrados.empty:
     except:
         pass
     
-    # Gráfico da Curva (Linha + Área Prenchida)
-    curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4).encode(
+    # Adicionado o 'point' para que a linha tenha bolinhas clicáveis no celular
+    curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4, point=alt.OverlayMarkDef(color='#E83E8C', size=150)).encode(
         x=alt.X('Posição no Ranking:Q', title='Quantidade de Escolas (Da maior para a menor)'),
         y=alt.Y('% Acumulado:Q', title='Porcentagem Acumulada de Votos (%)', scale=alt.Scale(domain=[0, 100])),
         tooltip=[
@@ -423,7 +415,6 @@ if not dados_filtrados.empty:
     
     area = curva.mark_area(color='#E83E8C', opacity=0.2)
     
-    # Linha horizontal marcando a zona dos 80%
     linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
     
     st.altair_chart(area + curva + linha_80, use_container_width=True)
