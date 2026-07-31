@@ -36,7 +36,7 @@ st.markdown("""
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
-        st.image("IMG_6009.PNG", use_container_width=True)
+        st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
