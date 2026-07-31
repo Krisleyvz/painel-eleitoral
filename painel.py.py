@@ -373,3 +373,53 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
     
     st.altair_chart(scatter_matriz + regra_x + regra_y, use_container_width=True)
+
+st.markdown("---")
+
+# ======== ANÁLISE 6: CURVA DE PARETO (FOCO 80/20) ========
+st.subheader("🎯 A Curva de Foco (Regra de Pareto 80/20)")
+st.markdown("Mostra visualmente o acúmulo de votos. Descubra exatamente quantas escolas são responsáveis por garantir a maior parte do seu mandato.")
+
+if not dados_filtrados.empty:
+    # Prepara os dados, ordenando das escolas mais fortes para as mais fracas
+    pareto_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index()
+    pareto_df = pareto_df.sort_values(by='QT_VOTOS_SAMIR', ascending=False)
+    
+    # Calcula o acumulado de votos
+    pareto_df['Votos Acumulados'] = pareto_df['QT_VOTOS_SAMIR'].cumsum()
+    total_votos_pareto = pareto_df['QT_VOTOS_SAMIR'].sum()
+    pareto_df['% Acumulado'] = (pareto_df['Votos Acumulados'] / total_votos_pareto) * 100
+    
+    # Cria uma coluna de "Ordem" para o eixo horizontal ficar contínuo e ordenado
+    pareto_df['Posição no Ranking'] = range(1, len(pareto_df) + 1)
+    
+    # Tenta encontrar o ponto exato onde batemos ou passamos de 80% dos votos
+    try:
+        corte_80 = pareto_df[pareto_df['% Acumulado'] >= 80].iloc[0]
+        qtd_escolas_80 = int(corte_80['Posição no Ranking'])
+        total_escolas_pareto = len(pareto_df)
+        
+        st.success(f"**🧠 Insight de Foco (Curva de Pareto):**\n\nApenas **{qtd_escolas_80} escolas** (de um total de {total_escolas_pareto} mapeadas) são responsáveis por garantir **80% de todos os seus votos**.\n\nSeu tempo de agenda, energia da equipe e recursos de campanha devem ser direcionados com força máxima prioritariamente para este seleto grupo. O restante da lista representa muito esforço físico para pouco retorno de urna.")
+    except:
+        pass
+    
+    # Gráfico da Curva (Linha + Área Prenchida)
+    curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4).encode(
+        x=alt.X('Posição no Ranking:Q', title='Quantidade de Escolas (Da maior para a menor)'),
+        y=alt.Y('% Acumulado:Q', title='Porcentagem Acumulada de Votos (%)', scale=alt.Scale(domain=[0, 100])),
+        tooltip=[
+            alt.Tooltip('Posição no Ranking:Q', title='Posição no Ranking'),
+            alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
+            alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos nesta Escola'),
+            alt.Tooltip('% Acumulado:Q', title='% Acumulado Total', format='.1f')
+        ]
+    ).properties(height=400)
+    
+    area = curva.mark_area(color='#E83E8C', opacity=0.2)
+    
+    # Linha horizontal marcando a zona dos 80%
+    linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
+    
+    st.altair_chart(area + curva + linha_80, use_container_width=True)
+else:
+    st.info("Não há dados suficientes para gerar a Curva de Pareto.")
