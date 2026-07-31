@@ -129,7 +129,13 @@ if col_municipio:
     else:
         texto_local = "nos Municípios Selecionados"
 
-limite_ranking = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5)
+st.sidebar.markdown("---")
+# NOVO CONTROLE: Botão para exibir todas as escolas ignorando o limite
+mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODAS as escolas", value=False, help="Desativa o limite e renderiza 100% da base nos gráficos e tabelas.")
+limite_slider = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5, disabled=mostrar_todas)
+
+# Se o botão estiver marcado, o limite vira um número gigante, pegando todas as escolas
+limite_ranking = 999999 if mostrar_todas else limite_slider
 
 if ano_selecionado == 'Todos os Anos (Série Histórica)':
     dados_filtrados = dados.copy()
@@ -166,7 +172,8 @@ else:
 st.markdown("---")
 
 # ======== ANÁLISE 2: RAIO-X COM GRÁFICO HORIZONTAL ========
-st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual (Top {limite_ranking} - {label_periodo})")
+texto_top = "Todas as Escolas" if mostrar_todas else f"Top {limite_ranking}"
+st.subheader(f"📊 Raio-X, Dominância e Desempenho Visual ({texto_top} - {label_periodo})")
 
 agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
@@ -182,7 +189,10 @@ else:
 
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 
-st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos {texto_local})")
+st.markdown(f"#### 📉 Gráfico de Desempenho ({texto_top} {texto_local})")
+
+# Ajuste automático da altura do gráfico baseado na quantidade de escolas exibidas
+altura_grafico = max(400, len(top_escolas) * 20)
 
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
     x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
@@ -193,7 +203,7 @@ grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
         alt.Tooltip('MARKET_SHARE:Q', title='Market Share (%)', format='.1f')
     ]
 ).properties(
-    height=max(400, limite_ranking * 20) 
+    height=altura_grafico 
 )
 st.altair_chart(grafico_barras, use_container_width=True)
 
@@ -287,6 +297,14 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     ).properties(height=450)
     
     st.altair_chart(scatter, use_container_width=True)
+    
+    st.markdown(f"#### 📋 Tabela de Potencial de Crescimento ({texto_top})")
+    tabela_agenda = agenda_df[['NM_LOCAL_VOTACAO', 'ESTRATEGIA', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR', 'QT_VOTOS_VALIDOS_SECAO']]
+    tabela_agenda.columns = ['Local de Votação', 'Ação Recomendada', 'Potencial de Crescimento', 'Seus Votos Atuais', 'Total de Votos Válidos']
+    st.dataframe(tabela_agenda, use_container_width=True)
+
+else:
+    st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente ou formatada corretamente nos dados filtrados.")
 
 st.markdown("---")
 
@@ -381,6 +399,7 @@ if not dados_filtrados.empty:
     except:
         pass
     
+    # O gráfico de Pareto NÃO recebe o filtro de "limite_ranking" pois ele precisa da curva inteira para fazer sentido matemático
     curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4, point=alt.OverlayMarkDef(color='#E83E8C', size=150)).encode(
         x=alt.X('Posição no Ranking:Q', title='Quantidade de Escolas (Da maior para a menor)'),
         y=alt.Y('% Acumulado:Q', title='Porcentagem Acumulada de Votos (%)', scale=alt.Scale(domain=[0, 100])),
@@ -394,6 +413,8 @@ if not dados_filtrados.empty:
     linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
     
     st.altair_chart(area + curva + linha_80, use_container_width=True)
+else:
+    st.info("Não há dados suficientes para gerar a Curva de Pareto.")
 
 st.markdown("---")
 
@@ -401,11 +422,9 @@ st.markdown("---")
 st.subheader("🏁 Simulador de Metas de Vitória (Distribuidor de Cotas)")
 st.markdown("Insira a sua meta global. O sistema distribuirá a 'cota' proporcionalmente para cada escola com base no peso eleitoral (Votos Válidos Totais) e calculará quantos votos faltam ser conquistados nas urnas.")
 
-# Campo interativo para digitar a meta (inicia em 11.000 como você pediu)
 meta_global = st.number_input("Digite a Meta Global de Votos:", min_value=1, value=11000, step=500)
 
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-    # Agrupa votos gerais e do candidato por escola
     metas_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
         'QT_VOTOS_VALIDOS_SECAO': 'sum',
         'QT_VOTOS_SAMIR': 'sum'
@@ -414,27 +433,20 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
     total_validos_estado = metas_df['QT_VOTOS_VALIDOS_SECAO'].sum()
     
     if total_validos_estado > 0:
-        # 1. Qual o peso daquela escola na eleição inteira?
         metas_df['Peso_Calc'] = metas_df['QT_VOTOS_VALIDOS_SECAO'] / total_validos_estado
-        
-        # 2. Qual a cota (Meta Proporcional) da escola?
         metas_df['Meta Justa da Escola'] = (meta_global * metas_df['Peso_Calc']).astype(int)
         
-        # 3. Qual o esforço (Votos que faltam)
         metas_df['Votos a Conquistar (Esforço)'] = metas_df['Meta Justa da Escola'] - metas_df['QT_VOTOS_SAMIR']
-        # Se o resultado for negativo (já bateu a meta historicamente), zera para focar apenas no que falta
         metas_df['Votos a Conquistar (Esforço)'] = metas_df['Votos a Conquistar (Esforço)'].apply(lambda x: max(0, x))
         
-        # Formata o Peso para exibição limpa (ex: 2.5%)
         metas_df['Peso da Escola'] = (metas_df['Peso_Calc'] * 100).round(2).astype(str) + '%'
         
-        # Organiza pela ordem de onde precisamos focar para bater a meta (maior esforço primeiro)
         metas_df = metas_df.sort_values(by='Votos a Conquistar (Esforço)', ascending=False).head(limite_ranking)
         
-        # Limpa as colunas para a tabela final do usuário
         tabela_final_metas = metas_df[['NM_LOCAL_VOTACAO', 'Peso da Escola', 'Meta Justa da Escola', 'QT_VOTOS_SAMIR', 'Votos a Conquistar (Esforço)']]
         tabela_final_metas.columns = ['Local de Votação', 'Peso na Eleição', 'Cota (Meta) da Escola', 'Votos Históricos (Base)', '🔥 Votos a Conquistar']
         
+        st.markdown(f"#### 📋 Distribuição de Metas ({texto_top})")
         st.dataframe(tabela_final_metas, use_container_width=True)
 else:
     st.info("A coluna de Votos Válidos não está disponível para calcular a proporção da meta.")
