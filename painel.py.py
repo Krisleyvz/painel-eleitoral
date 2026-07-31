@@ -235,3 +235,71 @@ if len(anos_disponiveis) > 1:
     st.dataframe(tabela_comparativa, use_container_width=True)
 else:
     st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado. Assim que houver múltiplos anos, a matriz e os comparativos temporais serão ativados.")
+
+st.markdown("---")
+
+# ======== ANÁLISE 4: DIRECIONADOR DE AGENDA (RETORNO SOBRE ESFORÇO) ========
+st.subheader("🎯 Direcionador de Agenda (Otimização de Esforço Físico)")
+st.markdown("Classifica os locais de votação cruzando seus votos atuais com o volume de votos válidos da escola, revelando onde há maior margem para conversão.")
+
+if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+    # Agrupa votos gerais e do candidato por escola
+    agenda_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
+        'QT_VOTOS_VALIDOS_SECAO': 'sum',
+        'QT_VOTOS_SAMIR': 'sum'
+    }).reset_index()
+    
+    # Calcula os votos que foram para outros candidatos (Oportunidade)
+    agenda_df['VOTOS_EM_DISPUTA'] = agenda_df['QT_VOTOS_VALIDOS_SECAO'] - agenda_df['QT_VOTOS_SAMIR']
+    
+    # Define a estratégia matemática
+    limite_reduto = agenda_df['QT_VOTOS_SAMIR'].quantile(0.75)
+    agenda_df['ESTRATEGIA'] = np.where(
+        agenda_df['QT_VOTOS_SAMIR'] > limite_reduto, 
+        '🛡️ Defesa de Reduto (Fidelizar)', 
+        '⚔️ Mar Aberto (Conquistar Novos)'
+    )
+    
+    # Ordena pelos locais com mais votos disponíveis
+    agenda_df = agenda_df.sort_values(by='VOTOS_EM_DISPUTA', ascending=False).head(limite_ranking)
+    
+    # --- O CÉREBRO DA OTIMIZAÇÃO DE AGENDA (O INSIGHT PROMETIDO) ---
+    if len(agenda_df) > 1:
+        top_1 = agenda_df.iloc[0]
+        # Pega um local mediano (exatamente no meio do ranking que o usuário filtrou)
+        indice_mediano = len(agenda_df) // 2
+        local_mediano = agenda_df.iloc[indice_mediano]
+        
+        if local_mediano['VOTOS_EM_DISPUTA'] > 0:
+            multiplicador = top_1['VOTOS_EM_DISPUTA'] / local_mediano['VOTOS_EM_DISPUTA']
+            
+            st.success(f"**🧠 Insight de Otimização de Sola de Sapato:**\n\nMatematicamente, 4 horas de corpo a corpo nos arredores da escola **{top_1['NM_LOCAL_VOTACAO'].title()}** tem o potencial de converter **{multiplicador:.1f} vezes mais votos** do que investir o mesmo tempo nos arredores da escola **{local_mediano['NM_LOCAL_VOTACAO'].title()}**.")
+    # ---------------------------------------------------------------
+    
+    # Gráfico de Dispersão (Scatter Plot) para visualizar a matriz de esforço
+    scatter = alt.Chart(agenda_df).mark_circle(size=200).encode(
+        x=alt.X('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais'),
+        y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Votos Disponíveis (Em Disputa)'),
+        color=alt.Color('ESTRATEGIA:N', title='Ação Recomendada', scale=alt.Scale(
+            domain=['🛡️ Defesa de Reduto (Fidelizar)', '⚔️ Mar Aberto (Conquistar Novos)'], 
+            range=['#25D366', '#E83E8C']
+        )),
+        tooltip=[
+            alt.Tooltip('NM_LOCAL_VOTACAO', title='Local'),
+            alt.Tooltip('VOTOS_EM_DISPUTA', title='Potencial de Crescimento'),
+            alt.Tooltip('QT_VOTOS_SAMIR', title='Seus Votos'),
+            alt.Tooltip('QT_VOTOS_VALIDOS_SECAO', title='Votos Válidos Totais')
+        ]
+    ).properties(
+        height=450
+    ).interactive()
+    
+    st.altair_chart(scatter, use_container_width=True)
+    
+    st.markdown(f"#### 📋 Top {limite_ranking} Locais com Maior Potencial de Crescimento")
+    tabela_agenda = agenda_df[['NM_LOCAL_VOTACAO', 'ESTRATEGIA', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR', 'QT_VOTOS_VALIDOS_SECAO']]
+    tabela_agenda.columns = ['Local de Votação', 'Ação Recomendada', 'Potencial de Crescimento', 'Seus Votos Atuais', 'Total de Votos Válidos']
+    st.dataframe(tabela_agenda, use_container_width=True)
+
+else:
+    st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente ou formatada corretamente nos dados filtrados.")
