@@ -32,12 +32,11 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Insere a logo da campanha no topo (Agora bem menor e mais discreta)
-# Alteramos as proporções das colunas para "espremer" a logo no centro
+# Insere a logo da campanha no topo (bem menor e discreta)
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
-        st.image("IMG_6008.PNG", use_container_width=True)
+        st.image("IMG_6009.PNG", use_container_width=True)
     except:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
@@ -139,22 +138,13 @@ else:
     dados_filtrados = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].copy()
     label_periodo = f"Ano de {ano_selecionado}"
 
-# 4. Cartões de Métricas Executivas
+# 4. Cartões de Métricas Executivas (Sem a regra de Pareto aqui)
 total_votos = dados_filtrados['QT_VOTOS_SAMIR'].sum()
 total_escolas = dados_filtrados['NM_LOCAL_VOTACAO'].nunique()
 
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 col1.metric(label=f"Total de Votos ({label_periodo})", value=f"{total_votos:,}".replace(",", "."))
 col2.metric(label="Locais de Votação Mapeados", value=total_escolas)
-
-if not dados_filtrados.empty:
-    escolas_ranking = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().sort_values(ascending=False)
-    top_20_porcento = max(1, int(len(escolas_ranking) * 0.2))
-    votos_top_20 = escolas_ranking.head(top_20_porcento).sum()
-    pct_pareto = (votos_top_20 / total_votos * 100) if total_votos > 0 else 0
-    col3.metric(label="Concentração (Regra de Pareto)", value=f"{pct_pareto:.1f}%", help="Percentual de votos concentrados nos 20% principais redutos.")
-else:
-    col3.metric(label="Concentração (Regra de Pareto)", value="0%")
 
 st.markdown("---")
 
@@ -274,12 +264,19 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         * 🎯 **A Melhor Estratégia:** As bolinhas que estão mais altas no gráfico são os seus melhores alvos para caminhadas e corpo a corpo. Lá existem muitos eleitores e a maioria votou em adversários no passado.
         """)
     
+    # Legenda 100% Responsiva em HTML (Não quebra no celular)
+    st.markdown("""
+        <div style='display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 10px; font-weight: bold;'>
+            <div><span style='color: #25D366; font-size: 1.2em;'>●</span> 🛡️ Reduto (Fidelizar)</div>
+            <div><span style='color: #E83E8C; font-size: 1.2em;'>●</span> ⚔️ Expansão (Conquistar)</div>
+        </div>
+    """, unsafe_allow_html=True)
+    
     scatter = alt.Chart(agenda_df).mark_circle(size=200).encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais'),
         y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Votos Disponíveis (Em Disputa)'),
         color=alt.Color('ESTRATEGIA:N', 
-                        title='Recomendação', 
-                        legend=alt.Legend(orient='top', labelLimit=0),
+                        legend=None, # Desativa legenda nativa para evitar cortes
                         scale=alt.Scale(
                             domain=['🛡️ Reduto (Fidelizar)', '⚔️ Expansão (Conquistar)'], 
                             range=['#25D366', '#E83E8C']
@@ -348,12 +345,21 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
             st.markdown("**💎 Nicho Leal:** Escolas pequenas onde você tem o domínio. Não gaste muita energia, apenas mantenha o contato via WhatsApp.")
             st.markdown("**❌ Zona de Descarte:** Escolas pequenas onde você é muito fraco. O custo de campanha aqui não compensa. Evite investir tempo.")
 
+    # Legenda 100% Responsiva em HTML (Não quebra no celular)
+    st.markdown("""
+        <div style='display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 10px; font-weight: bold;'>
+            <div><span style='color: #1A73E8; font-size: 1.2em;'>●</span> 🏆 Fortaleza</div>
+            <div><span style='color: #25D366; font-size: 1.2em;'>●</span> 🚀 Oceano Azul</div>
+            <div><span style='color: #FFC107; font-size: 1.2em;'>●</span> 💎 Nicho Leal</div>
+            <div><span style='color: #E83E8C; font-size: 1.2em;'>●</span> ❌ Descarte</div>
+        </div>
+    """, unsafe_allow_html=True)
+
     scatter_matriz = alt.Chart(matriz_df).mark_circle(size=250).encode(
         x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Tamanho da Escola (Votos Válidos)'),
         y=alt.Y('QT_VOTOS_SAMIR:Q', title='Seus Votos (Sua Força)'),
         color=alt.Color('CLASSIFICACAO:N', 
-                        title='Quadrante Estratégico',
-                        legend=alt.Legend(orient='top', labelLimit=0),
+                        legend=None, # Desativa legenda nativa
                         scale=alt.Scale(
                             domain=["🏆 FORTALEZA (Defender)", "🚀 OCEANO AZUL (Atacar)", "💎 NICHO LEAL (Manter)", "❌ ZONA DE DESCARTE (Ignorar)"],
                             range=['#1A73E8', '#25D366', '#FFC107', '#E83E8C']
