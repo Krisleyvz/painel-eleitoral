@@ -130,11 +130,8 @@ if col_municipio:
         texto_local = "nos Municípios Selecionados"
 
 st.sidebar.markdown("---")
-# NOVO CONTROLE: Botão para exibir todas as escolas ignorando o limite
 mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODAS as escolas", value=False, help="Desativa o limite e renderiza 100% da base nos gráficos e tabelas.")
 limite_slider = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5, disabled=mostrar_todas)
-
-# Se o botão estiver marcado, o limite vira um número gigante, pegando todas as escolas
 limite_ranking = 999999 if mostrar_todas else limite_slider
 
 if ano_selecionado == 'Todos os Anos (Série Histórica)':
@@ -191,7 +188,6 @@ top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head
 
 st.markdown(f"#### 📉 Gráfico de Desempenho ({texto_top} {texto_local})")
 
-# Ajuste automático da altura do gráfico baseado na quantidade de escolas exibidas
 altura_grafico = max(400, len(top_escolas) * 20)
 
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
@@ -217,7 +213,7 @@ st.dataframe(top_escolas, use_container_width=True)
 
 st.markdown("---")
 
-# ======== ANÁLISE 3: MATRIZ DE EVOLUÇÃO TEMPORAL ========
+# ======== ANÁLISE 3: MATRIZ DE EVOLUÇÃO TEMPORAL COM NOVO EXPORT ========
 st.subheader("📈 Matriz de Evolução Histórica (Comparativo entre Eleições)")
 if len(anos_disponiveis) > 1:
     tabela_comparativa = dados.pivot_table(
@@ -232,6 +228,48 @@ if len(anos_disponiveis) > 1:
         tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(limite_ranking)
         
     st.dataframe(tabela_comparativa, use_container_width=True)
+    
+    # --- CÓDIGO DO RELATÓRIO VISUAL (HTML/PDF) ---
+    tabela_html = tabela_comparativa.to_html(classes='tabela-bonita', border=0)
+    
+    html_completo = f"""
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <title>Relatório - Matriz de Evolução</title>
+        <style>
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; padding: 20px; }}
+            .header {{ text-align: center; margin-bottom: 30px; }}
+            .header h1 {{ color: #0A1C2E; margin: 0; }}
+            .header p {{ color: #666; font-size: 14px; }}
+            .tabela-bonita {{ width: 100%; border-collapse: collapse; margin: 25px 0; font-size: 0.9em; min-width: 400px; border-radius: 5px 5px 0 0; overflow: hidden; box-shadow: 0 0 20px rgba(0, 0, 0, 0.15); }}
+            .tabela-bonita thead tr {{ background-color: #1A73E8; color: #ffffff; text-align: left; font-weight: bold; }}
+            .tabela-bonita th, .tabela-bonita td {{ padding: 12px 15px; border: 1px solid #ddd; }}
+            .tabela-bonita tbody tr {{ border-bottom: 1px solid #dddddd; }}
+            .tabela-bonita tbody tr:nth-of-type(even) {{ background-color: #f3f3f3; }}
+            .tabela-bonita tbody tr:last-of-type {{ border-bottom: 2px solid #1A73E8; }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🎯 Relatório de Inteligência Territorial</h1>
+            <p>Matriz de Evolução Histórica (Comparativo entre Eleições) - {texto_local}</p>
+        </div>
+        {tabela_html}
+        <p style="text-align: center; font-size: 12px; color: #777; margin-top: 20px;">Gerado pelo Sistema da Sala de Guerra</p>
+    </body>
+    </html>
+    """
+    
+    st.download_button(
+        label="📑 Baixar Relatório Visual (Abre no navegador, pronto para Salvar como PDF)",
+        data=html_completo,
+        file_name='relatorio_evolucao_historica.html',
+        mime='text/html',
+    )
+    # ---------------------------------------------
+    
 else:
     st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado. Assim que houver múltiplos anos, a matriz e os comparativos temporais serão ativados.")
 
@@ -399,7 +437,6 @@ if not dados_filtrados.empty:
     except:
         pass
     
-    # O gráfico de Pareto NÃO recebe o filtro de "limite_ranking" pois ele precisa da curva inteira para fazer sentido matemático
     curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4, point=alt.OverlayMarkDef(color='#E83E8C', size=150)).encode(
         x=alt.X('Posição no Ranking:Q', title='Quantidade de Escolas (Da maior para a menor)'),
         y=alt.Y('% Acumulado:Q', title='Porcentagem Acumulada de Votos (%)', scale=alt.Scale(domain=[0, 100])),
