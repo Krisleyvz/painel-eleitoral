@@ -32,13 +32,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Insere a logo da campanha no topo (Centralizada)
-col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
+# Insere a logo da campanha no topo (Agora bem menor e mais discreta)
+# Alteramos as proporções das colunas para "espremer" a logo no centro
+col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
         st.image("IMG_6009.PNG", use_container_width=True)
     except:
-        st.title("🎯 Painel Estratégico de Campanha")
+        st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
 # 2. Carregamento dos Dados com Cache e Geolocalização Única por Escola
@@ -193,7 +194,6 @@ top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head
 
 st.markdown(f"#### 📉 Gráfico de Desempenho (Top {limite_ranking} Redutos {texto_local})")
 
-# Gráfico Horizontal Inteligente com Altair (Números Inteiros)
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
     x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
     y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação'),
@@ -242,16 +242,13 @@ st.markdown("---")
 st.subheader("🎯 Direcionador de Agenda (Otimização de Esforço Físico)")
 
 if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-    # Agrupa votos gerais e do candidato por escola
     agenda_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
         'QT_VOTOS_VALIDOS_SECAO': 'sum',
         'QT_VOTOS_SAMIR': 'sum'
     }).reset_index()
     
-    # Calcula os votos que foram para outros candidatos (Oportunidade)
     agenda_df['VOTOS_EM_DISPUTA'] = agenda_df['QT_VOTOS_VALIDOS_SECAO'] - agenda_df['QT_VOTOS_SAMIR']
     
-    # Define a estratégia matemática (nomes encurtados para caber na legenda)
     limite_reduto = agenda_df['QT_VOTOS_SAMIR'].quantile(0.75)
     agenda_df['ESTRATEGIA'] = np.where(
         agenda_df['QT_VOTOS_SAMIR'] > limite_reduto, 
@@ -259,37 +256,30 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         '⚔️ Expansão (Conquistar)'
     )
     
-    # Ordena pelos locais com mais votos disponíveis
     agenda_df = agenda_df.sort_values(by='VOTOS_EM_DISPUTA', ascending=False).head(limite_ranking)
     
-    # --- O CÉREBRO DA OTIMIZAÇÃO DE AGENDA (O INSIGHT PROMETIDO) ---
     if len(agenda_df) > 1:
         top_1 = agenda_df.iloc[0]
-        # Pega um local mediano (exatamente no meio do ranking que o usuário filtrou)
         indice_mediano = len(agenda_df) // 2
         local_mediano = agenda_df.iloc[indice_mediano]
         
         if local_mediano['VOTOS_EM_DISPUTA'] > 0:
             multiplicador = top_1['VOTOS_EM_DISPUTA'] / local_mediano['VOTOS_EM_DISPUTA']
-            
             st.success(f"**🧠 Insight de Otimização de Sola de Sapato:**\n\nMatematicamente, 4 horas de corpo a corpo nos arredores da escola **{top_1['NM_LOCAL_VOTACAO'].title()}** tem o potencial de converter **{multiplicador:.1f} vezes mais votos** do que investir o mesmo tempo nos arredores da escola **{local_mediano['NM_LOCAL_VOTACAO'].title()}**.")
-    # ---------------------------------------------------------------
     
-    # --- EXPLICAÇÃO VISUAL NA TELA PARA A EQUIPE ---
-    with st.expander("💡 Como ler este gráfico?", expanded=True):
+    with st.expander("💡 Como ler este gráfico?", expanded=False):
         st.markdown("""
         * **Eixo Horizontal (Deitado - Seus Votos):** Quanto mais para a **direita**, mais forte você já é naquela escola.
         * **Eixo Vertical (Em pé - Votos em Disputa):** Quanto mais para **cima**, mais votos foram dados a *outros candidatos* (é o "ouro" a ser garimpado).
         * 🎯 **A Melhor Estratégia:** As bolinhas que estão mais altas no gráfico são os seus melhores alvos para caminhadas e corpo a corpo. Lá existem muitos eleitores e a maioria votou em adversários no passado.
         """)
     
-    # Gráfico de Dispersão (Scatter Plot) com legenda ajustada para o TOPO
     scatter = alt.Chart(agenda_df).mark_circle(size=200).encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais'),
         y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Votos Disponíveis (Em Disputa)'),
         color=alt.Color('ESTRATEGIA:N', 
                         title='Recomendação', 
-                        legend=alt.Legend(orient='top', labelLimit=0), # Move a legenda para cima para não cortar
+                        legend=alt.Legend(orient='top', labelLimit=0),
                         scale=alt.Scale(
                             domain=['🛡️ Reduto (Fidelizar)', '⚔️ Expansão (Conquistar)'], 
                             range=['#25D366', '#E83E8C']
@@ -313,3 +303,73 @@ if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
 
 else:
     st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente ou formatada corretamente nos dados filtrados.")
+
+st.markdown("---")
+
+# ======== ANÁLISE 5: MATRIZ ESTRATÉGICA DOS 4 QUADRANTES ========
+st.subheader("🧩 Matriz de Inteligência de Território (Os 4 Quadrantes)")
+st.markdown("Classificação automática das escolas cruzando o Tamanho do Eleitorado com a Força Política do Candidato.")
+
+if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+    matriz_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
+        'QT_VOTOS_VALIDOS_SECAO': 'sum',
+        'QT_VOTOS_SAMIR': 'sum'
+    }).reset_index()
+    
+    # Filtra apenas o Top Limite Ranking para não poluir
+    matriz_df = matriz_df.sort_values(by='QT_VOTOS_VALIDOS_SECAO', ascending=False).head(limite_ranking)
+    
+    # Calcula a média de tamanho da escola e a média de votos do Samir nesse grupo
+    media_tamanho = matriz_df['QT_VOTOS_VALIDOS_SECAO'].mean()
+    media_votos = matriz_df['QT_VOTOS_SAMIR'].mean()
+    
+    # Função para classificar nos 4 quadrantes
+    def classificar_quadrante(row):
+        escola_grande = row['QT_VOTOS_VALIDOS_SECAO'] >= media_tamanho
+        samir_forte = row['QT_VOTOS_SAMIR'] >= media_votos
+        
+        if escola_grande and samir_forte:
+            return "🏆 FORTALEZA (Defender)"
+        elif escola_grande and not samir_forte:
+            return "🚀 OCEANO AZUL (Atacar)"
+        elif not escola_grande and samir_forte:
+            return "💎 NICHO LEAL (Manter)"
+        else:
+            return "❌ ZONA DE DESCARTE (Ignorar)"
+            
+    matriz_df['CLASSIFICACAO'] = matriz_df.apply(classificar_quadrante, axis=1)
+    
+    with st.expander("📖 Entenda as 4 Classificações", expanded=True):
+        col_q1, col_q2 = st.columns(2)
+        with col_q1:
+            st.markdown("**🏆 Fortaleza:** Escolas muito grandes onde você já é forte. Coloque as melhores lideranças para não perder esse território.")
+            st.markdown("**🚀 Oceano Azul:** Escolas gigantes onde você ainda é fraco. É aqui que moram as maiores oportunidades de multiplicar votos.")
+        with col_q2:
+            st.markdown("**💎 Nicho Leal:** Escolas pequenas onde você tem o domínio. Não gaste muita energia, apenas mantenha o contato via WhatsApp.")
+            st.markdown("**❌ Zona de Descarte:** Escolas pequenas onde você é muito fraco. O custo de campanha aqui não compensa. Evite investir tempo.")
+
+    scatter_matriz = alt.Chart(matriz_df).mark_circle(size=250).encode(
+        x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Tamanho da Escola (Votos Válidos)'),
+        y=alt.Y('QT_VOTOS_SAMIR:Q', title='Seus Votos (Sua Força)'),
+        color=alt.Color('CLASSIFICACAO:N', 
+                        title='Quadrante Estratégico',
+                        legend=alt.Legend(orient='top', labelLimit=0),
+                        scale=alt.Scale(
+                            domain=["🏆 FORTALEZA (Defender)", "🚀 OCEANO AZUL (Atacar)", "💎 NICHO LEAL (Manter)", "❌ ZONA DE DESCARTE (Ignorar)"],
+                            range=['#1A73E8', '#25D366', '#FFC107', '#E83E8C']
+                        )),
+        tooltip=[
+            alt.Tooltip('NM_LOCAL_VOTACAO', title='Local'),
+            alt.Tooltip('CLASSIFICACAO', title='Estratégia'),
+            alt.Tooltip('QT_VOTOS_VALIDOS_SECAO', title='Tamanho Total'),
+            alt.Tooltip('QT_VOTOS_SAMIR', title='Seus Votos')
+        ]
+    ).properties(
+        height=500
+    ).interactive()
+    
+    # Adicionando as linhas cruzadas (Média) para desenhar os quadrantes visualmente
+    regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
+    regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
+    
+    st.altair_chart(scatter_matriz + regra_x + regra_y, use_container_width=True)
