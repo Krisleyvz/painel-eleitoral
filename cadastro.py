@@ -2,22 +2,17 @@ import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
-import re # Biblioteca para reconstrução de texto
 
-# 1. Configuração da Página (Focada em Mobile)
+# 1. Configuração da Página
 st.set_page_config(page_title="App de Rua | Cadastro", page_icon="📱", layout="centered")
 
 # ==========================================
-# INJEÇÃO DE CSS: TEMA AZUL MARINHO E BOTÕES
+# INJEÇÃO DE CSS
 # ==========================================
 st.markdown("""
 <style>
-    .stApp {
-        background-color: #0A1C2E !important;
-    }
-    h1, h2, h3, p, label, div.stMarkdown, .stCheckbox label span {
-        color: #FFFFFF !important;
-    }
+    .stApp { background-color: #0A1C2E !important; }
+    h1, h2, h3, p, label, div.stMarkdown, .stCheckbox label span { color: #FFFFFF !important; }
     div[data-testid="stFormSubmitButton"] button {
         background-color: #1A73E8 !important;
         color: white !important;
@@ -37,31 +32,17 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para conectar ao Google Sheets (COM RECONSTRUTOR DE CHAVE)
+# Função Limpa para conectar ao Google Sheets
 def conectar_google_sheets():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    
+    # Pega os secrets exatamente como estão no painel
     creds_dict = dict(st.secrets["gcp_service_account"])
     
-    # ---------------------------------------------------------
-    # OPÇÃO NUCLEAR: RECONSTRUTOR ESTRUTURAL DA CHAVE PEM
-    # ---------------------------------------------------------
-    chave_bruta = str(creds_dict["private_key"])
-    
-    # 1. Remove cabeçalhos, rodapés e qualquer lixo invisível
-    corpo_chave = re.sub(r'-----.*?-----', '', chave_bruta)
-    # 2. Deixa apenas os caracteres puros do código base64 (remove espaços, \n, \r, etc)
-    corpo_chave = re.sub(r'[^A-Za-z0-9+/=]', '', corpo_chave) 
-    
-    # 3. Fatie o código exatamente a cada 64 caracteres (Padrão rigoroso do Google)
-    linhas = [corpo_chave[i:i+64] for i in range(0, len(corpo_chave), 64)]
-    
-    # 4. Remonta a chave com as quebras de linha perfeitas
-    chave_perfeita = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(linhas) + "\n-----END PRIVATE KEY-----\n"
-    
-    # Devolve a chave perfeita para as credenciais
-    creds_dict["private_key"] = chave_perfeita
-    # ---------------------------------------------------------
-    
+    # A única correção segura: garantir que o texto \n vire uma quebra de linha real
+    if "\\n" in creds_dict["private_key"]:
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+        
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
     
@@ -79,7 +60,7 @@ with col_logo2:
 
 st.markdown("---")
 
-# 3. Criação do Formulário Mapeado
+# 3. Formulário
 with st.form(key="form_cadastro", clear_on_submit=True):
     
     st.subheader("👤 Dados Pessoais")
@@ -115,7 +96,7 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     
     submit = st.form_submit_button("✅ SALVAR CADASTRO", use_container_width=True)
     
-    # 4. Lógica de Alinhamento e Envio
+    # 4. Envio
     if submit:
         if nome.strip() == "" or telefone.strip() == "" or nascimento.strip() == "":
             st.error("⚠️ Os campos Nome, WhatsApp e Data de Nascimento são obrigatórios!")
@@ -138,8 +119,8 @@ with st.form(key="form_cadastro", clear_on_submit=True):
                     participacao,         # Coluna H
                     texto_consentimento,  # Coluna I
                     nascimento,           # Coluna J
-                    "",                   # Coluna K
-                    "",                   # Coluna L
+                    "",                   # Coluna K (PULADO)
+                    "",                   # Coluna L (PULADO)
                     indicacao,            # Coluna M
                     municipio             # Coluna N
                 ]
