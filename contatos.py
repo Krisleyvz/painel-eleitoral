@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import numpy as np
+import urllib.parse # Biblioteca para formatar textos e emojis no WhatsApp
 
 # 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Gestão", page_icon="📱", layout="centered")
@@ -50,7 +51,6 @@ st.markdown("""
         font-weight: bold !important;
         font-size: 16px !important;
     }
-    /* Estilo para botão desativado */
     .btn-disabled {
         display: block; 
         text-align: center; 
@@ -71,25 +71,19 @@ def tratar_telefone(tel_raw):
     tel_str = str(tel_raw).strip()
     if tel_str.lower() == 'nan' or tel_str == '':
         return "", "Sem telefone"
-    
-    # Remove o ".0" no final caso o pandas tenha lido como float
     tel_limpo = tel_str.split('.')[0]
-    # Pega só os números
     tel_num = ''.join(filter(str.isdigit, tel_limpo))
-    
-    if len(tel_num) < 8: # Número muito curto pra ser válido
+    if len(tel_num) < 8: 
         return "", tel_str
-        
     return tel_num, tel_limpo
 
-# Função para carregar os dados
+# Função para carregar os dados direto via link público
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
     spreadsheet_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     df = pd.read_csv(url)
-    # Limpa espaços invisíveis nos nomes das colunas
     df.columns = df.columns.str.strip()
     return df
 
@@ -106,7 +100,7 @@ st.markdown("---")
 try:
     df = carregar_dados_planilha()
 except Exception as e:
-    st.error(f"Erro ao conectar com a planilha. Detalhe: {e}")
+    st.error(f"Erro ao conectar com a planilha. Verifique se o link está público. Detalhe: {e}")
     df = pd.DataFrame()
 
 total_cadastros = len(df) if not df.empty else 0
@@ -152,7 +146,6 @@ with aba1:
                 nascimento = str(row.get('Data de Nascimento', ''))
                 dias = row['DiasFaltando']
                 
-                # Tratamento seguro do telefone
                 tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
                 
                 classe_css = "contato-card card-aniversario-hoje" if dias == 0 else "contato-card"
@@ -168,7 +161,11 @@ with aba1:
                 bc1, bc2 = st.columns(2)
                 with bc1:
                     if tel_num:
-                        link_wpp_aniver = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Parabéns%20{nome.split()[0]}!%20Muitas%20felicidades!"
+                        primeiro_nome = nome.split()[0]
+                        texto_aniver = f"Olá {primeiro_nome}! Em nome do Samir Bestene e de toda a nossa equipe, desejo um feliz aniversário! Que sua vida seja repleta de alegrias, muita saúde e sucesso. É uma honra ter você caminhando ao nosso lado. A luta continua 🚀"
+                        texto_codificado = urllib.parse.quote(texto_aniver)
+                        link_wpp_aniver = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_codificado}"
+                        
                         st.markdown(f"<a href='{link_wpp_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 Mandar Parabéns</a>", unsafe_allow_html=True)
                     else:
                         st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
@@ -211,7 +208,9 @@ with aba2:
             bc1, bc2 = st.columns(2)
             with bc1:
                 if tel_num:
-                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20tudo%20bem?"
+                    primeiro_nome = nome.split()[0]
+                    texto_padrao = urllib.parse.quote(f"Olá {primeiro_nome}, tudo bem?")
+                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_padrao}"
                     st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
                 else:
                     st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
@@ -252,7 +251,9 @@ with aba3:
             bc1, bc2 = st.columns(2)
             with bc1:
                 if tel_num:
-                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20tudo%20bem?"
+                    primeiro_nome = nome.split()[0]
+                    texto_padrao = urllib.parse.quote(f"Olá {primeiro_nome}, tudo bem?")
+                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_padrao}"
                     st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
                 else:
                     st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
