@@ -25,14 +25,31 @@ st.markdown("""
         margin-bottom: 12px;
     }
     .card-aniversario-hoje {
-        border-left: 5px solid #25D366 !important; /* Destaque verde para aniversariantes do dia */
+        border-left: 5px solid #25D366 !important; 
         background-color: #1a3a30;
+    }
+    .apoiador-lider {
+        background-color: #0e2439;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 8px;
+        border-left: 3px solid #25D366;
     }
     input, select {
         background-color: #152b45 !important;
         color: white !important;
         border: 1px solid #1A73E8 !important;
         border-radius: 5px !important;
+    }
+    /* Estilização para o expansor (accordion) do Streamlit */
+    [data-testid="stExpander"] {
+        background-color: #152b45 !important;
+        border: 1px solid #1A73E8 !important;
+        border-radius: 8px !important;
+    }
+    [data-testid="stExpander"] p {
+        font-weight: bold !important;
+        font-size: 16px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -64,10 +81,10 @@ except Exception as e:
 
 total_cadastros = len(df) if not df.empty else 0
 
-# Abas do Aplicativo Organizadas
-aba1, aba2, aba3, aba4 = st.tabs(["🎂 Aniversário", "📍 Bairros", "📞 Contatos", "🗺️ Mapa"])
+# Abas do Aplicativo Organizadas (Agora com Lideranças!)
+aba1, aba2, aba3, aba4, aba5 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lideranças"])
 
-# --- ABA 1: ANIVERSARIANTES (ORDENADOS POR DATA) ---
+# --- ABA 1: ANIVERSARIANTES ---
 with aba1:
     st.subheader("🎂 Aniversariantes")
     st.markdown("Próximos a celebrar (Ordenado pela data mais próxima):")
@@ -79,31 +96,24 @@ with aba1:
             hoje = datetime.now()
             hoje_data = datetime(hoje.year, hoje.month, hoje.day)
             
-            # Lógica para calcular quantos dias faltam para o próximo aniversário
             def calc_dias_para_aniv(data_str):
                 try:
                     partes = str(data_str).strip().split('/')
                     dia = int(partes[0])
                     mes = int(partes[1])
-                    
-                    # Trata o ano bissexto para evitar quebrar o app
                     if mes == 2 and dia == 29: 
                         dia = 28
-                        
                     aniv = datetime(hoje.year, mes, dia)
-                    # Se já fez aniversário esse ano, joga a meta para o ano que vem
                     if aniv < hoje_data:
                         aniv = datetime(hoje.year + 1, mes, dia)
                     return (aniv - hoje_data).days
                 except:
-                    return 99999 # Se digitaram a data errada, joga pro fim da lista
+                    return 99999 
             
-            # Aplica o cálculo e ordena
             df_aniver['DiasFaltando'] = df_aniver['Data de Nascimento'].apply(calc_dias_para_aniv)
             df_aniver = df_aniver.sort_values(by='DiasFaltando')
             
             for idx, row in df_aniver.iterrows():
-                # Pula dados totalmente inválidos
                 if row['DiasFaltando'] == 99999:
                     continue
                     
@@ -112,10 +122,8 @@ with aba1:
                 bairro = str(row.get('Bairro', ''))
                 nascimento = str(row.get('Data de Nascimento', ''))
                 dias = row['DiasFaltando']
-                
                 tel_num = ''.join(filter(str.isdigit, telefone))
                 
-                # Destaca visualmente se o aniversário for HOJE
                 classe_css = "contato-card card-aniversario-hoje" if dias == 0 else "contato-card"
                 texto_dias = "🔥 **É HOJE!**" if dias == 0 else f"Faltam {dias} dias"
                 
@@ -126,7 +134,6 @@ with aba1:
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Botões compactos lado a lado
                 bc1, bc2 = st.columns(2)
                 with bc1:
                     link_wpp_aniver = f"https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!%20Muitas%20felicidades!"
@@ -139,16 +146,14 @@ with aba1:
     else:
         st.info("Coluna de data de nascimento não localizada na planilha.")
 
-# --- ABA 2: BAIRROS (ORDENADOS ALFABETICAMENTE) ---
+# --- ABA 2: BAIRROS ---
 with aba2:
     st.subheader("📍 Filtro por Bairro")
     if not df.empty and 'Bairro' in df.columns:
-        # A Mágica da Ordem Alfabética A-Z
         lista_bairros = sorted([str(b).strip() for b in df['Bairro'].dropna().unique() if str(b).strip() != ''])
         bairros_disp = ["Todos"] + lista_bairros
         
         bairro_sel = st.selectbox("Selecione o Bairro:", bairros_disp)
-        
         filtrados = df if bairro_sel == "Todos" else df[df['Bairro'].str.strip() == bairro_sel]
         
         st.markdown(f"**Total encontrado:** {len(filtrados)} pessoa(s)")
@@ -213,13 +218,12 @@ with aba3:
     else:
         st.info("Nenhum contato encontrado.")
 
-# --- ABA 4: MAPA (COM DADOS GEOLOCALIZADOS) ---
+# --- ABA 4: MAPA ---
 with aba4:
     st.subheader("🗺️ Dispersão de Apoiadores")
-    st.markdown("Mapa estimado baseado nos bairros de residência (para fins de visualização tática).")
+    st.markdown("Mapa estimado baseado nos bairros de residência.")
     
     if not df.empty and 'Bairro' in df.columns:
-        # Coordenadas aproximadas de ancoragem para Rio Branco
         coord_referencia = {
             'DOCA FURTADO': (-9.9650, -67.8100),
             'FLORESTA': (-9.9820, -67.8400),
@@ -231,15 +235,11 @@ with aba4:
         
         latitudes = []
         longitudes = []
-        
-        np.random.seed(42) # Mantém os pontos no mesmo lugar ao recarregar a página
+        np.random.seed(42) 
         
         for bairro in df['Bairro']:
             b_upper = str(bairro).strip().upper()
-            # Pega a âncora do bairro (se não tiver, joga pro Centro)
             base_lat, base_lon = coord_referencia.get(b_upper, (-9.9749, -67.8243))
-            
-            # Espalhamento para os pontos não sumirem um debaixo do outro (aprox 200 metros)
             latitudes.append(base_lat + np.random.normal(0, 0.002))
             longitudes.append(base_lon + np.random.normal(0, 0.002))
             
@@ -247,3 +247,61 @@ with aba4:
         st.map(mapa_df, zoom=12)
     else:
         st.warning("Não há dados suficientes de bairro para gerar a mancha do mapa.")
+
+# --- ABA 5: RANKING DE LIDERANÇAS ---
+with aba5:
+    st.subheader("🏆 Ranking de Lideranças")
+    st.markdown("Engajamento: Quem está indicando mais pessoas?")
+    
+    col_indicacao = 'Através de quem você conheceu o nosso projeto?'
+    
+    if not df.empty and col_indicacao in df.columns:
+        # Filtra quem tem indicação e padroniza as letras maiúsculas para não duplicar o mesmo nome
+        df_lideres = df.dropna(subset=[col_indicacao]).copy()
+        df_lideres = df_lideres[df_lideres[col_indicacao].str.strip() != ""]
+        df_lideres[col_indicacao] = df_lideres[col_indicacao].astype(str).str.strip().str.title()
+        
+        if not df_lideres.empty:
+            # Agrupa, conta e ordena
+            ranking = df_lideres.groupby(col_indicacao).size().reset_index(name='Qtd')
+            ranking = ranking.sort_values(by='Qtd', ascending=False).reset_index(drop=True)
+            
+            # Destaque para o 1º Lugar
+            top1 = ranking.iloc[0]
+            pct_top1 = (top1['Qtd'] / total_cadastros) * 100
+            st.metric(label="🥇 Liderança Destaque", value=top1[col_indicacao], delta=f"{top1['Qtd']} indicações ({pct_top1:.1f}% da base)")
+            st.markdown("---")
+            
+            # Constrói o "Acordeão" (Expander) simulando o agrupamento do AppSheet
+            for idx, row in ranking.iterrows():
+                lider = row[col_indicacao]
+                qtd = row['Qtd']
+                pct = (qtd / total_cadastros) * 100
+                posicao = idx + 1
+                
+                # A barra expansível com o título
+                with st.expander(f"#{posicao} | {lider} - {qtd} pessoa(s) ({pct:.1f}%)"):
+                    # Filtra apenas as pessoas indicadas por esse líder
+                    apoiados = df_lideres[df_lideres[col_indicacao] == lider]
+                    
+                    for _, apoiado in apoiados.iterrows():
+                        nome_ap = str(apoiado.get('Nome Completo', 'Sem Nome'))
+                        tel_ap = str(apoiado.get('Telefone', ''))
+                        bairro_ap = str(apoiado.get('Bairro', ''))
+                        tel_num_ap = ''.join(filter(str.isdigit, tel_ap))
+                        
+                        link_wpp_ap = f"https://wa.me/55{tel_num_ap}"
+                        
+                        # O cartão interno menorzinho, limpo e direto ao ponto
+                        st.markdown(f"""
+                        <div class="apoiador-lider">
+                            <b>{nome_ap}</b><br>
+                            <span style="font-size: 14px; color: #a9b9cc;">
+                                📍 {bairro_ap} | 📞 <a href="{link_wpp_ap}" target="_blank" style="color: #4da6ff; text-decoration: none;">{tel_ap}</a>
+                            </span>
+                        </div>
+                        """, unsafe_allow_html=True)
+        else:
+            st.info("Ainda não há dados suficientes de indicações preenchidos.")
+    else:
+        st.warning("A coluna de indicação não foi encontrada na planilha.")
