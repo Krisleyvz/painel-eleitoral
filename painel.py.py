@@ -208,7 +208,7 @@ if menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
     
     grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
         x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos'),
-        y=alt.Y('NM_LOCAL_VOTACAO:N', title='Escola', sort='-x'),
+        y=alt.Y('NM_LOCAL_VOTACAO:N', title='Escola', sort='-x', axis=alt.Axis(labelLimit=800)),
         tooltip=[
             alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
             alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total Adormecidos', format=','),
@@ -356,7 +356,7 @@ altura_grafico = max(400, len(top_escolas) * 20)
 
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
     x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
-    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação'),
+    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title='Local de Votação', axis=alt.Axis(labelLimit=800)),
     tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', format='.1f')]
 ).properties(height=altura_grafico)
 st.altair_chart(grafico_barras, use_container_width=True)
