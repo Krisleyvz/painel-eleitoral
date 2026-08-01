@@ -40,10 +40,16 @@ st.markdown("""
 def conectar_google_sheets():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds_dict = dict(st.secrets["gcp_service_account"])
+    
+    # ---------------------------------------------------------
+    # A CORREÇÃO ESTÁ AQUI: Força a quebra de linha correta na chave privada!
+    # ---------------------------------------------------------
+    creds_dict["private_key"] = creds_dict["private_key"].replace('\\n', '\n')
+    
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
     
-    # Nome exato da planilha e da aba que vimos na sua imagem
+    # Nome exato da planilha e da aba
     planilha = client.open("Samir Bestene - Apoiadores (Respostas)")
     aba = planilha.worksheet("Form_Responses")
     return aba
@@ -128,6 +134,6 @@ with st.form(key="form_cadastro", clear_on_submit=True):
                 
                 sheet.append_row(novo_registro)
                 
-                st.success(f"🎉 Registo de {nome} salvo com sucesso direto na planilha do Google Sheets!")
+                st.success(f"🎉 Registro de {nome} salvo com sucesso direto na planilha do Google Sheets!")
             except Exception as e:
                 st.error(f"⚠️ Erro ao salvar na planilha. Detalhe: {e}")
