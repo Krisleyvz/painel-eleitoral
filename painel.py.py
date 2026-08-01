@@ -98,8 +98,12 @@ except Exception as e:
 @st.cache_data
 def carregar_demografia(df_votos):
     try:
-        # Lê a base que passou pelo triturador
-        df_demo = pd.read_csv("base_demografica_ac.csv")
+        # Lê a base diretamente de dentro do ZIP
+        import zipfile
+        with zipfile.ZipFile("base_demografica_ac.zip", "r") as z:
+            # O nome do arquivo dentro do zip deve ser o mesmo do csv
+            with z.open("base_demografica_ac.csv") as f:
+                df_demo = pd.read_csv(f)
         
         # O TSE só dá Zona e Seção. Vamos cruzar com a base do Samir para descobrir o Nome da Escola!
         if not df_votos.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
