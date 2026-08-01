@@ -197,7 +197,8 @@ if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
     if ano_selecionado != 'Todos os Anos (Série Histórica)':
         df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
     if col_municipio and municipios_selecionados:
-        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_demo_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
+        if 'NM_MUNICIPIO' in df_demo_filtrado.columns:
+            df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
 
     # Filtro específico de Escola para o Perfil
     escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
