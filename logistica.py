@@ -59,8 +59,12 @@ except Exception as e:
     df = pd.DataFrame()
 
 if not df.empty:
-    # Filtro rápido por Bairro (coluna F da planilha)
-    bairros_disponiveis = ["Todos"] + list(df['Bairro'].dropna().unique()) if 'Bairro' in df.columns else ["Todos"]
+    # Filtro rápido por Bairro (coluna F da planilha) ORDENADO ALFABETICAMENTE
+    if 'Bairro' in df.columns:
+        bairros_disponiveis = ["Todos"] + sorted(list(df['Bairro'].dropna().astype(str).unique()))
+    else:
+        bairros_disponiveis = ["Todos"]
+        
     bairro_filtro = st.selectbox("Filtrar por Bairro:", bairros_disponiveis)
     
     if bairro_filtro != "Todos" and 'Bairro' in df.columns:
