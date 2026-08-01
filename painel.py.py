@@ -24,7 +24,7 @@ st.markdown("""
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
-        st.image("IMG_6008.PNG", use_container_width=True)
+        st.image("IMG_6009.PNG", use_container_width=True)
     except:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
@@ -182,6 +182,7 @@ limite_ranking = 999999 if mostrar_todas else limite_slider
 
 label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
+
 # ==========================================
 # ROTA 1: PAINEL DE INTELIGÊNCIA DE VOTOS 
 # ==========================================
@@ -241,11 +242,13 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
         top_escolas['MARKET_SHARE'] = 0.0
 
     top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
-    altura_grafico = max(400, len(top_escolas) * 20)
+    # Aumentando a altura da barra para garantir que todos os textos caibam na vertical
+    altura_grafico = max(500, len(top_escolas) * 35)
 
     grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
-        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=500)),
+        # labelLimit=250 para truncar com "..." e labelOverlap=False para forçar mostrar todas as linhas
+        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=250, labelOverlap=False)),
         tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', format='.1f')]
     ).properties(height=altura_grafico)
     st.altair_chart(grafico_barras, use_container_width=True)
@@ -396,7 +399,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
             df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
             grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
                 x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)'),
-                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
                 tooltip=['DS_FAIXA_ETARIA:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
             ).properties(height=350)
             st.altair_chart(grafico_idade, use_container_width=True)
@@ -408,7 +411,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         
         grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
             x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)'),
-            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
             tooltip=['DS_GRAU_ESCOLARIDADE:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
         ).properties(height=350)
         st.altair_chart(grafico_escola, use_container_width=True)
@@ -446,7 +449,6 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
             'QT_VOTOS_BRANCOS': 'sum', 'QT_VOTOS_NULOS': 'sum'
         })
         
-        # Trazendo as coordenadas geográficas de volta, com segurança, para podermos gerar o mapa!
         coords = dados[['NM_LOCAL_VOTACAO', 'lat', 'lon']].drop_duplicates(subset=['NM_LOCAL_VOTACAO'])
         ador_escola = pd.merge(ador_escola, coords, on='NM_LOCAL_VOTACAO', how='left')
         
@@ -464,7 +466,6 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
         st.subheader("📍 Dispersão Geográfica das Abstenções")
         mapa_ador = ador_escola.dropna(subset=['lat', 'lon'])
         if not mapa_ador.empty:
-            # Aqui temos o mapa real na aba 3!
             st.map(mapa_ador, latitude='lat', longitude='lon')
         else:
             st.info("Dados de localização não disponíveis para este filtro.")
@@ -474,9 +475,11 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
         st.subheader("🔥 Top Escolas para Mobilização de Rua (Ouro Puro)")
         ador_top = ador_escola.sort_values(by='VOTOS_ADORMECIDOS', ascending=False).head(limite_ranking)
         
+        altura_ador = max(500, len(ador_top) * 35)
+        
         grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
             x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos'),
-            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
             tooltip=[
                 alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
                 alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total Adormecidos', format=','),
@@ -485,7 +488,7 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
                 alt.Tooltip('QT_VOTOS_NULOS:Q', title='Nulos', format=','),
                 alt.Tooltip('QT_APTOS:Q', title='Total de Aptos', format=',')
             ]
-        ).properties(height=max(400, len(ador_top)*20))
+        ).properties(height=altura_ador)
         st.altair_chart(grafico_ador, use_container_width=True)
         
         st.markdown("#### 📋 Detalhamento dos Votos Perdidos")
@@ -548,16 +551,17 @@ elif menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
             st.markdown("---")
             
             adversarios_grafico = adversarios.head(20) 
+            altura_adv = max(500, len(adversarios_grafico) * 35)
             
             grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
                 x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário'),
-                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
                 tooltip=[
                     alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
                     alt.Tooltip('QT_VOTOS:Q', title='Votos'),
                     alt.Tooltip('Share (%):Q', title='% de Domínio', format='.1f')
                 ]
-            ).properties(height=max(400, len(adversarios_grafico)*20))
+            ).properties(height=altura_adv)
             st.altair_chart(grafico_adv, use_container_width=True)
             
             st.markdown("#### 📋 Detalhamento da Tropa Inimiga")
@@ -622,14 +626,16 @@ elif menu_selecionado == "🔗 5. Análise de Votos Casados":
                     top_1_corr = corr_samir.iloc[0]
                     st.success(f"**Principal Simbiose:** Matematicamente, a curva de crescimento de votos mais parecida com a sua pertence a **{top_1_corr['Candidato Parceiro']}** (Índice r = {top_1_corr['Índice de Correlação (r)']:.2f}). Seus eleitores estão depositando forte confiança neste perfil.")
                     
+                    altura_corr = max(500, len(corr_samir) * 35)
+                    
                     grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
                         x=alt.X('Índice de Correlação (r):Q', title='Força do Voto Casado (0 = Neutro, 1 = Perfeito)', scale=alt.Scale(domain=[0, 1])),
-                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
                         tooltip=[
                             alt.Tooltip('Candidato Parceiro:N', title='Candidato'),
                             alt.Tooltip('Índice de Correlação (r):Q', title='Índice Pearson', format='.2f')
                         ]
-                    ).properties(height=max(400, len(corr_samir)*20))
+                    ).properties(height=altura_corr)
                     st.altair_chart(grafico_corr, use_container_width=True)
                     
                     corr_samir['Índice de Correlação (r)'] = corr_samir['Índice de Correlação (r)'].round(3)
