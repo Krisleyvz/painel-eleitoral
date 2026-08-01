@@ -39,13 +39,34 @@ st.markdown("""
 # Função para conectar ao Google Sheets de forma segura
 def conectar_google_sheets():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    
+    # Cria uma cópia dos secrets para podermos manipular
     creds_dict = dict(st.secrets["gcp_service_account"])
     
     # ---------------------------------------------------------
-    # A CORREÇÃO ESTÁ AQUI: Força a quebra de linha correta na chave privada!
+    # LIMPEZA AGRESSIVA DA CHAVE PRIVADA (Correção do Erro PEM)
     # ---------------------------------------------------------
-    creds_dict["private_key"] = creds_dict["private_key"].replace('\\n', '\n')
+    chave_bruta = str(creds_dict["private_key"])
     
+    # 1. Troca barras duplas por quebras de linha reais
+    chave_limpa = chave_bruta.replace('\\n', '\n')
+    
+    # 2. Remove aspas acidentais no início ou no fim (muito comum dar erro por isso)
+    chave_limpa = chave_limpa.strip('"').strip("'")
+    
+    # 3. Força a formatação exata caso ainda esteja em uma linha única
+    if "-----BEGIN PRIVATE KEY-----" in chave_limpa and "\n" not in chave_limpa:
+        chave_limpa = chave_limpa.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
+        chave_limpa = chave_limpa.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----\n")
+        # Se os \n viraram espaços por acidente ao copiar/colar:
+        meio = chave_limpa.split("-----BEGIN PRIVATE KEY-----\n")[1].split("\n-----END PRIVATE KEY-----")[0]
+        meio_arrumado = meio.replace(" ", "\n")
+        chave_limpa = f"-----BEGIN PRIVATE KEY-----\n{meio_arrumado}\n-----END PRIVATE KEY-----\n"
+
+    # Devolve a chave arrumada para o dicionário
+    creds_dict["private_key"] = chave_limpa
+    # ---------------------------------------------------------
+
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
     
@@ -115,11 +136,9 @@ with st.form(key="form_cadastro", clear_on_submit=True):
             try:
                 sheet = conectar_google_sheets()
                 
-                # Pega a data e hora atual no formato exato da sua coluna A (ex: 30/07/2026 13:56:52)
+                # Pega a data e hora atual no formato exato
                 data_atual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 
-                # Monta a linha seguindo exatamente as colunas da sua planilha:
-                # Carimbo | Nome | Telefone | CEP | Rua | Bairro | Complemento | Participação | Regional
                 novo_registro = [
                     data_atual, 
                     nome, 
