@@ -28,18 +28,47 @@ st.markdown("""
         border: 1px solid #1A73E8 !important;
         border-radius: 5px !important;
     }
+    /* Estilo para botão desativado quando não há telefone */
+    .btn-disabled {
+        display: block; 
+        text-align: center; 
+        background-color: #334e68; 
+        color: #8899a6; 
+        padding: 8px; 
+        border-radius: 5px; 
+        font-size: 16px; 
+        font-weight: bold;
+        cursor: not-allowed;
+    }
 </style>
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para carregar os dados direto via link público (Zero Erros de Chave)
+# Função blindada para tratar telefones
+def tratar_telefone(tel_raw):
+    tel_str = str(tel_raw).strip()
+    if tel_str.lower() == 'nan' or tel_str == '':
+        return "", "Sem telefone"
+    
+    # Remove o ".0" no final caso o pandas tenha lido como float
+    tel_limpo = tel_str.split('.')[0]
+    # Pega só os números
+    tel_num = ''.join(filter(str.isdigit, tel_limpo))
+    
+    if len(tel_num) < 8: # Número muito curto pra ser válido
+        return "", tel_str
+        
+    return tel_num, tel_limpo
+
+# Função para carregar os dados direto via link público
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
-    # Substitua abaixo pelo ID real da sua planilha (o trecho longo entre /d/ e /edit na URL do navegador)
     spreadsheet_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-    return pd.read_csv(url)
+    df = pd.read_csv(url)
+    df.columns = df.columns.str.strip() # Limpeza extra de segurança
+    return df
 
 # Logo Centralizada
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
@@ -59,32 +88,32 @@ except Exception as e:
     df = pd.DataFrame()
 
 if not df.empty:
-    # Filtro rápido por Bairro (coluna F da planilha) ORDENADO ALFABETICAMENTE
+    # Filtro rápido por Bairro ORDENADO ALFABETICAMENTE
     if 'Bairro' in df.columns:
-        bairros_disponiveis = ["Todos"] + sorted(list(df['Bairro'].dropna().astype(str).unique()))
+        bairros_disponiveis = ["Todos"] + sorted([str(b).strip() for b in df['Bairro'].dropna().unique() if str(b).strip() != ''])
     else:
         bairros_disponiveis = ["Todos"]
         
     bairro_filtro = st.selectbox("Filtrar por Bairro:", bairros_disponiveis)
     
     if bairro_filtro != "Todos" and 'Bairro' in df.columns:
-        df = df[df['Bairro'] == bairro_filtro]
+        df = df[df['Bairro'].astype(str).str.strip() == bairro_filtro]
         
     st.markdown("---")
     
     for index, row in df.iterrows():
         nome = str(row.get('Nome Completo', 'Sem Nome'))
-        telefone = str(row.get('Telefone', ''))
         rua = str(row.get('Rua e Número', ''))
         bairro = str(row.get('Bairro', ''))
         complemento = str(row.get('Complemento', ''))
         
-        tel_num = ''.join(filter(str.isdigit, telefone))
+        # Passa o telefone pela função de tratamento
+        tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
         
         st.markdown(f"""
         <div class="entrega-card">
             <b>👤 {nome}</b><br>
-            📞 Tel: <a href="tel:{tel_num}" style="color: #4da6ff;">{telefone}</a><br>
+            📞 Tel: <a href="tel:{tel_num}" style="color: #4da6ff;">{tel_exibicao}</a><br>
             📍 <b>Endereço:</b> {rua} - {bairro}<br>
             💬 <b>Complemento:</b> {complemento if complemento != 'nan' else 'Nenhum'}
         </div>
@@ -93,13 +122,16 @@ if not df.empty:
         # Links de Ação Rápida para o Motorista
         endereco_completo = f"{rua}, {bairro}, Rio Branco - AC"
         link_mapa = f"https://www.google.com/maps/search/?api=1&query={endereco_completo.replace(' ', '+')}"
-        link_wpp = f"https://wa.me/55{tel_num}?text=Olá%20{nome.split()[0]},%20estamos%20a%20caminho%20da%20sua%20residência!"
         
         col_b1, col_b2 = st.columns(2)
         with col_b1:
             st.markdown(f"<a href='{link_mapa}' target='_blank' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>🗺️ Abrir Rota</a>", unsafe_allow_html=True)
         with col_b2:
-            st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+            if tel_num:
+                link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20estamos%20a%20caminho%20da%20sua%20residência!"
+                st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             
         st.markdown("")
 else:
