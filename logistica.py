@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import urllib.parse # Biblioteca essencial para enviar emojis e textos longos no WhatsApp
 
 # 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Logística", page_icon="🚚", layout="centered")
@@ -50,12 +51,10 @@ def tratar_telefone(tel_raw):
     if tel_str.lower() == 'nan' or tel_str == '':
         return "", "Sem telefone"
     
-    # Remove o ".0" no final caso o pandas tenha lido como float
     tel_limpo = tel_str.split('.')[0]
-    # Pega só os números
     tel_num = ''.join(filter(str.isdigit, tel_limpo))
     
-    if len(tel_num) < 8: # Número muito curto pra ser válido
+    if len(tel_num) < 8: 
         return "", tel_str
         
     return tel_num, tel_limpo
@@ -67,7 +66,7 @@ def carregar_dados_planilha():
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
     df = pd.read_csv(url)
-    df.columns = df.columns.str.strip() # Limpeza extra de segurança
+    df.columns = df.columns.str.strip() 
     return df
 
 # Logo Centralizada
@@ -79,15 +78,35 @@ with col_l2:
         st.title("🚚 Logística de Entregas")
 
 st.markdown("---")
-st.subheader("📦 Rotas e Endereços da Planilha")
+st.subheader("📦 Rotas de Entrega de Materiais")
 
 try:
     df = carregar_dados_planilha()
 except Exception as e:
-    st.error(f"Erro ao conectar com a planilha. Verifique se o ID está correto e a planilha está pública para leitura. Detalhe: {e}")
+    st.error(f"Erro ao conectar com a planilha. Detalhe: {e}")
     df = pd.DataFrame()
 
 if not df.empty:
+    
+    # ---------------------------------------------------------
+    # NOVO FILTRO DE LOGÍSTICA: Exibe APENAS quem pediu material ou quer ser multiplicador
+    # ---------------------------------------------------------
+    col_participacao = None
+    for col in df.columns:
+        if "participar" in str(col).lower():
+            col_participacao = col
+            break
+            
+    if col_participacao:
+        # Filtra as linhas onde a resposta contém a palavra "materiais" OU "multiplicador"
+        filtro_logistica = df[col_participacao].astype(str).str.contains("materiais|multiplicador", case=False, na=False)
+        df = df[filtro_logistica]
+    
+    # Verifica se sobrou alguém na lista após o filtro
+    if df.empty:
+        st.info("Nenhum apoiador solicitou materiais físicos ou se cadastrou como multiplicador até o momento.")
+        st.stop()
+
     # Filtro rápido por Bairro ORDENADO ALFABETICAMENTE
     if 'Bairro' in df.columns:
         bairros_disponiveis = ["Todos"] + sorted([str(b).strip() for b in df['Bairro'].dropna().unique() if str(b).strip() != ''])
@@ -99,6 +118,7 @@ if not df.empty:
     if bairro_filtro != "Todos" and 'Bairro' in df.columns:
         df = df[df['Bairro'].astype(str).str.strip() == bairro_filtro]
         
+    st.markdown(f"**Total de entregas na seleção:** {len(df)}")
     st.markdown("---")
     
     for index, row in df.iterrows():
@@ -107,7 +127,6 @@ if not df.empty:
         bairro = str(row.get('Bairro', ''))
         complemento = str(row.get('Complemento', ''))
         
-        # Passa o telefone pela função de tratamento
         tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
         
         st.markdown(f"""
@@ -119,7 +138,7 @@ if not df.empty:
         </div>
         """, unsafe_allow_html=True)
         
-        # Links de Ação Rápida para o Motorista
+        # Rotas e Mensagem
         endereco_completo = f"{rua}, {bairro}, Rio Branco - AC"
         link_mapa = f"https://www.google.com/maps/search/?api=1&query={endereco_completo.replace(' ', '+')}"
         
@@ -128,7 +147,13 @@ if not df.empty:
             st.markdown(f"<a href='{link_mapa}' target='_blank' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>🗺️ Abrir Rota</a>", unsafe_allow_html=True)
         with col_b2:
             if tel_num:
-                link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20estamos%20a%20caminho%20da%20sua%20residência!"
+                # Nova Mensagem Robusta e codificada para WhatsApp
+                primeiro_nome = nome.split()[0]
+                texto_bruto = f"Olá {primeiro_nome}, tudo bem? Aqui é da equipe do Samir Bestene! Estamos a caminho da sua residência para entregar os materiais de campanha que você solicitou e fortalecer o nosso projeto no seu bairro. A luta continua 🚀"
+                texto_codificado = urllib.parse.quote(texto_bruto) # Codifica espaços e emojis perfeitamente
+                
+                link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_codificado}"
+                
                 st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 8px; border-radius: 5px; text-decoration: none; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
