@@ -81,7 +81,7 @@ except Exception as e:
 
 total_cadastros = len(df) if not df.empty else 0
 
-# Abas do Aplicativo Organizadas (Agora com Lideranças!)
+# Abas do Aplicativo Organizadas
 aba1, aba2, aba3, aba4, aba5 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lideranças"])
 
 # --- ABA 1: ANIVERSARIANTES ---
@@ -253,35 +253,36 @@ with aba5:
     st.subheader("🏆 Ranking de Lideranças")
     st.markdown("Engajamento: Quem está indicando mais pessoas?")
     
-    col_indicacao = 'Através de quem você conheceu o nosso projeto?'
+    # ---------------------------------------------------------
+    # A SOLUÇÃO: Busca a coluna de indicação de forma dinâmica
+    # ---------------------------------------------------------
+    col_indicacao = None
+    for col in df.columns:
+        if "Através de quem" in str(col):
+            col_indicacao = col
+            break
     
-    if not df.empty and col_indicacao in df.columns:
-        # Filtra quem tem indicação e padroniza as letras maiúsculas para não duplicar o mesmo nome
+    if not df.empty and col_indicacao is not None:
         df_lideres = df.dropna(subset=[col_indicacao]).copy()
-        df_lideres = df_lideres[df_lideres[col_indicacao].str.strip() != ""]
+        df_lideres = df_lideres[df_lideres[col_indicacao].astype(str).str.strip() != ""]
         df_lideres[col_indicacao] = df_lideres[col_indicacao].astype(str).str.strip().str.title()
         
         if not df_lideres.empty:
-            # Agrupa, conta e ordena
             ranking = df_lideres.groupby(col_indicacao).size().reset_index(name='Qtd')
             ranking = ranking.sort_values(by='Qtd', ascending=False).reset_index(drop=True)
             
-            # Destaque para o 1º Lugar
             top1 = ranking.iloc[0]
             pct_top1 = (top1['Qtd'] / total_cadastros) * 100
             st.metric(label="🥇 Liderança Destaque", value=top1[col_indicacao], delta=f"{top1['Qtd']} indicações ({pct_top1:.1f}% da base)")
             st.markdown("---")
             
-            # Constrói o "Acordeão" (Expander) simulando o agrupamento do AppSheet
             for idx, row in ranking.iterrows():
                 lider = row[col_indicacao]
                 qtd = row['Qtd']
                 pct = (qtd / total_cadastros) * 100
                 posicao = idx + 1
                 
-                # A barra expansível com o título
                 with st.expander(f"#{posicao} | {lider} - {qtd} pessoa(s) ({pct:.1f}%)"):
-                    # Filtra apenas as pessoas indicadas por esse líder
                     apoiados = df_lideres[df_lideres[col_indicacao] == lider]
                     
                     for _, apoiado in apoiados.iterrows():
@@ -292,7 +293,6 @@ with aba5:
                         
                         link_wpp_ap = f"https://wa.me/55{tel_num_ap}"
                         
-                        # O cartão interno menorzinho, limpo e direto ao ponto
                         st.markdown(f"""
                         <div class="apoiador-lider">
                             <b>{nome_ap}</b><br>
@@ -304,4 +304,4 @@ with aba5:
         else:
             st.info("Ainda não há dados suficientes de indicações preenchidos.")
     else:
-        st.warning("A coluna de indicação não foi encontrada na planilha.")
+        st.warning("A coluna de indicação não foi encontrada na planilha. Verifique o formulário.")
