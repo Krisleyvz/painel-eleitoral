@@ -5,31 +5,20 @@ import altair as alt
 import zipfile
 import os
 
-# 1. Configuração da Página em Modo Largo (Widescreen)
+# 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", page_icon="🎯", layout="wide")
 
 # ==========================================
-# INJEÇÃO DE CSS: IDENTIDADE VISUAL DA CAMPANHA
+# INJEÇÃO DE CSS
 # ==========================================
 st.markdown("""
 <style>
-    [data-testid="stSidebar"] {
-        background-color: #0A1C2E !important;
-    }
-    [data-testid="stSidebar"] h1, 
-    [data-testid="stSidebar"] h2, 
-    [data-testid="stSidebar"] h3, 
-    [data-testid="stSidebar"] p, 
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] div.stMarkdown {
-        color: #FFFFFF !important;
-    }
-    div[data-baseweb="select"] * {
-        color: #262730 !important;
-    }
+    [data-testid="stSidebar"] { background-color: #0A1C2E !important; }
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] div.stMarkdown { color: #FFFFFF !important; }
+    div[data-baseweb="select"] * { color: #262730 !important; }
 </style>
 """, unsafe_allow_html=True)
-# ==========================================
 
 # Insere a logo da campanha
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
@@ -76,8 +65,8 @@ def carregar_dados():
 
 try:
     dados = carregar_dados()
-except Exception as e:
-    st.error(f"Erro ao carregar o arquivo 'dados.csv'. Detalhe: {e}")
+except:
+    st.error("Erro ao carregar o arquivo 'dados.csv'.")
     st.stop()
 
 @st.cache_data
@@ -103,7 +92,7 @@ def carregar_demografia(df_votos):
             fator_correcao = np.where(fator_correcao > 0, df_demo['QT_VOTOS_SAMIR'] / fator_correcao, 0)
             df_demo['VOTOS_ESTIMADOS_SAMIR'] = df_demo['VOTOS_ESTIMADOS_SAMIR'] * fator_correcao
         return df_demo
-    except Exception as e:
+    except:
         return pd.DataFrame()
 
 @st.cache_data
@@ -112,15 +101,35 @@ def carregar_adormecidos(df_votos):
         if os.path.exists("base_adormecidos_ac.csv"):
             df_ador = pd.read_csv("base_adormecidos_ac.csv")
             if not df_votos.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
-                mapa_escolas = df_votos[['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO', 'lat', 'lon']].drop_duplicates()
+                mapa_escolas = df_votos[['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
                 df_ador = pd.merge(df_ador, mapa_escolas, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
             return df_ador
         return pd.DataFrame()
-    except Exception as e:
+    except:
+        return pd.DataFrame()
+
+@st.cache_data
+def carregar_concorrencia(df_votos):
+    try:
+        df_conc = pd.DataFrame()
+        if os.path.exists("base_concorrencia_ac.zip"):
+            with zipfile.ZipFile("base_concorrencia_ac.zip", 'r') as z:
+                nome_arquivo = z.namelist()[0]
+                with z.open(nome_arquivo) as f:
+                    df_conc = pd.read_csv(f)
+        else:
+             return pd.DataFrame() 
+            
+        if not df_votos.empty and not df_conc.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
+            mapa_escolas = df_votos[['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
+            df_conc = pd.merge(df_conc, mapa_escolas, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
+        return df_conc
+    except:
         return pd.DataFrame()
 
 dados_demo = carregar_demografia(dados)
 dados_adormecidos = carregar_adormecidos(dados)
+dados_concorrencia = carregar_concorrencia(dados)
 
 # 3. Barra Lateral 
 try:
@@ -131,7 +140,12 @@ except:
 st.sidebar.header("🧭 Navegação do Sistema")
 menu_selecionado = st.sidebar.radio(
     "Selecione o Painel Desejado:",
-    ["📊 1. Inteligência de Votos", "👥 2. Perfil Estimado do Eleitor (Samir)", "🗺️ 3. Mapa de Votos Adormecidos"]
+    [
+        "📊 1. Inteligência de Votos", 
+        "👥 2. Perfil Estimado do Eleitor (Samir)", 
+        "🗺️ 3. Mapa de Votos Adormecidos",
+        "⚔️ 4. Raio-X da Concorrência"
+    ]
 )
 st.sidebar.markdown("---")
 
@@ -168,12 +182,91 @@ limite_ranking = 999999 if mostrar_todas else limite_slider
 label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
 # ==========================================
+# ROTA 4: RAIO-X DA CONCORRÊNCIA
+# ==========================================
+if menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
+    st.title(f"⚔️ Raio-X da Concorrência (Mapeamento de Adversários) - {label_periodo}")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: O Índice de Fragmentação**
+    
+    Este painel revela de quem são os votos em disputa. Entrar em uma escola onde um único "cacique" local domina 80% dos votos exige um esforço colossal de enfrentamento. Por outro lado, escolas onde os votos são pulverizados entre dezenas de candidatos fracos (Alta Fragmentação) são terrenos altamente férteis para a "roubo" de votos. Use este mapa para escolher as batalhas que valem a pena lutar.
+    """)
+
+    if dados_concorrencia.empty:
+        st.error("⚠️ A base 'base_concorrencia_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
+        st.stop()
+        
+    df_conc_filtrado = dados_concorrencia.copy()
+    if ano_selecionado != 'Todos os Anos (Série Histórica)':
+        df_conc_filtrado = df_conc_filtrado[df_conc_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
+    if col_municipio and municipios_selecionados:
+        if 'NM_MUNICIPIO_x' in df_conc_filtrado.columns:
+             df_conc_filtrado = df_conc_filtrado[df_conc_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_conc_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
+        elif 'NM_MUNICIPIO' in df_conc_filtrado.columns:
+             df_conc_filtrado = df_conc_filtrado[df_conc_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+
+    escolas_conc = sorted(df_conc_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
+    escola_alvo = st.selectbox("🎯 Selecione a Escola para Analisar os Adversários (Oceano Azul):", escolas_conc)
+    
+    df_alvo = df_conc_filtrado[df_conc_filtrado['NM_LOCAL_VOTACAO'] == escola_alvo]
+    
+    # Filtro opcional por cargo (para limpar ruídos de Prefeito x Vereador)
+    cargos_disponiveis = df_alvo['DS_CARGO'].dropna().unique().tolist()
+    cargo_selecionado = st.selectbox("Selecione o Cargo Disputado:", cargos_disponiveis)
+    df_alvo = df_alvo[df_alvo['DS_CARGO'] == cargo_selecionado]
+
+    # Agrupa por candidato e remove o Samir (para ver os *outros*)
+    adversarios = df_alvo.groupby('NM_VOTAVEL', as_index=False)['QT_VOTOS'].sum()
+    adversarios = adversarios[~adversarios['NM_VOTAVEL'].str.contains("SAMIR", case=False, na=False)]
+    adversarios = adversarios.sort_values(by='QT_VOTOS', ascending=False)
+    
+    total_votos_escola = adversarios['QT_VOTOS'].sum()
+    
+    if total_votos_escola > 0:
+        adversarios['Share (%)'] = (adversarios['QT_VOTOS'] / total_votos_escola) * 100
+        top_1 = adversarios.iloc[0]
+        
+        st.markdown(f"#### 📊 Donos do Território em: **{escola_alvo}**")
+        
+        col1, col2 = st.columns(2)
+        col1.metric("Principal Adversário", top_1['NM_VOTAVEL'])
+        col2.metric("Domínio do Líder", f"{top_1['Share (%)']:.1f}%")
+        
+        st.markdown("---")
+        
+        adversarios_grafico = adversarios.head(20) # Top 20 para o gráfico não quebrar
+        
+        grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
+            x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário'),
+            y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+            tooltip=[
+                alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
+                alt.Tooltip('QT_VOTOS:Q', title='Votos'),
+                alt.Tooltip('Share (%):Q', title='% de Domínio', format='.1f')
+            ]
+        ).properties(height=max(400, len(adversarios_grafico)*20))
+        st.altair_chart(grafico_adv, use_container_width=True)
+        
+        st.markdown("#### 📋 Detalhamento da Tropa Inimiga")
+        tabela_adv = adversarios[['NM_VOTAVEL', 'QT_VOTOS', 'Share (%)']]
+        tabela_adv.columns = ['Nome do Adversário', 'Votos na Escola', 'Fatia de Domínio (%)']
+        
+        # Formata a % na tabela
+        tabela_adv['Fatia de Domínio (%)'] = tabela_adv['Fatia de Domínio (%)'].round(2).astype(str) + '%'
+        st.dataframe(tabela_adv.head(50), use_container_width=True)
+    else:
+        st.warning("Não há dados de concorrência suficientes para esta escola/cargo nos filtros selecionados.")
+    
+    st.stop()
+
+
+# ==========================================
 # ROTA 3: MAPA DE VOTOS ADORMECIDOS
 # ==========================================
 if menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
     st.title(f"🗺️ Mapa de Votos Adormecidos (Abstenções, Brancos e Nulos) - {label_periodo}")
     
-    # Texto Robusto e Estratégico Inserido Aqui
     st.info("""
     **💡 Fundamentação Estratégica: O Custo de Aquisição de Votos (CAV)**
     
@@ -214,7 +307,6 @@ if menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
     st.subheader("🔥 Top Escolas para Mobilização de Rua (Ouro Puro)")
     ador_top = ador_escola.sort_values(by='VOTOS_ADORMECIDOS', ascending=False).head(limite_ranking)
     
-    # Eixo Y sem título e com labelLimit de 500 para evitar sobreposição
     grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
         x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos'),
         y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
@@ -300,7 +392,6 @@ if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
     df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
     df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola['VOTOS_ESTIMADOS_SAMIR'].astype(int)
     
-    # Eixo Y sem título e com labelLimit de 500
     grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
         x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Samir)'),
         y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
@@ -365,7 +456,6 @@ else:
 top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
 altura_grafico = max(400, len(top_escolas) * 20)
 
-# Eixo Y sem título e com labelLimit de 500
 grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
     x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
     y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=500)),
