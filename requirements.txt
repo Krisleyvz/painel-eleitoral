@@ -4,3 +4,5 @@ numpy
 altair
 gspread
 google-auth
+folium
+streamlit-folium
