@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import altair as alt
+import zipfile
+import os
 
 # 1. Configuração da Página em Modo Largo (Widescreen)
 st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", page_icon="🎯", layout="wide")
@@ -98,21 +100,26 @@ except Exception as e:
 @st.cache_data
 def carregar_demografia(df_votos):
     try:
-        # Lê a base diretamente de dentro do ZIP
-        import zipfile
-        with zipfile.ZipFile("base_demografica_ac.zip", "r") as z:
-            # O nome do arquivo dentro do zip deve ser o mesmo do csv
-            with z.open("base_demografica_ac.csv") as f:
-                df_demo = pd.read_csv(f)
-        
+        df_demo = pd.DataFrame()
+        # Verifica se o ZIP existe
+        if os.path.exists("base_demografica_ac.zip"):
+            with zipfile.ZipFile("base_demografica_ac.zip", 'r') as z:
+                # Pega o primeiro arquivo dentro do ZIP (mesmo se o Windows mudar o nome)
+                nome_arquivo = z.namelist()[0]
+                with z.open(nome_arquivo) as f:
+                    df_demo = pd.read_csv(f)
+        else:
+             return pd.DataFrame() # Retorna vazio para ativar a mensagem de erro
+            
         # O TSE só dá Zona e Seção. Vamos cruzar com a base do Samir para descobrir o Nome da Escola!
-        if not df_votos.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
+        if not df_votos.empty and not df_demo.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
             mapa_escolas = df_votos[['NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
             # Faz a junção (merge) entre o TSE e a base do Samir
             df_demo = pd.merge(df_demo, mapa_escolas, on=['NR_ZONA', 'NR_SECAO'], how='inner')
             
         return df_demo
     except Exception as e:
+        st.sidebar.error(f"Erro interno de leitura: {e}")
         return pd.DataFrame()
 
 dados_demo = carregar_demografia(dados)
@@ -167,7 +174,7 @@ if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
     st.title(f"👥 Perfil Demográfico Oficial (TSE) - {label_periodo}")
     
     if dados_demo.empty:
-        st.error("⚠️ A base 'base_demografica_ac.csv' não foi encontrada no servidor. Envie o arquivo para o GitHub.")
+        st.error("⚠️ A base 'base_demografica_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
         st.stop()
         
     # Aplicando os filtros globais na base demográfica
