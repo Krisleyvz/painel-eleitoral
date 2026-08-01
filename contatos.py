@@ -41,7 +41,6 @@ st.markdown("""
         border: 1px solid #1A73E8 !important;
         border-radius: 5px !important;
     }
-    /* Estilização para o expansor (accordion) do Streamlit */
     [data-testid="stExpander"] {
         background-color: #152b45 !important;
         border: 1px solid #1A73E8 !important;
@@ -51,17 +50,48 @@ st.markdown("""
         font-weight: bold !important;
         font-size: 16px !important;
     }
+    /* Estilo para botão desativado */
+    .btn-disabled {
+        display: block; 
+        text-align: center; 
+        background-color: #334e68; 
+        color: #8899a6; 
+        padding: 6px; 
+        border-radius: 4px; 
+        font-size: 14px; 
+        font-weight: bold;
+        cursor: not-allowed;
+    }
 </style>
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para carregar os dados direto via link público
+# Função blindada para tratar telefones
+def tratar_telefone(tel_raw):
+    tel_str = str(tel_raw).strip()
+    if tel_str.lower() == 'nan' or tel_str == '':
+        return "", "Sem telefone"
+    
+    # Remove o ".0" no final caso o pandas tenha lido como float
+    tel_limpo = tel_str.split('.')[0]
+    # Pega só os números
+    tel_num = ''.join(filter(str.isdigit, tel_limpo))
+    
+    if len(tel_num) < 8: # Número muito curto pra ser válido
+        return "", tel_str
+        
+    return tel_num, tel_limpo
+
+# Função para carregar os dados
 @st.cache_data(ttl=30)
 def carregar_dados_planilha():
     spreadsheet_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
     sheet_name = "Form_Responses"
     url = f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-    return pd.read_csv(url)
+    df = pd.read_csv(url)
+    # Limpa espaços invisíveis nos nomes das colunas
+    df.columns = df.columns.str.strip()
+    return df
 
 # Logo Centralizada
 col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
@@ -76,7 +106,7 @@ st.markdown("---")
 try:
     df = carregar_dados_planilha()
 except Exception as e:
-    st.error(f"Erro ao conectar com a planilha. Verifique se o link está público. Detalhe: {e}")
+    st.error(f"Erro ao conectar com a planilha. Detalhe: {e}")
     df = pd.DataFrame()
 
 total_cadastros = len(df) if not df.empty else 0
@@ -118,11 +148,12 @@ with aba1:
                     continue
                     
                 nome = str(row.get('Nome Completo', 'Sem Nome'))
-                telefone = str(row.get('Telefone', ''))
                 bairro = str(row.get('Bairro', ''))
                 nascimento = str(row.get('Data de Nascimento', ''))
                 dias = row['DiasFaltando']
-                tel_num = ''.join(filter(str.isdigit, telefone))
+                
+                # Tratamento seguro do telefone
+                tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
                 
                 classe_css = "contato-card card-aniversario-hoje" if dias == 0 else "contato-card"
                 texto_dias = "🔥 **É HOJE!**" if dias == 0 else f"Faltam {dias} dias"
@@ -130,16 +161,22 @@ with aba1:
                 st.markdown(f"""
                 <div class="{classe_css}">
                     <b>🎂 {nome}</b> <span style="float: right; color: #4da6ff; font-size: 14px;">{nascimento} ({texto_dias})</span><br>
-                    📍 Bairro: {bairro} | 📞 {telefone}
+                    📍 Bairro: {bairro} | 📞 {tel_exibicao}
                 </div>
                 """, unsafe_allow_html=True)
                 
                 bc1, bc2 = st.columns(2)
                 with bc1:
-                    link_wpp_aniver = f"https://wa.me/55{tel_num}?text=Parabéns%20{nome.split()[0]}!%20Muitas%20felicidades!"
-                    st.markdown(f"<a href='{link_wpp_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 Mandar Parabéns</a>", unsafe_allow_html=True)
+                    if tel_num:
+                        link_wpp_aniver = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Parabéns%20{nome.split()[0]}!%20Muitas%20felicidades!"
+                        st.markdown(f"<a href='{link_wpp_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 Mandar Parabéns</a>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
                 with bc2:
-                    st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                    if tel_num:
+                        st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
                 st.markdown("")
         else:
             st.info("Nenhuma data de nascimento válida encontrada.")
@@ -154,30 +191,35 @@ with aba2:
         bairros_disp = ["Todos"] + lista_bairros
         
         bairro_sel = st.selectbox("Selecione o Bairro:", bairros_disp)
-        filtrados = df if bairro_sel == "Todos" else df[df['Bairro'].str.strip() == bairro_sel]
+        filtrados = df if bairro_sel == "Todos" else df[df['Bairro'].astype(str).str.strip() == bairro_sel]
         
         st.markdown(f"**Total encontrado:** {len(filtrados)} pessoa(s)")
         st.markdown("")
         
         for idx, row in filtrados.iterrows():
             nome = str(row.get('Nome Completo', 'Sem Nome'))
-            telefone = str(row.get('Telefone', ''))
             bairro = str(row.get('Bairro', ''))
-            tel_num = ''.join(filter(str.isdigit, telefone))
+            tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
             
             st.markdown(f"""
             <div class="contato-card">
                 <b>👤 {nome}</b><br>
-                📍 <b>Bairro:</b> {bairro} | 📞 {telefone}
+                📍 <b>Bairro:</b> {bairro} | 📞 {tel_exibicao}
             </div>
             """, unsafe_allow_html=True)
             
             bc1, bc2 = st.columns(2)
             with bc1:
-                link_wpp = f"https://wa.me/55{tel_num}?text=Olá%20{nome.split()[0]},%20tudo%20bem?"
-                st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+                if tel_num:
+                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20tudo%20bem?"
+                    st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             with bc2:
-                st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                if tel_num:
+                    st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             st.markdown("")
     else:
         st.info("Nenhum dado de bairro encontrado.")
@@ -197,23 +239,28 @@ with aba3:
         
         for idx, row in df_contatos.iterrows():
             nome = str(row.get('Nome Completo', 'Sem Nome'))
-            telefone = str(row.get('Telefone', ''))
             bairro = str(row.get('Bairro', ''))
-            tel_num = ''.join(filter(str.isdigit, telefone))
+            tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
             
             st.markdown(f"""
             <div class="contato-card">
                 <b>👤 {nome}</b><br>
-                📍 Bairro: {bairro} | 📞 {telefone}
+                📍 Bairro: {bairro} | 📞 {tel_exibicao}
             </div>
             """, unsafe_allow_html=True)
             
             bc1, bc2 = st.columns(2)
             with bc1:
-                link_wpp = f"https://wa.me/55{tel_num}?text=Olá%20{nome.split()[0]},%20tudo%20bem?"
-                st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+                if tel_num:
+                    link_wpp = f"https://api.whatsapp.com/send?phone=55{tel_num}&text=Olá%20{nome.split()[0]},%20tudo%20bem?"
+                    st.markdown(f"<a href='{link_wpp}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 WhatsApp</a>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             with bc2:
-                st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                if tel_num:
+                    st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             st.markdown("")
     else:
         st.info("Nenhum contato encontrado.")
@@ -253,9 +300,6 @@ with aba5:
     st.subheader("🏆 Ranking de Lideranças")
     st.markdown("Engajamento: Quem está indicando mais pessoas?")
     
-    # ---------------------------------------------------------
-    # A SOLUÇÃO: Busca a coluna de indicação de forma dinâmica
-    # ---------------------------------------------------------
     col_indicacao = None
     for col in df.columns:
         if "Através de quem" in str(col):
@@ -287,17 +331,20 @@ with aba5:
                     
                     for _, apoiado in apoiados.iterrows():
                         nome_ap = str(apoiado.get('Nome Completo', 'Sem Nome'))
-                        tel_ap = str(apoiado.get('Telefone', ''))
                         bairro_ap = str(apoiado.get('Bairro', ''))
-                        tel_num_ap = ''.join(filter(str.isdigit, tel_ap))
+                        tel_num_ap, tel_exibicao_ap = tratar_telefone(apoiado.get('Telefone', ''))
                         
-                        link_wpp_ap = f"https://wa.me/55{tel_num_ap}"
+                        if tel_num_ap:
+                            link_wpp_ap = f"https://api.whatsapp.com/send?phone=55{tel_num_ap}"
+                            tel_html = f"📞 <a href='{link_wpp_ap}' target='_blank' style='color: #4da6ff; text-decoration: none;'>{tel_exibicao_ap}</a>"
+                        else:
+                            tel_html = f"📞 <span style='color: #8899a6;'>Sem Número</span>"
                         
                         st.markdown(f"""
                         <div class="apoiador-lider">
                             <b>{nome_ap}</b><br>
                             <span style="font-size: 14px; color: #a9b9cc;">
-                                📍 {bairro_ap} | 📞 <a href="{link_wpp_ap}" target="_blank" style="color: #4da6ff; text-decoration: none;">{tel_ap}</a>
+                                📍 {bairro_ap} | {tel_html}
                             </span>
                         </div>
                         """, unsafe_allow_html=True)
