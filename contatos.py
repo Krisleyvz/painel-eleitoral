@@ -268,10 +268,18 @@ with aba3:
     else:
         st.info("Nenhum contato encontrado.")
 
-# --- ABA 4: MAPA INTERATIVO ---
+# --- ABA 4: MAPA INTERATIVO CATEGORIZADO ---
 with aba4:
     st.subheader("🗺️ Dispersão de Apoiadores")
-    st.markdown("Toque nos pinos azuis para abrir as informações do contato.")
+    st.markdown("Toque nos pinos para abrir as informações do contato.")
+    
+    st.markdown("""
+    <div style='background-color: #152b45; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center;'>
+        <b>Legenda Tática:</b><br>
+        🔴 Liderança &nbsp;|&nbsp; 🟣 Parceria Estratégica <br>
+        🟢 Manutenção &nbsp;|&nbsp; 🔵 Padrão / Outros
+    </div>
+    """, unsafe_allow_html=True)
     
     if not df.empty and 'Bairro' in df.columns:
         coord_referencia = {
@@ -294,9 +302,7 @@ with aba4:
             'TANCREDO NEVES': (-9.9400, -67.8400)
         }
         
-        # Inicia o motor do Folium centrado em Rio Branco
         mapa = folium.Map(location=[-9.9749, -67.8243], zoom_start=12, tiles="CartoDB positron")
-        
         np.random.seed(42) 
         
         col_mun = None
@@ -310,6 +316,25 @@ with aba4:
             bairro = str(row.get('Bairro', '')).strip().upper()
             nome = str(row.get('Nome Completo', 'Sem Nome'))
             
+            # ---------------------------------------------------------
+            # LÓGICA DE CATEGORIZAÇÃO SEMÂNTICA
+            # ---------------------------------------------------------
+            classificacao = str(row.get('Classificação Interna', '')).strip().upper()
+            
+            if "LIDER" in classificacao or "LIDERANÇA" in classificacao:
+                cor_pino = "red"
+                icone_pino = "star"
+            elif "PARCERIA" in classificacao or "ESTRATÉGICA" in classificacao or "ESTRATEGICA" in classificacao:
+                cor_pino = "purple"
+                icone_pino = "briefcase"
+            elif "MANUTENÇÃO" in classificacao or "MANUTENCAO" in classificacao:
+                cor_pino = "green"
+                icone_pino = "ok"
+            else:
+                cor_pino = "blue"
+                icone_pino = "info-sign"
+            # ---------------------------------------------------------
+            
             if mun != 'RIO BRANCO' and mun in coord_referencia:
                 base_lat, base_lon = coord_referencia[mun]
             else:
@@ -321,7 +346,6 @@ with aba4:
             
             tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
             
-            # Constrói o HTML do Cartão Interativo que sobe ao clicar
             if tel_num:
                 primeiro_nome = nome.split()[0]
                 texto_wpp = urllib.parse.quote(f"Olá {primeiro_nome}, tudo bem?")
@@ -342,10 +366,9 @@ with aba4:
             folium.Marker(
                 location=[lat_final, lon_final],
                 popup=folium.Popup(popup_html, max_width=250),
-                icon=folium.Icon(color="blue", icon="info-sign")
+                icon=folium.Icon(color=cor_pino, icon=icone_pino)
             ).add_to(mapa)
             
-        # Renderiza o mapa interativo na tela do Streamlit
         st_folium(mapa, use_container_width=True, height=500, returned_objects=[])
     else: 
         st.warning("Não há dados suficientes de localidade para gerar o mapa.")
