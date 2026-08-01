@@ -142,9 +142,10 @@ menu_selecionado = st.sidebar.radio(
     "Selecione o Painel Desejado:",
     [
         "📊 1. Inteligência de Votos", 
-        "👥 2. Perfil Estimado do Eleitor (Samir)", 
+        "👥 2. Perfil Estimado do Eleitor", 
         "🗺️ 3. Mapa de Votos Adormecidos",
-        "⚔️ 4. Raio-X da Concorrência"
+        "⚔️ 4. Raio-X da Concorrência",
+        "🔗 5. Análise de Votos Casados"
     ]
 )
 st.sidebar.markdown("---")
@@ -182,19 +183,102 @@ limite_ranking = 999999 if mostrar_todas else limite_slider
 label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
 # ==========================================
+# ROTA 5: ANÁLISE DE VOTOS CASADOS (CORRELAÇÃO)
+# ==========================================
+if menu_selecionado == "🔗 5. Análise de Votos Casados":
+    st.title(f"🔗 Análise de Voto Casado (Matriz de Correlação) - {label_periodo}")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: Coeficiente de Correlação de Pearson e Simbiose Eleitoral**
+    
+    A política de alianças baseada em instinto é ineficiente. Este painel utiliza o *Coeficiente de Correlação de Pearson (r)* aplicado à variância de votos urna por urna para medir a força da "simbiose eleitoral" entre dois candidatos. Quando a curva de votos do Samir sobe em uma determinada seção eleitoral, a curva de qual outro candidato sobe simultaneamente?
+    
+    Um índice próximo a +1.0 indica uma transferência de votos (voto casado) quase perfeita. Com este dado matemático em mãos, negociações institucionais para formações de chapas, dobradinhas não oficiais ou rateio de fundos partidários deixam de ser baseadas em promessas e passam a ser balizadas por comportamento empírico do eleitorado.
+    """)
+
+    if dados_concorrencia.empty or ano_selecionado == 'Todos os Anos (Série Histórica)':
+        st.warning("⚠️ Para calcular o Voto Casado com precisão matemática, selecione um **Ano Específico** no filtro lateral (ex: 2022). O cálculo histórico distorce a variância devido às mudanças de cargo.")
+        st.stop()
+        
+    df_conc_filtrado = dados_concorrencia[dados_concorrencia['ANO_ELEICAO'] == int(ano_selecionado)].copy()
+    if col_municipio and municipios_selecionados:
+        if 'NM_MUNICIPIO_x' in df_conc_filtrado.columns:
+             df_conc_filtrado = df_conc_filtrado[df_conc_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_conc_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
+        elif 'NM_MUNICIPIO' in df_conc_filtrado.columns:
+             df_conc_filtrado = df_conc_filtrado[df_conc_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+
+    # Filtro de cargo alvo
+    cargos_disponiveis = df_conc_filtrado['DS_CARGO'].dropna().unique().tolist()
+    cargo_alvo = st.selectbox("🎯 Selecione o Cargo para cruzar com os votos do Samir:", cargos_disponiveis)
+    
+    # 1. Isola os votos do Samir por Seção
+    votos_samir_secao = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].groupby('NR_SECAO', as_index=False)['QT_VOTOS_SAMIR'].sum()
+    
+    # 2. Isola os votos do Cargo Alvo por Seção
+    df_alvo = df_conc_filtrado[df_conc_filtrado['DS_CARGO'] == cargo_alvo]
+    
+    if df_alvo.empty:
+        st.info("Nenhum dado encontrado para o cargo selecionado.")
+        st.stop()
+        
+    pivot_alvo = df_alvo.pivot_table(index='NR_SECAO', columns='NM_VOTAVEL', values='QT_VOTOS', aggfunc='sum').fillna(0)
+    
+    # 3. Merge matemático (Urna contra Urna)
+    base_correlacao = pd.merge(votos_samir_secao, pivot_alvo, on='NR_SECAO', how='inner')
+    
+    if len(base_correlacao) > 5: # Precisa de pelo menos algumas urnas para ter validade estatística
+        # 4. Cálculo de Pearson
+        matriz_corr = base_correlacao.drop(columns=['NR_SECAO']).corr()
+        corr_samir = matriz_corr['QT_VOTOS_SAMIR'].drop('QT_VOTOS_SAMIR').reset_index()
+        corr_samir.columns = ['Candidato Parceiro', 'Índice de Correlação (r)']
+        
+        # Filtra apenas correlações positivas e remove o próprio Samir se ele estiver na lista do cargo
+        corr_samir = corr_samir[corr_samir['Índice de Correlação (r)'] > 0.1]
+        corr_samir = corr_samir[~corr_samir['Candidato Parceiro'].str.contains("SAMIR", case=False, na=False)]
+        corr_samir = corr_samir.sort_values(by='Índice de Correlação (r)', ascending=False).head(limite_ranking)
+        
+        if corr_samir.empty:
+            st.warning("Não foi detectada nenhuma correlação matemática positiva forte com os candidatos deste cargo.")
+            st.stop()
+            
+        st.markdown(f"#### 🧬 Ranking de Dobradinhas Orgânicas (Cargo: {cargo_alvo})")
+        
+        top_1_corr = corr_samir.iloc[0]
+        st.success(f"**Principal Simbiose:** Matematicamente, a curva de crescimento de votos mais parecida com a sua pertence a **{top_1_corr['Candidato Parceiro']}** (Índice r = {top_1_corr['Índice de Correlação (r)']:.2f}). Seus eleitores estão depositando forte confiança neste perfil.")
+        
+        grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
+            x=alt.X('Índice de Correlação (r):Q', title='Força do Voto Casado (0 = Neutro, 1 = Perfeito)', scale=alt.Scale(domain=[0, 1])),
+            y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=500)),
+            tooltip=[
+                alt.Tooltip('Candidato Parceiro:N', title='Candidato'),
+                alt.Tooltip('Índice de Correlação (r):Q', title='Índice Pearson', format='.2f')
+            ]
+        ).properties(height=max(400, len(corr_samir)*20))
+        st.altair_chart(grafico_corr, use_container_width=True)
+        
+        corr_samir['Índice de Correlação (r)'] = corr_samir['Índice de Correlação (r)'].round(3)
+        st.dataframe(corr_samir, use_container_width=True)
+    else:
+        st.warning("Não há volume de urnas suficientes nos filtros selecionados para garantir significância estatística no cálculo de Pearson.")
+    
+    st.stop()
+
+# ==========================================
 # ROTA 4: RAIO-X DA CONCORRÊNCIA
 # ==========================================
 if menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
     st.title(f"⚔️ Raio-X da Concorrência (Mapeamento de Adversários) - {label_periodo}")
     
     st.info("""
-    **💡 Fundamentação Estratégica: O Índice de Fragmentação**
+    **💡 Fundamentação Estratégica: O Índice de Fragmentação e Concentração de Mercado (HHI)**
     
-    Este painel revela de quem são os votos em disputa. Entrar em uma escola onde um único "cacique" local domina 80% dos votos exige um esforço colossal de enfrentamento. Por outro lado, escolas onde os votos são pulverizados entre dezenas de candidatos fracos (Alta Fragmentação) são terrenos altamente férteis para a "roubo" de votos. Use este mapa para escolher as batalhas que valem a pena lutar.
+    Avançar em territórios sem mapear o grau de monopolização dos votos é uma falha tática gravíssima. Este painel permite analisar o *Market Share* dos concorrentes através do conceito de Índice de Herfindahl-Hirschman (HHI) adaptado à realidade eleitoral.
+    
+    Entrar em uma escola onde um único "cacique" local domina 80% dos votos exige um esforço colossal de enfrentamento e desconstrução. Por outro lado, territórios com "Alta Fragmentação" — onde os votos estão diluídos entre dezenas de candidatos periféricos — são terrenos altamente vulneráveis e receptivos à infiltração de uma nova liderança. Use este mapa para escolher as batalhas de menor atrito e maior rentabilidade.
     """)
 
     if dados_concorrencia.empty:
-        st.error("⚠️ A base 'base_concorrencia_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
+        st.error("⚠️ A base 'base_concorrencia_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP para o GitHub.")
         st.stop()
         
     df_conc_filtrado = dados_concorrencia.copy()
@@ -211,12 +295,10 @@ if menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
     
     df_alvo = df_conc_filtrado[df_conc_filtrado['NM_LOCAL_VOTACAO'] == escola_alvo]
     
-    # Filtro opcional por cargo (para limpar ruídos de Prefeito x Vereador)
     cargos_disponiveis = df_alvo['DS_CARGO'].dropna().unique().tolist()
     cargo_selecionado = st.selectbox("Selecione o Cargo Disputado:", cargos_disponiveis)
     df_alvo = df_alvo[df_alvo['DS_CARGO'] == cargo_selecionado]
 
-    # Agrupa por candidato e remove o Samir (para ver os *outros*)
     adversarios = df_alvo.groupby('NM_VOTAVEL', as_index=False)['QT_VOTOS'].sum()
     adversarios = adversarios[~adversarios['NM_VOTAVEL'].str.contains("SAMIR", case=False, na=False)]
     adversarios = adversarios.sort_values(by='QT_VOTOS', ascending=False)
@@ -235,7 +317,7 @@ if menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
         
         st.markdown("---")
         
-        adversarios_grafico = adversarios.head(20) # Top 20 para o gráfico não quebrar
+        adversarios_grafico = adversarios.head(20) 
         
         grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
             x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário'),
@@ -251,8 +333,6 @@ if menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
         st.markdown("#### 📋 Detalhamento da Tropa Inimiga")
         tabela_adv = adversarios[['NM_VOTAVEL', 'QT_VOTOS', 'Share (%)']]
         tabela_adv.columns = ['Nome do Adversário', 'Votos na Escola', 'Fatia de Domínio (%)']
-        
-        # Formata a % na tabela
         tabela_adv['Fatia de Domínio (%)'] = tabela_adv['Fatia de Domínio (%)'].round(2).astype(str) + '%'
         st.dataframe(tabela_adv.head(50), use_container_width=True)
     else:
@@ -270,9 +350,9 @@ if menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
     st.info("""
     **💡 Fundamentação Estratégica: O Custo de Aquisição de Votos (CAV)**
     
-    Na ciência política e no marketing eleitoral, o *Custo de Aquisição de Votos (CAV)* em redutos dominados por adversários é altíssimo, pois exige desconstruir a preferência do eleitor para então tentar reconstruir a confiança.
+    Na ciência política e no marketing eleitoral corporativo, o *Custo de Aquisição de Votos (CAV)* em redutos amplamente dominados por adversários é altíssimo, pois exige desconstruir a preferência do eleitor para então tentar reconstruir a confiança.
     
-    Em contrapartida, as **Abstenções, Brancos e Nulos** representam um "Oceano Azul" de eleitores que não possuem rejeição direta à campanha, mas sim apatia ou desilusão com o processo. Matematicamente, mobilizar a estrutura de rua (militância, panfletagem e logística) para áreas com alta concentração de 'Votos Adormecidos' garante um **Retorno sobre o Investimento (ROI)** de campanha muito superior. É estatisticamente mais eficiente motivar um eleitor neutro a ir às urnas do que converter um eleitor já fidelizado por outro candidato.
+    Em contrapartida, as **Abstenções, Brancos e Nulos** representam um "Oceano Azul" de eleitores que não possuem rejeição direta à campanha, mas sim apatia ou desilusão orgânica com o processo. Matematicamente, mobilizar a estrutura de rua (militância, panfletagem direcional e logística) para áreas com altíssima concentração de 'Votos Adormecidos' garante um **Retorno sobre o Investimento (ROI)** de campanha brutalmente superior. É estatística e financeiramente mais eficiente motivar um eleitor neutro a ir às urnas do que converter um eleitor já fidelizado.
     """)
 
     if dados_adormecidos.empty:
@@ -335,7 +415,14 @@ if menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
 if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
     
     st.title(f"👥 Perfil Estimado do Eleitor (Samir Bestene) - {label_periodo}")
-    st.markdown("*Nota Metodológica: Como o voto é secreto, o sistema cruza o perfil geral do local com o 'Market Share' do Samir (seus votos) para realizar a Inferência Ecológica, calculando o perfil mais provável da sua base de eleitores.*")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: Inferência Ecológica e Microtargeting Demográfico**
+    
+    O sigilo do voto impede o mapeamento exato da demografia individual. Contudo, superamos essa limitação legal aplicando o modelo de *Inferência Ecológica*. O sistema cruza os dados sociodemográficos oficiais do TSE (por colégio eleitoral) com a dominância tática (*Market Share*) do candidato na mesma jurisdição.
+    
+    O resultado entrega a probabilidade estatística do Perfil do Eleitor. Isso permite à coordenação de campanha moldar o *Microtargeting* no impulsionamento de tráfego pago (Redes Sociais) e ajustar a linguagem semântica e estética dos discursos para que ressoem perfeitamente com a demografia que já sustenta a base, garantindo a blindagem e retenção do eleitorado primário.
+    """)
     
     if dados_demo.empty:
         st.error("⚠️ A base 'base_demografica_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
@@ -405,6 +492,16 @@ if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
 # ==========================================
 # ROTA 1: PAINEL DE INTELIGÊNCIA DE VOTOS (SEU CÓDIGO ORIGINAL)
 # ==========================================
+
+st.title(f"📊 Inteligência de Votos e Dominância - {label_periodo}")
+
+st.info("""
+**💡 Fundamentação Estratégica: Alocação Eficiente de Recursos e Análise Espacial**
+
+A gestão moderna de campanhas exige o banimento de ações pautadas em achismos geográficos. Este módulo processa a distribuição espacial e a densidade de votos históricos para aplicar a *Regra de Pareto (80/20)*, permitindo alocar recursos logísticos e financeiros finitos estritamente nas zonas de maior tração eleitoral.
+
+As Matrizes Estratégicas fornecidas abaixo atuam como um sistema de priorização: categorizando territórios para Ações de Blindagem (Defesa de Redutos) e Ações de Avanço (Oceano Azul), maximizando o impacto territorial de cada movimento do candidato.
+""")
 
 if ano_selecionado == 'Todos os Anos (Série Histórica)':
     dados_filtrados = dados.copy()
