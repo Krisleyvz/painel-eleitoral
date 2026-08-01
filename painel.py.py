@@ -113,23 +113,33 @@ def carregar_demografia(df_votos):
             
         # O TSE só dá Zona e Seção. Vamos cruzar com a base do Samir para descobrir o Nome da Escola!
         if not df_votos.empty and not df_demo.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
-            # Agrupa os votos do Samir por Zona e Seção (para ter um valor único por seção)
-            votos_secao = df_votos.groupby(['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO'], as_index=False).agg({
+            
+            # PASSO 1: Descobrir o nome de cada escola no TSE
+            mapa_escolas = df_votos[['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
+            df_demo = pd.merge(df_demo, mapa_escolas, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
+            
+            # PASSO 2: Agrupar os votos DO SAMIR e VALIDOS por ESCOLA (e não por seção, para não perder votos)
+            votos_escola = df_votos.groupby(['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'], as_index=False).agg({
                 'QT_VOTOS_SAMIR': 'sum',
                 'QT_VOTOS_VALIDOS_SECAO': 'sum'
             })
             
-            # Calcula o Market Share (Força do Samir) em cada Seção
-            votos_secao['MARKET_SHARE'] = np.where(votos_secao['QT_VOTOS_VALIDOS_SECAO'] > 0, 
-                                                   votos_secao['QT_VOTOS_SAMIR'] / votos_secao['QT_VOTOS_VALIDOS_SECAO'], 
+            # Calcula o Market Share do Samir na ESCOLA INTEIRA
+            votos_escola['MARKET_SHARE'] = np.where(votos_escola['QT_VOTOS_VALIDOS_SECAO'] > 0, 
+                                                   votos_escola['QT_VOTOS_SAMIR'] / votos_escola['QT_VOTOS_VALIDOS_SECAO'], 
                                                    0)
             
-            # Faz a junção (merge) entre o TSE e a base de votos (incluindo o Market Share)
-            df_demo = pd.merge(df_demo, votos_secao, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
+            # PASSO 3: Juntar o Market Share com a demografia
+            df_demo = pd.merge(df_demo, votos_escola[['ANO_ELEICAO', 'NM_LOCAL_VOTACAO', 'QT_VOTOS_SAMIR', 'MARKET_SHARE']], on=['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'], how='left')
             
-            # INFERÊNCIA ECOLÓGICA: Calcula o "Voto Estimado do Samir" distribuído por perfil demográfico
-            # Multiplica a quantidade de eleitores de um perfil X na seção pelo % de força do Samir ali.
+            # INFERÊNCIA ECOLÓGICA: Calcula o "Voto Estimado" proporcionalmente
             df_demo['VOTOS_ESTIMADOS_SAMIR'] = df_demo['QT_ELEITORES_PERFIL'] * df_demo['MARKET_SHARE']
+            
+            # Ajuste Fino para cravar o número exato de votos
+            # Como a proporção às vezes dá números quebrados, nós forçamos o total a bater exatamente com o número de votos que ele teve.
+            fator_correcao = df_demo.groupby(['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'])['VOTOS_ESTIMADOS_SAMIR'].transform('sum')
+            fator_correcao = np.where(fator_correcao > 0, df_demo['QT_VOTOS_SAMIR'] / fator_correcao, 0)
+            df_demo['VOTOS_ESTIMADOS_SAMIR'] = df_demo['VOTOS_ESTIMADOS_SAMIR'] * fator_correcao
             
         return df_demo
     except Exception as e:
@@ -197,8 +207,11 @@ if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
     if ano_selecionado != 'Todos os Anos (Série Histórica)':
         df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
     if col_municipio and municipios_selecionados:
-        if 'NM_MUNICIPIO' in df_demo_filtrado.columns:
-            df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+        # Corrige o problema do _x e _y pegando qualquer um que exista
+        if 'NM_MUNICIPIO_x' in df_demo_filtrado.columns:
+            df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_demo_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
+        elif 'NM_MUNICIPIO' in df_demo_filtrado.columns:
+             df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
 
     # Filtro específico de Escola para o Perfil
     escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
