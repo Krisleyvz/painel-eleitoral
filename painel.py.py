@@ -24,7 +24,7 @@ st.markdown("""
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
-        st.image("IMG_6009.PNG", use_container_width=True)
+        st.image("IMG_6008.PNG", use_container_width=True)
     except:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
@@ -182,7 +182,6 @@ limite_ranking = 999999 if mostrar_todas else limite_slider
 
 label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
-
 # ==========================================
 # ROTA 1: PAINEL DE INTELIGÊNCIA DE VOTOS 
 # ==========================================
@@ -242,13 +241,11 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
         top_escolas['MARKET_SHARE'] = 0.0
 
     top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
-    # Aumentando a altura da barra para garantir que todos os textos caibam na vertical
     altura_grafico = max(500, len(top_escolas) * 35)
 
     grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
         x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
-        # labelLimit=250 para truncar com "..." e labelOverlap=False para forçar mostrar todas as linhas
-        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
         tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', format='.1f')]
     ).properties(height=altura_grafico)
     st.altair_chart(grafico_barras, use_container_width=True)
@@ -340,6 +337,46 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
         linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
         st.altair_chart(area + curva + linha_80, use_container_width=True)
 
+    st.markdown("---")
+
+    st.subheader("🏁 Simulador de Metas de Vitória (Distribuidor de Cotas)")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: Descentralização de Metas e Cobrança Matemática**
+    
+    Comandar uma equipe dizendo "precisamos de 15.000 votos no total" gera ansiedade, não gera ação direcional. Dizer a uma liderança "sua meta exclusiva na Escola do Bosque é de 134 votos, faltam apenas 40 para bater a sua cota" gera foco absoluto. 
+    
+    Este simulador encerra o 'achismo' das lideranças bairristas. Ele distribui a responsabilidade da vitória nas costas de toda a equipe de forma estritamente proporcional e inquestionável baseada no teto de votos válidos da seção. É a profissionalização definitiva da cobrança eleitoral.
+    """)
+
+    meta_global = st.number_input("Digite a Meta Global de Votos:", min_value=1, value=11000, step=500)
+
+    if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+        metas_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
+            'QT_VOTOS_VALIDOS_SECAO': 'sum',
+            'QT_VOTOS_SAMIR': 'sum'
+        }).reset_index()
+        
+        total_validos_estado = metas_df['QT_VOTOS_VALIDOS_SECAO'].sum()
+        
+        if total_validos_estado > 0:
+            metas_df['Peso_Calc'] = metas_df['QT_VOTOS_VALIDOS_SECAO'] / total_validos_estado
+            metas_df['Meta Justa da Escola'] = (meta_global * metas_df['Peso_Calc']).astype(int)
+            
+            metas_df['Votos a Conquistar (Esforço)'] = metas_df['Meta Justa da Escola'] - metas_df['QT_VOTOS_SAMIR']
+            metas_df['Votos a Conquistar (Esforço)'] = metas_df['Votos a Conquistar (Esforço)'].apply(lambda x: max(0, x))
+            
+            metas_df['Peso da Escola'] = (metas_df['Peso_Calc'] * 100).round(2).astype(str) + '%'
+            
+            metas_df = metas_df.sort_values(by='Votos a Conquistar (Esforço)', ascending=False).head(limite_ranking)
+            
+            tabela_final_metas = metas_df[['NM_LOCAL_VOTACAO', 'Peso da Escola', 'Meta Justa da Escola', 'QT_VOTOS_SAMIR', 'Votos a Conquistar (Esforço)']]
+            tabela_final_metas.columns = ['Local de Votação', 'Peso na Eleição', 'Cota (Meta) da Escola', 'Votos Históricos (Base)', '🔥 Votos a Conquistar']
+            
+            st.markdown(f"#### 📋 Distribuição Matemática de Metas ({texto_top})")
+            st.dataframe(tabela_final_metas, use_container_width=True)
+    else:
+        st.warning("A coluna de Votos Válidos não está disponível para calcular a proporção da meta.")
 
 # ==========================================
 # ROTA 2: PERFIL ESTIMADO DO ELEITOR
@@ -399,7 +436,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
             df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
             grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
                 x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)'),
-                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
                 tooltip=['DS_FAIXA_ETARIA:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
             ).properties(height=350)
             st.altair_chart(grafico_idade, use_container_width=True)
@@ -411,7 +448,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         
         grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
             x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)'),
-            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
             tooltip=['DS_GRAU_ESCOLARIDADE:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
         ).properties(height=350)
         st.altair_chart(grafico_escola, use_container_width=True)
@@ -479,7 +516,7 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
         
         grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
             x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos'),
-            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
             tooltip=[
                 alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
                 alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total Adormecidos', format=','),
@@ -555,7 +592,7 @@ elif menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
             
             grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
                 x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário'),
-                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
                 tooltip=[
                     alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
                     alt.Tooltip('QT_VOTOS:Q', title='Votos'),
@@ -630,7 +667,7 @@ elif menu_selecionado == "🔗 5. Análise de Votos Casados":
                     
                     grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
                         x=alt.X('Índice de Correlação (r):Q', title='Força do Voto Casado (0 = Neutro, 1 = Perfeito)', scale=alt.Scale(domain=[0, 1])),
-                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=250, labelOverlap=False)),
+                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
                         tooltip=[
                             alt.Tooltip('Candidato Parceiro:N', title='Candidato'),
                             alt.Tooltip('Índice de Correlação (r):Q', title='Índice Pearson', format='.2f')
