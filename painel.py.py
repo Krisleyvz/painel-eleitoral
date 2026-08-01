@@ -95,11 +95,36 @@ except Exception as e:
     st.error(f"Erro ao carregar o arquivo 'dados.csv'. Detalhe: {e}")
     st.stop()
 
-# 3. Barra Lateral (Filtros Mestres e Identidade Visual)
+@st.cache_data
+def carregar_demografia(df_votos):
+    try:
+        # Lê a base que passou pelo triturador
+        df_demo = pd.read_csv("base_demografica_ac.csv")
+        
+        # O TSE só dá Zona e Seção. Vamos cruzar com a base do Samir para descobrir o Nome da Escola!
+        if not df_votos.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
+            mapa_escolas = df_votos[['NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
+            # Faz a junção (merge) entre o TSE e a base do Samir
+            df_demo = pd.merge(df_demo, mapa_escolas, on=['NR_ZONA', 'NR_SECAO'], how='inner')
+            
+        return df_demo
+    except Exception as e:
+        return pd.DataFrame()
+
+dados_demo = carregar_demografia(dados)
+
+# 3. Barra Lateral (Menu e Filtros Mestres)
 try:
     st.sidebar.image("IMG_3571.PNG", use_container_width=True)
 except:
     pass 
+
+st.sidebar.header("🧭 Navegação do Sistema")
+menu_selecionado = st.sidebar.radio(
+    "Selecione o Painel Desejado:",
+    ["📊 1. Inteligência de Votos", "👥 2. Perfil Demográfico (TSE)"]
+)
+st.sidebar.markdown("---")
 
 st.sidebar.header("🎛️ Filtros de Controle Estratégico")
 
@@ -128,6 +153,107 @@ if col_municipio:
         texto_local = f"em {municipios_selecionados[0].title()} e {municipios_selecionados[1].title()}"
     else:
         texto_local = "nos Municípios Selecionados"
+
+# ==========================================
+# ROTA 2: PAINEL DEMOGRÁFICO DO TSE
+# ==========================================
+if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
+    
+    label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
+    st.title(f"👥 Perfil Demográfico Oficial (TSE) - {label_periodo}")
+    
+    if dados_demo.empty:
+        st.error("⚠️ A base 'base_demografica_ac.csv' não foi encontrada no servidor. Envie o arquivo para o GitHub.")
+        st.stop()
+        
+    # Aplicando os filtros globais na base demográfica
+    df_demo_filtrado = dados_demo.copy()
+    if ano_selecionado != 'Todos os Anos (Série Histórica)':
+        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
+    if col_municipio and municipios_selecionados:
+        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+
+    # Filtro específico de Escola para o Perfil
+    escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
+    escola_alvo = st.selectbox("🎯 Aprofundar o Raio-X em um Local de Votação:", escolas_tse)
+    
+    if escola_alvo != "Visão Macro (Todas as Selecionadas)":
+        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_LOCAL_VOTACAO'] == escola_alvo]
+        st.markdown(f"**Analisando Eleitores Registrados:** {escola_alvo}")
+    else:
+        st.markdown(f"**Analisando Eleitores Registrados:** {texto_local}")
+
+    total_eleitores_aptos = df_demo_filtrado['QT_ELEITORES_PERFIL'].sum()
+    st.metric("Total de Eleitores Cadastrados (Aptos) nesta Seleção", f"{total_eleitores_aptos:,}".replace(',', '.'))
+    st.markdown("---")
+
+    col_graf1, col_graf2 = st.columns(2)
+    
+    with col_graf1:
+        st.subheader("Distribuição por Gênero")
+        df_genero = df_demo_filtrado.groupby('DS_GENERO', as_index=False)['QT_ELEITORES_PERFIL'].sum()
+        df_genero['Percentual'] = (df_genero['QT_ELEITORES_PERFIL'] / total_eleitores_aptos) * 100
+        
+        grafico_genero = alt.Chart(df_genero).mark_arc(innerRadius=65).encode(
+            theta=alt.Theta(field="QT_ELEITORES_PERFIL", type="quantitative"),
+            color=alt.Color(field="DS_GENERO", type="nominal", 
+                            scale=alt.Scale(domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'], 
+                                            range=['#E83E8C', '#1A73E8', '#808080']),
+                            legend=alt.Legend(title="Gênero")),
+            tooltip=[
+                alt.Tooltip('DS_GENERO:N', title='Gênero'),
+                alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Qtd. Eleitores', format=','),
+                alt.Tooltip('Percentual:Q', title='% do Total', format='.1f')
+            ]
+        ).properties(height=350)
+        st.altair_chart(grafico_genero, use_container_width=True)
+
+    with col_graf2:
+        st.subheader("Faixa Etária do Eleitorado")
+        df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['QT_ELEITORES_PERFIL'].sum()
+        
+        grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
+            x=alt.X('QT_ELEITORES_PERFIL:Q', title='Qtd. Eleitores'),
+            y=alt.Y('DS_FAIXA_ETARIA:N', title='Idade', sort='-x'),
+            tooltip=[
+                alt.Tooltip('DS_FAIXA_ETARIA:N', title='Faixa Etária'),
+                alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Eleitores', format=',')
+            ]
+        ).properties(height=350)
+        st.altair_chart(grafico_idade, use_container_width=True)
+
+    st.markdown("---")
+    
+    st.subheader("Grau de Instrução (Nível de Escolaridade)")
+    df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['QT_ELEITORES_PERFIL'].sum()
+    
+    grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
+        x=alt.X('QT_ELEITORES_PERFIL:Q', title='Quantidade de Eleitores'),
+        y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title='Escolaridade', sort='-x'),
+        tooltip=[
+            alt.Tooltip('DS_GRAU_ESCOLARIDADE:N', title='Grau'),
+            alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Eleitores', format=',')
+        ]
+    ).properties(height=350)
+    st.altair_chart(grafico_escola, use_container_width=True)
+    
+    if not df_genero.empty and not df_idade.empty:
+        maior_genero = df_genero.loc[df_genero['QT_ELEITORES_PERFIL'].idxmax()]
+        maior_idade = df_idade.loc[df_idade['QT_ELEITORES_PERFIL'].idxmax()]
+        
+        st.success(f"""
+        **🧠 INSIGHT ESTRATÉGICO PARA A COMUNICAÇÃO:**
+        O perfil dominante desta seleção é composto por pessoas do gênero **{maior_genero['DS_GENERO']}** ({maior_genero['Percentual']:.1f}%) 
+        e a faixa etária com maior volume de eleitores aptos é de **{maior_idade['DS_FAIXA_ETARIA']}**.
+        
+        *Recomendação de Ação:* Ajuste a distribuição de material gráfico, o plano de mídia e o discurso de corpo a corpo nesta região para dialogar diretamente com as dores e interesses deste grupo demográfico majoritário.
+        """)
+        
+    st.stop() # Interrompe a execução aqui para não desenhar o painel de votos na mesma tela.
+
+# ==========================================
+# ROTA 1: PAINEL DE INTELIGÊNCIA DE VOTOS (SEU CÓDIGO ORIGINAL)
+# ==========================================
 
 st.sidebar.markdown("---")
 mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODAS as escolas", value=False, help="Desativa o limite e renderiza 100% da base nos gráficos e tabelas.")
