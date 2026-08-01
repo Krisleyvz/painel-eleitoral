@@ -109,13 +109,27 @@ def carregar_demografia(df_votos):
                 with z.open(nome_arquivo) as f:
                     df_demo = pd.read_csv(f)
         else:
-             return pd.DataFrame() # Retorna vazio para ativar a mensagem de erro
+             return pd.DataFrame() 
             
         # O TSE só dá Zona e Seção. Vamos cruzar com a base do Samir para descobrir o Nome da Escola!
         if not df_votos.empty and not df_demo.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
-            mapa_escolas = df_votos[['NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
-            # Faz a junção (merge) entre o TSE e a base do Samir
-            df_demo = pd.merge(df_demo, mapa_escolas, on=['NR_ZONA', 'NR_SECAO'], how='inner')
+            # Agrupa os votos do Samir por Zona e Seção (para ter um valor único por seção)
+            votos_secao = df_votos.groupby(['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO'], as_index=False).agg({
+                'QT_VOTOS_SAMIR': 'sum',
+                'QT_VOTOS_VALIDOS_SECAO': 'sum'
+            })
+            
+            # Calcula o Market Share (Força do Samir) em cada Seção
+            votos_secao['MARKET_SHARE'] = np.where(votos_secao['QT_VOTOS_VALIDOS_SECAO'] > 0, 
+                                                   votos_secao['QT_VOTOS_SAMIR'] / votos_secao['QT_VOTOS_VALIDOS_SECAO'], 
+                                                   0)
+            
+            # Faz a junção (merge) entre o TSE e a base de votos (incluindo o Market Share)
+            df_demo = pd.merge(df_demo, votos_secao, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
+            
+            # INFERÊNCIA ECOLÓGICA: Calcula o "Voto Estimado do Samir" distribuído por perfil demográfico
+            # Multiplica a quantidade de eleitores de um perfil X na seção pelo % de força do Samir ali.
+            df_demo['VOTOS_ESTIMADOS_SAMIR'] = df_demo['QT_ELEITORES_PERFIL'] * df_demo['MARKET_SHARE']
             
         return df_demo
     except Exception as e:
@@ -133,7 +147,7 @@ except:
 st.sidebar.header("🧭 Navegação do Sistema")
 menu_selecionado = st.sidebar.radio(
     "Selecione o Painel Desejado:",
-    ["📊 1. Inteligência de Votos", "👥 2. Perfil Demográfico (TSE)"]
+    ["📊 1. Inteligência de Votos", "👥 2. Perfil Estimado do Eleitor (Samir)"]
 )
 st.sidebar.markdown("---")
 
@@ -166,12 +180,13 @@ if col_municipio:
         texto_local = "nos Municípios Selecionados"
 
 # ==========================================
-# ROTA 2: PAINEL DEMOGRÁFICO DO TSE
+# ROTA 2: PAINEL DEMOGRÁFICO DO TSE (Focado no Eleitor do Samir)
 # ==========================================
-if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
+if menu_selecionado == "👥 2. Perfil Estimado do Eleitor (Samir)":
     
     label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
-    st.title(f"👥 Perfil Demográfico Oficial (TSE) - {label_periodo}")
+    st.title(f"👥 Perfil Estimado do Eleitor (Samir Bestene) - {label_periodo}")
+    st.markdown("*Nota Metodológica: Como o voto é secreto, o sistema cruza o perfil geral do local com o 'Market Share' do Samir (seus votos) para realizar a Inferência Ecológica, calculando o perfil mais provável da sua base de eleitores.*")
     
     if dados_demo.empty:
         st.error("⚠️ A base 'base_demografica_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
@@ -182,7 +197,7 @@ if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
     if ano_selecionado != 'Todos os Anos (Série Histórica)':
         df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
     if col_municipio and municipios_selecionados:
-        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+        df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_demo_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
 
     # Filtro específico de Escola para o Perfil
     escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
@@ -190,45 +205,47 @@ if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
     
     if escola_alvo != "Visão Macro (Todas as Selecionadas)":
         df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_LOCAL_VOTACAO'] == escola_alvo]
-        st.markdown(f"**Analisando Eleitores Registrados:** {escola_alvo}")
+        st.markdown(f"**Analisando a Base do Samir em:** {escola_alvo}")
     else:
-        st.markdown(f"**Analisando Eleitores Registrados:** {texto_local}")
+        st.markdown(f"**Analisando a Base do Samir:** {texto_local}")
 
-    total_eleitores_aptos = df_demo_filtrado['QT_ELEITORES_PERFIL'].sum()
-    st.metric("Total de Eleitores Cadastrados (Aptos) nesta Seleção", f"{total_eleitores_aptos:,}".replace(',', '.'))
+    total_votos_estimados = df_demo_filtrado['VOTOS_ESTIMADOS_SAMIR'].sum()
+    st.metric("Total de Votos Analisados na Seleção", f"{int(total_votos_estimados):,}".replace(',', '.'))
     st.markdown("---")
 
     col_graf1, col_graf2 = st.columns(2)
     
     with col_graf1:
         st.subheader("Distribuição por Gênero")
-        df_genero = df_demo_filtrado.groupby('DS_GENERO', as_index=False)['QT_ELEITORES_PERFIL'].sum()
-        df_genero['Percentual'] = (df_genero['QT_ELEITORES_PERFIL'] / total_eleitores_aptos) * 100
+        df_genero = df_demo_filtrado.groupby('DS_GENERO', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+        df_genero['VOTOS_ESTIMADOS_SAMIR'] = df_genero['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+        df_genero['Percentual'] = (df_genero['VOTOS_ESTIMADOS_SAMIR'] / total_votos_estimados) * 100
         
         grafico_genero = alt.Chart(df_genero).mark_arc(innerRadius=65).encode(
-            theta=alt.Theta(field="QT_ELEITORES_PERFIL", type="quantitative"),
+            theta=alt.Theta(field="VOTOS_ESTIMADOS_SAMIR", type="quantitative"),
             color=alt.Color(field="DS_GENERO", type="nominal", 
                             scale=alt.Scale(domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'], 
                                             range=['#E83E8C', '#1A73E8', '#808080']),
                             legend=alt.Legend(title="Gênero")),
             tooltip=[
                 alt.Tooltip('DS_GENERO:N', title='Gênero'),
-                alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Qtd. Eleitores', format=','),
-                alt.Tooltip('Percentual:Q', title='% do Total', format='.1f')
+                alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', title='Votos (Samir)', format=','),
+                alt.Tooltip('Percentual:Q', title='% da Sua Base', format='.1f')
             ]
         ).properties(height=350)
         st.altair_chart(grafico_genero, use_container_width=True)
 
     with col_graf2:
         st.subheader("Faixa Etária do Eleitorado")
-        df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['QT_ELEITORES_PERFIL'].sum()
+        df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+        df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
         
         grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
-            x=alt.X('QT_ELEITORES_PERFIL:Q', title='Qtd. Eleitores'),
+            x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Samir)'),
             y=alt.Y('DS_FAIXA_ETARIA:N', title='Idade', sort='-x'),
             tooltip=[
                 alt.Tooltip('DS_FAIXA_ETARIA:N', title='Faixa Etária'),
-                alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Eleitores', format=',')
+                alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', title='Votos', format=',')
             ]
         ).properties(height=350)
         st.altair_chart(grafico_idade, use_container_width=True)
@@ -236,28 +253,29 @@ if menu_selecionado == "👥 2. Perfil Demográfico (TSE)":
     st.markdown("---")
     
     st.subheader("Grau de Instrução (Nível de Escolaridade)")
-    df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['QT_ELEITORES_PERFIL'].sum()
+    df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+    df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola['VOTOS_ESTIMADOS_SAMIR'].astype(int)
     
     grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
-        x=alt.X('QT_ELEITORES_PERFIL:Q', title='Quantidade de Eleitores'),
+        x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Samir)'),
         y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title='Escolaridade', sort='-x'),
         tooltip=[
             alt.Tooltip('DS_GRAU_ESCOLARIDADE:N', title='Grau'),
-            alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Eleitores', format=',')
+            alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', title='Votos', format=',')
         ]
     ).properties(height=350)
     st.altair_chart(grafico_escola, use_container_width=True)
     
     if not df_genero.empty and not df_idade.empty:
-        maior_genero = df_genero.loc[df_genero['QT_ELEITORES_PERFIL'].idxmax()]
-        maior_idade = df_idade.loc[df_idade['QT_ELEITORES_PERFIL'].idxmax()]
+        maior_genero = df_genero.loc[df_genero['VOTOS_ESTIMADOS_SAMIR'].idxmax()]
+        maior_idade = df_idade.loc[df_idade['VOTOS_ESTIMADOS_SAMIR'].idxmax()]
         
         st.success(f"""
         **🧠 INSIGHT ESTRATÉGICO PARA A COMUNICAÇÃO:**
-        O perfil dominante desta seleção é composto por pessoas do gênero **{maior_genero['DS_GENERO']}** ({maior_genero['Percentual']:.1f}%) 
-        e a faixa etária com maior volume de eleitores aptos é de **{maior_idade['DS_FAIXA_ETARIA']}**.
+        Nós calculamos que o perfil da sua base nesta seleção é composto majoritariamente por pessoas do gênero **{maior_genero['DS_GENERO']}** ({maior_genero['Percentual']:.1f}%) 
+        e a faixa etária que mais vota em você é a de **{maior_idade['DS_FAIXA_ETARIA']}**.
         
-        *Recomendação de Ação:* Ajuste a distribuição de material gráfico, o plano de mídia e o discurso de corpo a corpo nesta região para dialogar diretamente com as dores e interesses deste grupo demográfico majoritário.
+        *Recomendação:* Este é o eleitor que você já "tem no bolso". Use esta informação para blindar essa base com discursos de retenção ou busque perfis inversos no 'Oceano Azul' se quiser expandir o seu mandato para novas bolhas.
         """)
         
     st.stop() # Interrompe a execução aqui para não desenhar o painel de votos na mesma tela.
