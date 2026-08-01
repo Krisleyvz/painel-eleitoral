@@ -2,6 +2,7 @@ import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import re # Biblioteca para reconstrução de texto
 
 # 1. Configuração da Página (Focada em Mobile)
 st.set_page_config(page_title="App de Rua | Cadastro", page_icon="📱", layout="centered")
@@ -36,23 +37,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # ==========================================
 
-# Função para conectar ao Google Sheets com a Chave Blindada
+# Função para conectar ao Google Sheets (COM RECONSTRUTOR DE CHAVE)
 def conectar_google_sheets():
     scope = ["https://www.spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds_dict = dict(st.secrets["gcp_service_account"])
     
-    # Limpeza agressiva da chave para evitar o erro PEM
+    # ---------------------------------------------------------
+    # OPÇÃO NUCLEAR: RECONSTRUTOR ESTRUTURAL DA CHAVE PEM
+    # ---------------------------------------------------------
     chave_bruta = str(creds_dict["private_key"])
-    chave_limpa = chave_bruta.replace('\\n', '\n').strip('"').strip("'")
     
-    if "-----BEGIN PRIVATE KEY-----" in chave_limpa and "\n" not in chave_limpa:
-        chave_limpa = chave_limpa.replace("-----BEGIN PRIVATE KEY-----", "-----BEGIN PRIVATE KEY-----\n")
-        chave_limpa = chave_limpa.replace("-----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----\n")
-        meio = chave_limpa.split("-----BEGIN PRIVATE KEY-----\n")[1].split("\n-----END PRIVATE KEY-----")[0]
-        meio_arrumado = meio.replace(" ", "\n")
-        chave_limpa = f"-----BEGIN PRIVATE KEY-----\n{meio_arrumado}\n-----END PRIVATE KEY-----\n"
-
-    creds_dict["private_key"] = chave_limpa
+    # 1. Remove cabeçalhos, rodapés e qualquer lixo invisível
+    corpo_chave = re.sub(r'-----.*?-----', '', chave_bruta)
+    # 2. Deixa apenas os caracteres puros do código base64 (remove espaços, \n, \r, etc)
+    corpo_chave = re.sub(r'[^A-Za-z0-9+/=]', '', corpo_chave) 
+    
+    # 3. Fatie o código exatamente a cada 64 caracteres (Padrão rigoroso do Google)
+    linhas = [corpo_chave[i:i+64] for i in range(0, len(corpo_chave), 64)]
+    
+    # 4. Remonta a chave com as quebras de linha perfeitas
+    chave_perfeita = "-----BEGIN PRIVATE KEY-----\n" + "\n".join(linhas) + "\n-----END PRIVATE KEY-----\n"
+    
+    # Devolve a chave perfeita para as credenciais
+    creds_dict["private_key"] = chave_perfeita
+    # ---------------------------------------------------------
     
     creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
     client = gspread.authorize(creds)
@@ -109,7 +117,6 @@ with st.form(key="form_cadastro", clear_on_submit=True):
     
     # 4. Lógica de Alinhamento e Envio
     if submit:
-        # Travas de segurança essenciais
         if nome.strip() == "" or telefone.strip() == "" or nascimento.strip() == "":
             st.error("⚠️ Os campos Nome, WhatsApp e Data de Nascimento são obrigatórios!")
         elif not consentimento:
@@ -120,23 +127,21 @@ with st.form(key="form_cadastro", clear_on_submit=True):
                 data_atual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 texto_consentimento = "Li e concordo com o uso"
                 
-                # O Pulo do Gato: A lista abaixo tem exatamente 14 itens, 
-                # forçando um encaixe perfeito com as colunas A a N da sua planilha.
                 novo_registro = [
-                    data_atual,           # Coluna A: Carimbo
-                    nome,                 # Coluna B: Nome
-                    telefone,             # Coluna C: Telefone
-                    cep,                  # Coluna D: CEP
-                    rua,                  # Coluna E: Rua
-                    bairro,               # Coluna F: Bairro
-                    complemento,          # Coluna G: Complemento
-                    participacao,         # Coluna H: Participacao
-                    texto_consentimento,  # Coluna I: Ciencia e Consentimento
-                    nascimento,           # Coluna J: Data de Nascimento
-                    "",                   # Coluna K: Endereco Completo (PULADO EM BRANCO)
-                    "",                   # Coluna L: Classificacao Interna (PULADO EM BRANCO)
-                    indicacao,            # Coluna M: Indicação
-                    municipio             # Coluna N: Município
+                    data_atual,           # Coluna A
+                    nome,                 # Coluna B
+                    telefone,             # Coluna C
+                    cep,                  # Coluna D
+                    rua,                  # Coluna E
+                    bairro,               # Coluna F
+                    complemento,          # Coluna G
+                    participacao,         # Coluna H
+                    texto_consentimento,  # Coluna I
+                    nascimento,           # Coluna J
+                    "",                   # Coluna K
+                    "",                   # Coluna L
+                    indicacao,            # Coluna M
+                    municipio             # Coluna N
                 ]
                 
                 sheet.append_row(novo_registro)
