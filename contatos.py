@@ -107,8 +107,8 @@ except Exception as e:
 
 total_cadastros = len(df) if not df.empty else 0
 
-# Abas do Aplicativo Organizadas
-aba1, aba2, aba3, aba4, aba5 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lideranças"])
+# Abas do Aplicativo Organizadas (Agora com Reuniões!)
+aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lideranças", "🤝 Reuniões"])
 
 # --- ABA 1: ANIVERSARIANTES ---
 with aba1:
@@ -119,9 +119,6 @@ with aba1:
         df_aniver = df.dropna(subset=['Data de Nascimento']).copy()
         
         if not df_aniver.empty:
-            # ---------------------------------------------------------
-            # CORREÇÃO DE FUSO HORÁRIO PARA O ACRE (UTC-5)
-            # ---------------------------------------------------------
             fuso_acre = timezone(timedelta(hours=-5))
             hoje = datetime.now(fuso_acre)
             hoje_data = datetime(hoje.year, hoje.month, hoje.day)
@@ -433,3 +430,58 @@ with aba5:
             st.info("Ainda não há dados suficientes de indicações preenchidos.")
     else:
         st.warning("A coluna de indicação não foi encontrada na planilha. Verifique o formulário.")
+
+# --- ABA 6: REUNIÕES E AJUNTAMENTOS ---
+with aba6:
+    st.subheader("🤝 Agendar Reuniões")
+    st.markdown("Apoiadores que desejam organizar uma reunião em sua rua/bairro:")
+    
+    col_participacao = None
+    for col in df.columns:
+        if "participar" in str(col).lower():
+            col_participacao = col
+            break
+            
+    if not df.empty and col_participacao is not None:
+        # Filtra procurando pelas palavras-chave ignorando letras maiúsculas/minúsculas
+        df_reunioes = df[df[col_participacao].astype(str).str.contains("reunião|reuniao", case=False, na=False)].copy()
+        
+        if not df_reunioes.empty:
+            # Ordena em ordem alfabética para facilitar a busca ativa da equipe
+            df_reunioes = df_reunioes.sort_values(by='Nome Completo')
+            
+            st.markdown(f"**Total de interessados:** {len(df_reunioes)}")
+            st.markdown("---")
+            
+            for idx, row in df_reunioes.iterrows():
+                nome = str(row.get('Nome Completo', 'Sem Nome'))
+                bairro = str(row.get('Bairro', ''))
+                tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
+                
+                st.markdown(f"""
+                <div class="contato-card">
+                    <b>👤 {nome}</b><br>
+                    📍 Bairro: {bairro} | 📞 {tel_exibicao}
+                </div>
+                """, unsafe_allow_html=True)
+                
+                bc1, bc2 = st.columns(2)
+                with bc1:
+                    if tel_num:
+                        primeiro_nome = nome.split()[0]
+                        texto_reuniao = f"Olá {primeiro_nome}, tudo bem? Aqui é da equipe do Samir Bestene. Vimos no seu cadastro que você tem interesse em organizar uma reunião aí na sua rua/bairro! Ficamos muito animados com esse apoio. Vamos fazer acontecer? Qual seria o melhor dia da semana e horário para você reunir alguns amigos e vizinhos para um bate-papo com o Samir? Estamos à disposição para agendar. A luta continua 🚀"
+                        link_wpp_reuniao = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={urllib.parse.quote(texto_reuniao)}"
+                        
+                        st.markdown(f"<a href='{link_wpp_reuniao}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 Agendar Reunião</a>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
+                with bc2:
+                    if tel_num:
+                        st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
+                st.markdown("")
+        else:
+            st.info("Nenhum apoiador sinalizou interesse em organizar reunião até o momento.")
+    else:
+        st.warning("A coluna de participação não foi encontrada na planilha. Verifique o formulário.")
