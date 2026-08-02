@@ -164,7 +164,10 @@ with aba1:
                 with bc1:
                     if tel_num:
                         primeiro_nome = nome.split()[0]
-                        texto_aniver = f"Olá {primeiro_nome}! Em nome do Samir Bestene e de toda a nossa equipe, desejo um feliz aniversário! Que sua vida seja repleta de alegrias, muita saúde e sucesso. É uma honra ter você caminhando ao nosso lado. A luta continua 🚀"
+                        # ---------------------------------------------------------
+                        # MENSAGEM DE ANIVERSÁRIO MELHORADA (Com pedido de foto)
+                        # ---------------------------------------------------------
+                        texto_aniver = f"Olá {primeiro_nome}! Em nome do Vereador Samir Bestene e de toda a nossa equipe, desejo um feliz aniversário! Que sua vida seja repleta de alegrias, muita saúde e sucesso. 🎉 Gostaríamos muito de preparar uma homenagem para você nas redes sociais do Samir. Você tem alguma objeção? Se estiver tudo bem, nos mande aqui uma foto sua que você mais gosta para montarmos a arte! É uma honra ter você caminhando ao nosso lado. A luta continua 🚀"
                         texto_codificado = urllib.parse.quote(texto_aniver)
                         link_wpp_aniver = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_codificado}"
                         
@@ -318,20 +321,16 @@ with aba4:
             bairro = str(row.get('Bairro', '')).strip().upper()
             nome = str(row.get('Nome Completo', 'Sem Nome'))
             
-            # ---------------------------------------------------------
-            # LÓGICA DE CATEGORIZAÇÃO (Cores Hexadecimais Limpas)
-            # ---------------------------------------------------------
             classificacao = str(row.get('Classificação Interna', '')).strip().upper()
             
             if "LIDER" in classificacao or "LIDERANÇA" in classificacao:
-                cor_ponto = "#DC3545" # Vermelho
+                cor_ponto = "#DC3545" 
             elif "PARCERIA" in classificacao or "ESTRATÉGICA" in classificacao or "ESTRATEGICA" in classificacao:
-                cor_ponto = "#6F42C1" # Roxo
+                cor_ponto = "#6F42C1" 
             elif "MANUTENÇÃO" in classificacao or "MANUTENCAO" in classificacao:
-                cor_ponto = "#28A745" # Verde
+                cor_ponto = "#28A745" 
             else:
-                cor_ponto = "#007BFF" # Azul
-            # ---------------------------------------------------------
+                cor_ponto = "#007BFF" 
             
             if mun != 'RIO BRANCO' and mun in coord_referencia:
                 base_lat, base_lon = coord_referencia[mun]
@@ -361,16 +360,15 @@ with aba4:
             </div>
             """
             
-            # Novo Marcador Circular (Sem sombras, visual de dashboard)
             folium.CircleMarker(
                 location=[lat_final, lon_final],
-                radius=7, # Tamanho do ponto
+                radius=7, 
                 popup=folium.Popup(popup_html, max_width=250),
-                color="white", # Borda branca fina para dar contraste
+                color="white", 
                 weight=1,
                 fill=True,
                 fill_color=cor_ponto,
-                fill_opacity=0.9 # Opacidade elegante
+                fill_opacity=0.9 
             ).add_to(mapa)
             
         st_folium(mapa, use_container_width=True, height=500, returned_objects=[])
