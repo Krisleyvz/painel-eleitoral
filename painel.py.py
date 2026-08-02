@@ -4,9 +4,63 @@ import numpy as np
 import altair as alt
 import zipfile
 import os
+from datetime import datetime
+import pytz
 
 # 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", page_icon="🎯", layout="wide")
+
+# ==========================================
+# SISTEMA DE LOGIN E SEGURANÇA
+# ==========================================
+def registrar_log(usuario):
+    """
+    Futura função para enviar o log para a nova aba do Google Sheets.
+    Por enquanto, ela apenas imprime no terminal do servidor.
+    """
+    fuso_acre = pytz.timezone('America/Rio_Branco')
+    agora = datetime.now(fuso_acre)
+    data_formatada = agora.strftime("%d/%m/%Y")
+    hora_formatada = agora.strftime("%H:%M:%S")
+    print(f"✅ LOG ACESSO: {usuario} logou em {data_formatada} às {hora_formatada}")
+
+def verificar_senha():
+    """Retorna True se o usuário inserir as credenciais corretas."""
+    def senha_inserida():
+        usuario = st.session_state["usuario_input"].strip()
+        senha = st.session_state["senha_input"].strip()
+        
+        if usuario in st.secrets["senhas"] and senha == st.secrets["senhas"][usuario]:
+            st.session_state["autenticado"] = True
+            st.session_state["usuario_logado"] = usuario
+            del st.session_state["senha_input"] 
+            registrar_log(usuario)
+        else:
+            st.session_state["autenticado"] = False
+
+    if "autenticado" not in st.session_state:
+        st.markdown("<br><br><h2 style='text-align: center; color: #FFFFFF;'>🔒 Acesso Restrito</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("Usuário", key="usuario_input")
+            st.text_input("Senha", type="password", key="senha_input")
+            st.button("Entrar no Sistema", on_click=senha_inserida, use_container_width=True)
+        return False
+    
+    elif not st.session_state["autenticado"]:
+        st.markdown("<br><br><h2 style='text-align: center; color: #FFFFFF;'>🔒 Acesso Restrito</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("Usuário", key="usuario_input")
+            st.text_input("Senha", type="password", key="senha_input")
+            st.button("Entrar no Sistema", on_click=senha_inserida, use_container_width=True)
+            st.error("😕 Usuário ou senha incorretos. Tente novamente.")
+        return False
+    
+    return True
+
+if not verificar_senha():
+    st.stop()
 
 # ==========================================
 # INJEÇÃO DE CSS
