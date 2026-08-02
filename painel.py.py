@@ -932,12 +932,14 @@ elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
             st.info("O gráfico de evolução exige dados de pelo menos dois anos eleitorais diferentes. Ajuste o filtro lateral.")
             
         st.markdown("---")
-        st.subheader("🔥 Top 20 Escolas Rurais (Fidelidade no Campo)")
+        
+        texto_top_rural = "Todas as Escolas Rurais" if mostrar_todas else f"Top {limite_ranking} Escolas Rurais"
+        st.subheader(f"🔥 {texto_top_rural} (Fidelidade no Campo)")
         
         df_rural = dados[dados['TIPO_ZONA'] == 'RURAL']
         if not df_rural.empty:
             top_rurais = df_rural.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index()
-            top_rurais = top_rurais.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(20)
+            top_rurais = top_rurais.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
             
             grafico_rural = alt.Chart(top_rurais).mark_bar(color="#28A745").encode(
                 x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos no Campo', axis=alt.Axis(format='d')),
