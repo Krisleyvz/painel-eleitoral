@@ -442,6 +442,13 @@ with aba6:
             col_participacao = col
             break
             
+    # Procura a coluna de Município dinamicamente
+    col_mun = None
+    for col in df.columns:
+        if "Município" in str(col) or "Municipio" in str(col):
+            col_mun = col
+            break
+            
     if not df.empty and col_participacao is not None:
         # Filtra procurando pelas palavras-chave ignorando letras maiúsculas/minúsculas
         df_reunioes = df[df[col_participacao].astype(str).str.contains("reunião|reuniao", case=False, na=False)].copy()
@@ -456,12 +463,19 @@ with aba6:
             for idx, row in df_reunioes.iterrows():
                 nome = str(row.get('Nome Completo', 'Sem Nome'))
                 bairro = str(row.get('Bairro', ''))
+                
+                # Pega a cidade e define Rio Branco como padrão caso esteja vazio
+                cidade = str(row.get(col_mun, 'Rio Branco')).strip()
+                if cidade.lower() == 'nan' or cidade == '':
+                    cidade = 'Rio Branco'
+                    
                 tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
                 
+                # Cartão agora exibe a Cidade antes do Bairro
                 st.markdown(f"""
                 <div class="contato-card">
                     <b>👤 {nome}</b><br>
-                    📍 Bairro: {bairro} | 📞 {tel_exibicao}
+                    📍 {cidade} - Bairro: {bairro} | 📞 {tel_exibicao}
                 </div>
                 """, unsafe_allow_html=True)
                 
