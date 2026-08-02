@@ -268,16 +268,18 @@ with aba3:
     else:
         st.info("Nenhum contato encontrado.")
 
-# --- ABA 4: MAPA INTERATIVO CATEGORIZADO ---
+# --- ABA 4: MAPA INTERATIVO MINIMALISTA ---
 with aba4:
     st.subheader("🗺️ Dispersão de Apoiadores")
-    st.markdown("Toque nos pinos para abrir as informações do contato.")
+    st.markdown("Toque nos pontos coloridos para abrir as informações.")
     
     st.markdown("""
     <div style='background-color: #152b45; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center;'>
         <b>Legenda Tática:</b><br>
-        🔴 Liderança &nbsp;|&nbsp; 🟣 Parceria Estratégica <br>
-        🟢 Manutenção &nbsp;|&nbsp; 🔵 Padrão / Outros
+        <span style="color:#DC3545; font-size: 18px;">●</span> Liderança &nbsp;|&nbsp; 
+        <span style="color:#6F42C1; font-size: 18px;">●</span> Parceria Estratégica <br>
+        <span style="color:#28A745; font-size: 18px;">●</span> Manutenção &nbsp;|&nbsp; 
+        <span style="color:#007BFF; font-size: 18px;">●</span> Padrão / Outros
     </div>
     """, unsafe_allow_html=True)
     
@@ -317,22 +319,18 @@ with aba4:
             nome = str(row.get('Nome Completo', 'Sem Nome'))
             
             # ---------------------------------------------------------
-            # LÓGICA DE CATEGORIZAÇÃO SEMÂNTICA
+            # LÓGICA DE CATEGORIZAÇÃO (Cores Hexadecimais Limpas)
             # ---------------------------------------------------------
             classificacao = str(row.get('Classificação Interna', '')).strip().upper()
             
             if "LIDER" in classificacao or "LIDERANÇA" in classificacao:
-                cor_pino = "red"
-                icone_pino = "star"
+                cor_ponto = "#DC3545" # Vermelho
             elif "PARCERIA" in classificacao or "ESTRATÉGICA" in classificacao or "ESTRATEGICA" in classificacao:
-                cor_pino = "purple"
-                icone_pino = "briefcase"
+                cor_ponto = "#6F42C1" # Roxo
             elif "MANUTENÇÃO" in classificacao or "MANUTENCAO" in classificacao:
-                cor_pino = "green"
-                icone_pino = "ok"
+                cor_ponto = "#28A745" # Verde
             else:
-                cor_pino = "blue"
-                icone_pino = "info-sign"
+                cor_ponto = "#007BFF" # Azul
             # ---------------------------------------------------------
             
             if mun != 'RIO BRANCO' and mun in coord_referencia:
@@ -363,10 +361,16 @@ with aba4:
             </div>
             """
             
-            folium.Marker(
+            # Novo Marcador Circular (Sem sombras, visual de dashboard)
+            folium.CircleMarker(
                 location=[lat_final, lon_final],
+                radius=7, # Tamanho do ponto
                 popup=folium.Popup(popup_html, max_width=250),
-                icon=folium.Icon(color=cor_pino, icon=icone_pino)
+                color="white", # Borda branca fina para dar contraste
+                weight=1,
+                fill=True,
+                fill_color=cor_ponto,
+                fill_opacity=0.9 # Opacidade elegante
             ).add_to(mapa)
             
         st_folium(mapa, use_container_width=True, height=500, returned_objects=[])
