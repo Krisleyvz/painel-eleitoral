@@ -33,17 +33,11 @@ def registrar_log(usuario):
         )
         cliente = gspread.authorize(credenciais)
         
-        # ID exato da sua planilha
         planilha_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
-        
-        # Abre a aba
         aba_logs = cliente.open_by_key(planilha_id).worksheet("Logs_Acesso")
-        
-        # Insere a nova linha com as informações
         aba_logs.append_row([usuario, data_formatada, hora_formatada])
         
     except Exception as e:
-        # Se der erro, ele não trava o app, apenas avisa nos bastidores
         print(f"❌ Falha ao registrar log no Sheets: {e}")
 
 
@@ -97,7 +91,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Insere a logo da campanha
 col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
 with col_logo2:
     try:
@@ -107,7 +100,7 @@ with col_logo2:
 st.markdown("---")
 
 # ==========================================
-# CARREGAMENTO DOS DADOS E INTEGRAÇÃO DE ZONAS
+# CARREGAMENTO DOS DADOS E INTEGRAÇÃO DE ZONAS E TSE
 # ==========================================
 @st.cache_data
 def carregar_dados():
@@ -142,35 +135,73 @@ def carregar_dados():
         df['lon'] = df['lon'].fillna(-67.8243)
     return df
 
-def aplicar_zonas(df_principal):
-    # Lista oficial cruzada com bases do TRE-AC e dados de localização
-    escolas_rurais = [
-        'ESCOLA ESTADUAL RURAL JORGE KALUME', 'ESCOLA RURAL BEIJA-FLOR', 
-        'INSTITUTO FEDERAL DO ACRE (IFAC) - TRANSACREANA', 'ESCOLA RURAL CAPITÃO EDGARD CERQUEIRA FILHO', 
-        'ESCOLA RURAL PROF. CLAUDIO AUGUSTO F. DE SALES', 'ESCOLA RURAL RUY AZEVEDO', 
-        'IDAF - VILA ACRE', 'ESCOLA RURAL SÃO PEDRO I', 'ESCOLA RURAL ERCÍLIA FEITOSA GOMES', 
-        'ESCOLA EST. DALVA DE SOUZA DAS NEVES (TRANSACREANA)', 'ESCOLA VALERIA BISPO SABALA - KM 26', 
-        'ESCOLA ESTADUAL PADRE JÓSIMO - COMUNIDADE SÃO JOÃO DO GUARANI', 'ESCOLA RURAL NOVA VIDA', 
-        'ESCOLA ESTADUAL RURAL MANUEL DE BARROS', 'ESCOLA ESTADUAL RURAL FLAVIA BARROS PIMENTEL', 
-        'ESCOLA ESTADUAL RURAL BOM DESTINO', 'ESCOLA RURAL ALTO ALEGRE I', 
-        'ESCOLA CASTELO BRANCO - KM 20', 'ESCOLA VALDOMIRO FERREIRA BARROSO - KM 19', 
-        'ESCOLA FRANCISCO GERMANO DA SILVA - KM 68', 'IFAC - POLO PORTO ACRE', 
-        'ESCOLA LAGO - KM 05 MAIS 28 DE RAMAL (SERINGAL PORONGABA)', 
-        'PRÉDIO DA SEATER - BOCA DO RAMAL AREIA BRANCA', 'ESCOLA RURAL MARIA DO CARMO RAMOS', 
-        'ESCOLA LUIZ GONZAGA DA ROCHA - KM 09 VILA PROGRESSO', 
-        'UNIDADE DE SAÚDE SEBASTIÃO PRADO (TRANSACREANA)', 'ESCOLA RURAL ALTO ALEGRE II',
-        'ESCOLA ESTADUAL PROFESSORA TEREZINHA MIGUÉIS', 'ESCOLA MÁRIO LOBÃO', 'CENTRO DE SAUDE DE PORTO ACRE'
-    ]
-    
-    # O sistema marca como RURAL se estiver na lista, e URBANA todo o restante
-    df_principal['TIPO_ZONA'] = np.where(df_principal['NM_LOCAL_VOTACAO'].isin(escolas_rurais), 'RURAL', 'URBANA')
-    return df_principal
+def aplicar_base_tse(df_principal):
+    try:
+        arquivo_tse = None
+        for f in os.listdir('.'):
+            if f.startswith('tse_locais_acre'):
+                arquivo_tse = f
+                break
+
+        if arquivo_tse and os.path.exists(arquivo_tse):
+            try:
+                df_tse = pd.read_csv(arquivo_tse, sep=';', encoding='utf-8', low_memory=False)
+            except:
+                try:
+                    df_tse = pd.read_csv(arquivo_tse, sep=',', encoding='utf-8', low_memory=False)
+                except:
+                    df_tse = pd.read_csv(arquivo_tse, sep=';', encoding='latin1', low_memory=False)
+
+            df_tse['NM_LOCAL_VOTACAO'] = df_tse['NM_LOCAL_VOTACAO'].str.strip().str.upper()
+            df_principal['NM_LOCAL_VOTACAO'] = df_principal['NM_LOCAL_VOTACAO'].str.strip().str.upper()
+
+            bairros_rurais = ['ZONA RURAL', 'AREA RURAL', 'PROJETO DE ASSENTAMENTO', 'POLO AGROFLORESTAL', 'COMUNIDADE RURAL']
+            df_tse['TIPO_ZONA_OFICIAL'] = 'URBANA'
+            
+            if 'NM_BAIRRO' in df_tse.columns:
+                df_tse['NM_BAIRRO'] = df_tse['NM_BAIRRO'].astype(str).str.upper()
+                df_tse.loc[df_tse['NM_BAIRRO'].isin(bairros_rurais), 'TIPO_ZONA_OFICIAL'] = 'RURAL'
+                
+            tse_agrupado = df_tse.groupby(['NM_LOCAL_VOTACAO', 'TIPO_ZONA_OFICIAL'], as_index=False)['QT_ELEITOR_SECAO'].sum()
+            tse_agrupado.rename(columns={'QT_ELEITOR_SECAO': 'TOTAL_APTOS_TSE'}, inplace=True)
+
+            df_cruzado = pd.merge(df_principal, tse_agrupado, on='NM_LOCAL_VOTACAO', how='right')
+            df_cruzado['QT_VOTOS_SAMIR'] = df_cruzado['QT_VOTOS_SAMIR'].fillna(0)
+            df_cruzado['ANO_ELEICAO'] = df_cruzado['ANO_ELEICAO'].fillna(2020)
+            df_cruzado['TIPO_ZONA'] = df_cruzado['TIPO_ZONA_OFICIAL']
+            
+            return df_cruzado
+        else:
+            escolas_rurais = [
+                'ESCOLA ESTADUAL RURAL JORGE KALUME', 'ESCOLA RURAL BEIJA-FLOR', 
+                'INSTITUTO FEDERAL DO ACRE (IFAC) - TRANSACREANA', 'ESCOLA RURAL CAPITÃO EDGARD CERQUEIRA FILHO', 
+                'ESCOLA RURAL PROF. CLAUDIO AUGUSTO F. DE SALES', 'ESCOLA RURAL RUY AZEVEDO', 
+                'IDAF - VILA ACRE', 'ESCOLA RURAL SÃO PEDRO I', 'ESCOLA RURAL ERCÍLIA FEITOSA GOMES', 
+                'ESCOLA EST. DALVA DE SOUZA DAS NEVES (TRANSACREANA)', 'ESCOLA VALERIA BISPO SABALA - KM 26', 
+                'ESCOLA ESTADUAL PADRE JÓSIMO - COMUNIDADE SÃO JOÃO DO GUARANI', 'ESCOLA RURAL NOVA VIDA', 
+                'ESCOLA ESTADUAL RURAL MANUEL DE BARROS', 'ESCOLA ESTADUAL RURAL FLAVIA BARROS PIMENTEL', 
+                'ESCOLA ESTADUAL RURAL BOM DESTINO', 'ESCOLA RURAL ALTO ALEGRE I', 
+                'ESCOLA CASTELO BRANCO - KM 20', 'ESCOLA VALDOMIRO FERREIRA BARROSO - KM 19', 
+                'ESCOLA FRANCISCO GERMANO DA SILVA - KM 68', 'IFAC - POLO PORTO ACRE', 
+                'ESCOLA LAGO - KM 05 MAIS 28 DE RAMAL (SERINGAL PORONGABA)', 
+                'PRÉDIO DA SEATER - BOCA DO RAMAL AREIA BRANCA', 'ESCOLA RURAL MARIA DO CARMO RAMOS', 
+                'ESCOLA LUIZ GONZAGA DA ROCHA - KM 09 VILA PROGRESSO', 
+                'UNIDADE DE SAÚDE SEBASTIÃO PRADO (TRANSACREANA)', 'ESCOLA RURAL ALTO ALEGRE II',
+                'ESCOLA ESTADUAL PROFESSORA TEREZINHA MIGUÉIS', 'ESCOLA MÁRIO LOBÃO', 'CENTRO DE SAUDE DE PORTO ACRE'
+            ]
+            df_principal['TIPO_ZONA'] = np.where(df_principal['NM_LOCAL_VOTACAO'].isin(escolas_rurais), 'RURAL', 'URBANA')
+            df_principal['TOTAL_APTOS_TSE'] = 0
+            return df_principal
+    except Exception as e:
+        df_principal['TIPO_ZONA'] = 'URBANA'
+        df_principal['TOTAL_APTOS_TSE'] = 0
+        return df_principal
 
 try:
     dados = carregar_dados()
-    dados = aplicar_zonas(dados) # Aplica a classificação urbana/rural com precisão
+    dados = aplicar_base_tse(dados)
 except:
-    st.error("Erro ao carregar o arquivo 'dados.csv'.")
+    st.error("Erro ao carregar os arquivos base.")
     st.stop()
 
 @st.cache_data
@@ -252,7 +283,8 @@ menu_selecionado = st.sidebar.radio(
         "🗺️ 3. Mapa de Votos Adormecidos",
         "⚔️ 4. Raio-X da Concorrência",
         "🔗 5. Análise de Votos Casados",
-        "🚜 6. Análise Campo vs. Cidade"
+        "🚜 6. Análise Campo vs. Cidade",
+        "🗺️ 7. Territórios Inexplorados"
     ]
 )
 st.sidebar.markdown("---")
@@ -586,7 +618,6 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         
         st.markdown("---")
         
-        # --- FUNÇÃO: RADAR DE EXPANSÃO (AVATAR 1 E AVATAR 2) ---
         st.subheader("🚀 Radar de Expansão (O Mapa do Tesouro Demográfico)")
         
         st.info("""
@@ -638,14 +669,12 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
                 ).properties(height=max(400, len(radar_df) * 35))
                 st.altair_chart(grafico_radar, use_container_width=True)
 
-            # Renderiza o 1º Avatar
             if len(avatar_df) >= 1:
-                renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00") # Laranja
+                renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00")
                 
-            # Renderiza o 2º Avatar
             if len(avatar_df) >= 2:
                 st.markdown("---")
-                renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8") # Azul Corporativo
+                renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8")
         else:
             st.warning("Não há dados demográficos suficientes para calcular o Avatar do eleitor nesta seleção.")
 
@@ -892,7 +921,6 @@ elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
     if dados.empty:
         st.error("Não há dados carregados no momento.")
     else:
-        # Pega a somatória global
         total_rural = dados[dados['TIPO_ZONA'] == 'RURAL']['QT_VOTOS_SAMIR'].sum()
         total_urbano = dados[dados['TIPO_ZONA'] == 'URBANA']['QT_VOTOS_SAMIR'].sum()
         total_geral = total_rural + total_urbano
@@ -909,7 +937,6 @@ elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
         
         st.subheader("📈 Curva de Evolução Histórica (2020 a 2024)")
         
-        # Agrupa por Ano e Tipo de Zona
         df_evolucao = dados.groupby(['ANO_ELEICAO', 'TIPO_ZONA'], as_index=False)['QT_VOTOS_SAMIR'].sum()
         
         if df_evolucao['ANO_ELEICAO'].nunique() > 1:
@@ -925,7 +952,6 @@ elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
             ).properties(height=450)
             st.altair_chart(grafico_evolucao, use_container_width=True)
             
-            # Tabela de detalhamento
             tabela_evol = df_evolucao.pivot_table(index='TIPO_ZONA', columns='ANO_ELEICAO', values='QT_VOTOS_SAMIR', aggfunc='sum').fillna(0).reset_index()
             st.dataframe(tabela_evol, use_container_width=True)
         else:
@@ -949,3 +975,52 @@ elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
             st.altair_chart(grafico_rural, use_container_width=True)
         else:
             st.warning("Não há nenhuma escola marcada como RURAL na sua classificação até o momento.")
+
+# ==========================================
+# ROTA 7: TERRITÓRIOS INEXPLORADOS (Oceano Azul)
+# ==========================================
+elif menu_selecionado == "🗺️ 7. Territórios Inexplorados":
+    st.title("🗺️ Mapa do Oceano Azul: Territórios Inexplorados")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: O Verdadeiro Tamanho do Mercado**
+    Esta análise cruza o seu histórico de votos com a base oficial do TSE de todos os colégios eleitorais do Acre. 
+    Aqui revelamos as escolas onde existem milhares de eleitores aptos a votar, mas onde a campanha possui "Pontos Cegos" (zero ou pouquíssimos votos registrados). Este é o mapa definitivo para a expansão territorial.
+    """)
+
+    if 'TOTAL_APTOS_TSE' not in dados.columns or dados['TOTAL_APTOS_TSE'].sum() == 0:
+        st.warning("⚠️ Os dados do TSE não foram carregados corretamente. Certifique-se de que o arquivo do TSE está na pasta do projeto.")
+    else:
+        ano_analise = int(ano_selecionado) if ano_selecionado != 'Todos os Anos (Série Histórica)' else dados['ANO_ELEICAO'].max()
+        df_oportunidade = dados[dados['ANO_ELEICAO'] == ano_analise].groupby(['NM_LOCAL_VOTACAO', 'TIPO_ZONA'], as_index=False).agg({
+            'TOTAL_APTOS_TSE': 'max',
+            'QT_VOTOS_SAMIR': 'sum'
+        })
+        
+        df_oportunidade['MARGEM_CRESCIMENTO'] = df_oportunidade['TOTAL_APTOS_TSE'] - df_oportunidade['QT_VOTOS_SAMIR']
+        
+        locais_cegos = df_oportunidade[(df_oportunidade['QT_VOTOS_SAMIR'] < 10) & (df_oportunidade['MARGEM_CRESCIMENTO'] > 0)]
+        locais_cegos = locais_cegos.sort_values(by='MARGEM_CRESCIMENTO', ascending=False).head(limite_ranking)
+
+        col1, col2 = st.columns(2)
+        col1.metric("Escolas Inexploradas Mapeadas", len(df_oportunidade[df_oportunidade['QT_VOTOS_SAMIR'] == 0]))
+        col2.metric("Eleitores Soltos Nessas Áreas", f"{int(locais_cegos['MARGEM_CRESCIMENTO'].sum()):,} ({texto_local})".replace(',', '.'))
+
+        st.markdown("---")
+        st.subheader("🔥 Top Escolas com Zero Presença (Maior Margem de Expansão)")
+
+        grafico_cegos = alt.Chart(locais_cegos).mark_bar(color="#00BCD4").encode(
+            x=alt.X('MARGEM_CRESCIMENTO:Q', title='Eleitores Disponíveis', axis=alt.Axis(format='d')),
+            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+            tooltip=[
+                alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
+                alt.Tooltip('TIPO_ZONA:N', title='Território'),
+                alt.Tooltip('TOTAL_APTOS_TSE:Q', title='Eleitores no Local', format=','),
+                alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Seus Votos Atuais', format=',')
+            ]
+        ).properties(height=max(400, len(locais_cegos) * 35))
+        st.altair_chart(grafico_cegos, use_container_width=True)
+
+        tabela_cega = locais_cegos[['NM_LOCAL_VOTACAO', 'TIPO_ZONA', 'TOTAL_APTOS_TSE', 'QT_VOTOS_SAMIR', 'MARGEM_CRESCIMENTO']]
+        tabela_cega.columns = ['Local de Votação', 'Zona', 'Eleitores do TSE', 'Seus Votos', '🔥 Potencial de Crescimento']
+        st.dataframe(tabela_cega, use_container_width=True)
