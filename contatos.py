@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import numpy as np
 import urllib.parse
 import folium
@@ -119,7 +119,11 @@ with aba1:
         df_aniver = df.dropna(subset=['Data de Nascimento']).copy()
         
         if not df_aniver.empty:
-            hoje = datetime.now()
+            # ---------------------------------------------------------
+            # CORREÇÃO DE FUSO HORÁRIO PARA O ACRE (UTC-5)
+            # ---------------------------------------------------------
+            fuso_acre = timezone(timedelta(hours=-5))
+            hoje = datetime.now(fuso_acre)
             hoje_data = datetime(hoje.year, hoje.month, hoje.day)
             
             def calc_dias_para_aniv(data_str):
@@ -164,9 +168,6 @@ with aba1:
                 with bc1:
                     if tel_num:
                         primeiro_nome = nome.split()[0]
-                        # ---------------------------------------------------------
-                        # MENSAGEM DE ANIVERSÁRIO MELHORADA (Com pedido de foto)
-                        # ---------------------------------------------------------
                         texto_aniver = f"Olá {primeiro_nome}! Em nome do Vereador Samir Bestene e de toda a nossa equipe, desejo um feliz aniversário! Que sua vida seja repleta de alegrias, muita saúde e sucesso. 🎉 Gostaríamos muito de preparar uma homenagem para você nas redes sociais do Samir. Você tem alguma objeção? Se estiver tudo bem, nos mande aqui uma foto sua que você mais gosta para montarmos a arte! É uma honra ter você caminhando ao nosso lado. A luta continua 🚀"
                         texto_codificado = urllib.parse.quote(texto_aniver)
                         link_wpp_aniver = f"https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_codificado}"
@@ -271,7 +272,7 @@ with aba3:
     else:
         st.info("Nenhum contato encontrado.")
 
-# --- ABA 4: MAPA INTERATIVO MINIMALISTA ---
+# --- ABA 4: MAPA INTERATIVO CATEGORIZADO ---
 with aba4:
     st.subheader("🗺️ Dispersão de Apoiadores")
     st.markdown("Toque nos pontos coloridos para abrir as informações.")
