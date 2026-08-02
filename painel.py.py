@@ -835,3 +835,28 @@ elif menu_selecionado == "🔗 5. Análise de Votos Casados":
                     st.dataframe(corr_samir, use_container_width=True)
             else:
                 st.warning("Não há volume de urnas suficientes nos filtros selecionados para garantir significância estatística no cálculo de Pearson.")
+
+# ==========================================
+# FERRAMENTA INTERNA: GERADOR DE BASE DE ZONAS
+# ==========================================
+st.markdown("---")
+st.subheader("⚙️ Ferramenta de Mapeamento (Uso Interno)")
+st.info("Use este botão para baixar a lista de todas as escolas e classificar as zonas rurais.")
+
+if not dados.empty:
+    # Pega apenas os nomes únicos das escolas
+    escolas_unicas = dados['NM_LOCAL_VOTACAO'].dropna().unique()
+    df_mapeamento = pd.DataFrame(escolas_unicas, columns=['NM_LOCAL_VOTACAO'])
+    
+    # Define TODAS como Urbana por padrão (O Pulo do Gato)
+    df_mapeamento['TIPO_ZONA'] = 'URBANA'
+    
+    # Transforma em CSV para download
+    csv = df_mapeamento.to_csv(index=False).encode('utf-8')
+    
+    st.download_button(
+        label="📥 Baixar Planilha de Escolas (CSV)",
+        data=csv,
+        file_name="mapeamento_escolas_acre.csv",
+        mime="text/csv",
+    )
