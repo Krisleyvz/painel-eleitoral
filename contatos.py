@@ -5,9 +5,83 @@ import numpy as np
 import urllib.parse
 import folium
 from streamlit_folium import st_folium
+import pytz
+import gspread
+from google.oauth2.service_account import Credentials
 
 # 1. Configuração da Página
 st.set_page_config(page_title="App de Rua | Gestão", page_icon="📱", layout="centered")
+
+# ==========================================
+# SISTEMA DE LOGIN E SEGURANÇA
+# ==========================================
+def registrar_log(usuario):
+    """Registra o acesso silenciosamente na mesma aba do Google Sheets."""
+    fuso_acre = pytz.timezone('America/Rio_Branco')
+    agora = datetime.now(fuso_acre)
+    data_formatada = agora.strftime("%d/%m/%Y")
+    hora_formatada = agora.strftime("%H:%M:%S")
+    
+    try:
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        credenciais = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], 
+            scopes=scopes
+        )
+        cliente = gspread.authorize(credenciais)
+        
+        # ID da sua planilha principal (a mesma do outro painel)
+        planilha_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
+        
+        # Abre a aba de logs
+        aba_logs = cliente.open_by_key(planilha_id).worksheet("Logs_Acesso")
+        
+        # Insere a nova linha indicando que o login foi no App de Rua
+        aba_logs.append_row([f"{usuario} (App de Rua)", data_formatada, hora_formatada])
+        
+    except Exception as e:
+        print(f"❌ Falha ao registrar log no Sheets: {e}")
+
+def verificar_senha():
+    """Retorna True se o usuário inserir as credenciais corretas."""
+    def senha_inserida():
+        usuario = st.session_state["usuario_input"].strip()
+        senha = st.session_state["senha_input"].strip()
+        
+        if usuario in st.secrets["senhas"] and senha == st.secrets["senhas"][usuario]:
+            st.session_state["autenticado"] = True
+            st.session_state["usuario_logado"] = usuario
+            del st.session_state["senha_input"] 
+            registrar_log(usuario)
+        else:
+            st.session_state["autenticado"] = False
+
+    if "autenticado" not in st.session_state:
+        st.markdown("<br><br><h2 style='text-align: center; color: #FFFFFF;'>🔒 Acesso Restrito</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("Usuário", key="usuario_input")
+            st.text_input("Senha", type="password", key="senha_input")
+            st.button("Entrar no Sistema", on_click=senha_inserida, use_container_width=True)
+        return False
+    
+    elif not st.session_state["autenticado"]:
+        st.markdown("<br><br><h2 style='text-align: center; color: #FFFFFF;'>🔒 Acesso Restrito</h2>", unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("Usuário", key="usuario_input")
+            st.text_input("Senha", type="password", key="senha_input")
+            st.button("Entrar no Sistema", on_click=senha_inserida, use_container_width=True)
+            st.error("😕 Usuário ou senha incorretos. Tente novamente.")
+        return False
+    
+    return True
+
+if not verificar_senha():
+    st.stop()
 
 # ==========================================
 # INJEÇÃO DE CSS: TEMA AZUL MARINHO E CARTÕES LIMPOS
