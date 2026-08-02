@@ -6,6 +6,8 @@ import zipfile
 import os
 from datetime import datetime
 import pytz
+import gspread
+from google.oauth2.service_account import Credentials
 
 # 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", page_icon="🎯", layout="wide")
@@ -14,15 +16,36 @@ st.set_page_config(page_title="Painel Executivo | Inteligência Territorial", pa
 # SISTEMA DE LOGIN E SEGURANÇA
 # ==========================================
 def registrar_log(usuario):
-    """
-    Futura função para enviar o log para a nova aba do Google Sheets.
-    Por enquanto, ela apenas imprime no terminal do servidor.
-    """
+    """Registra o acesso silenciosamente no Google Sheets."""
     fuso_acre = pytz.timezone('America/Rio_Branco')
     agora = datetime.now(fuso_acre)
     data_formatada = agora.strftime("%d/%m/%Y")
     hora_formatada = agora.strftime("%H:%M:%S")
-    print(f"✅ LOG ACESSO: {usuario} logou em {data_formatada} às {hora_formatada}")
+    
+    try:
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        credenciais = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], 
+            scopes=scopes
+        )
+        cliente = gspread.authorize(credenciais)
+        
+        # ID exato da sua planilha
+        planilha_id = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
+        
+        # Abre a aba
+        aba_logs = cliente.open_by_key(planilha_id).worksheet("Logs_Acesso")
+        
+        # Insere a nova linha com as informações
+        aba_logs.append_row([usuario, data_formatada, hora_formatada])
+        
+    except Exception as e:
+        # Se der erro, ele não trava o app, apenas avisa nos bastidores
+        print(f"❌ Falha ao registrar log no Sheets: {e}")
+
 
 def verificar_senha():
     """Retorna True se o usuário inserir as credenciais corretas."""
