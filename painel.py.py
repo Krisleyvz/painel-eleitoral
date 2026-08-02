@@ -43,7 +43,6 @@ def registrar_log(usuario):
         aba_logs.append_row([usuario, data_formatada, hora_formatada])
         
     except Exception as e:
-        # Se der erro, ele não trava o app, apenas avisa nos bastidores
         print(f"❌ Falha ao registrar log no Sheets: {e}")
 
 
@@ -368,6 +367,19 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
     st.markdown("---")
 
     st.subheader("🧩 Matriz de Inteligência de Território (Os 4 Quadrantes)")
+    
+    # GUIA EXPLICATIVO IMEDIATO PARA O USUÁRIO (PEDIDO NA IMAGEM 3)
+    st.markdown("""
+    > 📖 **COMO LER ESTE GRÁFICO INSTANTANEAMENTE:**
+    > * **Eixo Horizontal (Esquerda para Direita):** Tamanho da escola (Total de Votos Válidos). Quanto mais para a **direita**, maior é o colégio eleitoral.
+    > * **Eixo Vertical (Baixo para Cima):** Sua força atual (quantos votos você tem). Quanto mais para **cima**, mais votos você já possui ali.
+    > * **As Linhas Pontilhadas Cruzadas:** Dividem o gráfico na média geral do estado, formando 4 quadrantes estratégicos:
+    >   * 🔵 **Azul (Fortaleza):** Escolas grandes onde você já é forte. **Ação:** Defender e blindar.
+    >   * 🟢 **Verde (Nicho Leal):** Escolas menores onde sua proporção de votos é boa. **Ação:** Manter relacionamento.
+    >   * 🟡 **Amarelo (Oceano Azul):** Escolas grandes onde você ainda tem poucos votos. **Ação:** Atacar com força total (aqui está a maior mina de votos em disputa!).
+    >   * 🔴/🟣 **Rosa (Zona de Descarte):** Escolas menores e com poucos votos seus. **Ação:** Ignorar para não desperdiçar energia física da equipe.
+    """)
+
     if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
         matriz_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({'QT_VOTOS_VALIDOS_SECAO': 'sum', 'QT_VOTOS_SAMIR': 'sum'}).reset_index()
         matriz_df = matriz_df.sort_values(by='QT_VOTOS_VALIDOS_SECAO', ascending=False).head(limite_ranking)
@@ -388,7 +400,7 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
             x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Tamanho da Escola (Votos Válidos)'),
             y=alt.Y('QT_VOTOS_SAMIR:Q', title='Seus Votos (Sua Força)'),
             color=alt.Color('CLASSIFICACAO:N', legend=None, scale=alt.Scale(domain=["🏆 FORTALEZA (Defender)", "🚀 OCEANO AZUL (Atacar)", "💎 NICHO LEAL (Manter)", "❌ ZONA DE DESCARTE (Ignorar)"], range=['#1A73E8', '#25D366', '#FFC107', '#E83E8C'])),
-            tooltip=['NM_LOCAL_VOTACAO', 'CLASSIFICACAO']
+            tooltip=['NM_LOCAL_VOTACAO', 'CLASSIFICACAO', alt.Tooltip('QT_VOTOS_VALIDOS_SECAO:Q', format=','), alt.Tooltip('QT_VOTOS_SAMIR:Q', format=',')]
         ).properties(height=500)
         
         regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
@@ -472,7 +484,6 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
     if dados_demo.empty:
         st.error("⚠️ A base 'base_demografica_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
     else:
-        # Base macro contendo TODAS as escolas (necessária para calcular o Avatar Geral)
         df_demo_macro = dados_demo.copy()
         if ano_selecionado != 'Todos os Anos (Série Histórica)':
             df_demo_macro = df_demo_macro[df_demo_macro['ANO_ELEICAO'] == int(ano_selecionado)]
@@ -535,7 +546,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         
         st.markdown("---")
         
-        # --- NOVA FUNÇÃO: TETO DE CRESCIMENTO DEMOGRÁFICO ---
+        # --- FUNÇÃO: RADAR DE EXPANSÃO (AVATAR 1 E AVATAR 2) ---
         st.subheader("🚀 Radar de Expansão (O Mapa do Tesouro Demográfico)")
         
         st.info("""
@@ -543,53 +554,60 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         
         No marketing político de alta precisão, o custo de converter um eleitor cujo perfil demográfico já possui afinidade orgânica com o candidato é drasticamente menor. Este módulo aplica a lógica de *Lookalike Audiences* (Públicos Semelhantes). 
         
-        O algoritmo identifica o seu "Eleitor Avatar" (o extrato sociodemográfico que mais vota em você) e varre a base do TSE cruzando com o seu *Market Share*. O resultado aponta cirurgicamente em quais territórios o seu "eleitor ideal" existe em abundância, mas ainda não foi conquistado. Isso revela o verdadeiro mapa do tesouro para o impulsionamento de tráfego pago geolocalizado e para direcionar agendas de rua com conversão garantida.
+        O algoritmo identifica os seus dois principais **"Eleitores Avatars"** (os extratos sociodemográficos que mais votam em você) e varre a base do TSE cruzando com o seu *Market Share*. O resultado aponta cirurgicamente em quais territórios os seus perfis ideais existem em abundância, mas ainda não foram conquistados. Isso revela o verdadeiro mapa do tesouro para o impulsionamento de tráfego pago geolocalizado e para direcionar agendas de rua com conversão garantida.
         """)
         
-        # 1. Identificar o Eleitor Avatar na base Macro
         avatar_df = df_demo_macro.groupby(['DS_GENERO', 'DS_FAIXA_ETARIA'])['VOTOS_ESTIMADOS_SAMIR'].sum().reset_index()
         if not avatar_df.empty:
             avatar_df = avatar_df.sort_values(by='VOTOS_ESTIMADOS_SAMIR', ascending=False)
-            top_avatar = avatar_df.iloc[0]
-            avatar_genero = top_avatar['DS_GENERO']
-            avatar_idade = top_avatar['DS_FAIXA_ETARIA']
             
-            st.success(f"**Seu Eleitor Avatar (Maior Afinidade):** O algoritmo detectou que o seu eleitorado mais forte na região selecionada é composto pelo perfil **{avatar_genero}**, na faixa etária de **{avatar_idade}**.")
-            
-            # 2. Encontrar onde esse avatar está subaproveitado
-            df_alvo = df_demo_macro[(df_demo_macro['DS_GENERO'] == avatar_genero) & (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)].copy()
-            
-            # O Potencial é o Total de Eleitores desse perfil subtraído dos que já estimamos votar no Samir
-            df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['QT_ELEITORES_PERFIL'] - df_alvo['VOTOS_ESTIMADOS_SAMIR']
-            df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['VOTOS_NAO_CONQUISTADOS'].apply(lambda x: max(0, x))
-            
-            radar_df = df_alvo.groupby('NM_LOCAL_VOTACAO').agg({
-                'QT_ELEITORES_PERFIL': 'sum', 
-                'VOTOS_ESTIMADOS_SAMIR': 'sum', 
-                'VOTOS_NAO_CONQUISTADOS': 'sum'
-            }).reset_index()
-            
-            radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
-            
-            # Tabela
-            tabela_radar = radar_df.copy()
-            tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].astype(int)
-            tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].astype(int)
-            tabela_radar['VOTOS_NAO_CONQUISTADOS'] = tabela_radar['VOTOS_NAO_CONQUISTADOS'].astype(int)
-            tabela_radar.columns = ['Local de Votação', f'Total de {avatar_genero.title()}s ({avatar_idade})', 'Já Votam em Você (Estimado)', '🔥 Potencial de Crescimento (Alvo)']
-            st.dataframe(tabela_radar, use_container_width=True)
-            
-            # Gráfico Visual
-            grafico_radar = alt.Chart(radar_df).mark_bar(color="#FF8C00").encode(
-                x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Eleitores do seu Perfil a Conquistar'),
-                y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
-                tooltip=[
-                    alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
-                    alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Potencial a Conquistar', format=','),
-                    alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil na Escola', format=',')
-                ]
-            ).properties(height=max(400, len(radar_df) * 35))
-            st.altair_chart(grafico_radar, use_container_width=True)
+            # Função auxiliar para renderizar o Radar de qualquer Avatar
+            def renderizar_radar_avatar(posicao_label, top_avatar_row, cor_barra):
+                avatar_genero = top_avatar_row['DS_GENERO']
+                avatar_idade = top_avatar_row['DS_FAIXA_ETARIA']
+                
+                st.success(f"**{posicao_label} Eleitor Avatar:** O perfil de maior tração é **{avatar_genero}**, na faixa etária de **{avatar_idade}**.")
+                
+                df_alvo = df_demo_macro[(df_demo_macro['DS_GENERO'] == avatar_genero) & (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)].copy()
+                df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['QT_ELEITORES_PERFIL'] - df_alvo['VOTOS_ESTIMADOS_SAMIR']
+                df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['VOTOS_NAO_CONQUISTADOS'].apply(lambda x: max(0, x))
+                
+                radar_df = df_alvo.groupby('NM_LOCAL_VOTACAO').agg({
+                    'QT_ELEITORES_PERFIL': 'sum', 
+                    'VOTOS_ESTIMADOS_SAMIR': 'sum', 
+                    'VOTOS_NAO_CONQUISTADOS': 'sum'
+                }).reset_index()
+                
+                radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
+                
+                # Arredondamento e formatação estrita para evitar floats nos números (Pedido da Imagem 2)
+                tabela_radar = radar_df.copy()
+                tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].round(0).astype(int)
+                tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].round(0).astype(int)
+                tabela_radar['VOTOS_NAO_CONQUISTADOS'] = tabela_radar['VOTOS_NAO_CONQUISTADOS'].round(0).astype(int)
+                
+                tabela_radar.columns = ['Local de Votação', f'Total de {avatar_genero.title()}s ({avatar_idade})', 'Já Votam em Você (Estimado)', '🔥 Potencial de Crescimento (Alvo)']
+                st.dataframe(tabela_radar, use_container_width=True)
+                
+                grafico_radar = alt.Chart(radar_df).mark_bar(color=cor_barra).encode(
+                    x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Eleitores do seu Perfil a Conquistar', axis=alt.Axis(format='d')),
+                    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+                    tooltip=[
+                        alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
+                        alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Potencial a Conquistar', format=','),
+                        alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil na Escola', format=',')
+                    ]
+                ).properties(height=max(400, len(radar_df) * 35))
+                st.altair_chart(grafico_radar, use_container_width=True)
+
+            # Renderiza o 1º Avatar
+            if len(avatar_df) >= 1:
+                renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00") # Laranja
+                
+            # Renderiza o 2º Avatar (Pedido da Imagem 1)
+            if len(avatar_df) >= 2:
+                st.markdown("---")
+                renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8") # Azul Corporativo
         else:
             st.warning("Não há dados demográficos suficientes para calcular o Avatar do eleitor nesta seleção.")
 
@@ -620,7 +638,6 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
             elif 'NM_MUNICIPIO' in df_ador_filtrado.columns:
                  df_ador_filtrado = df_ador_filtrado[df_ador_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
 
-        # Agrupamento limpo e blindado contra o KeyError
         ador_escola = df_ador_filtrado.groupby(['NM_LOCAL_VOTACAO'], as_index=False).agg({
             'QT_APTOS': 'sum', 'VOTOS_ADORMECIDOS': 'sum', 'QT_ABSTENCOES': 'sum',
             'QT_VOTOS_BRANCOS': 'sum', 'QT_VOTOS_NULOS': 'sum'
@@ -655,7 +672,7 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
         altura_ador = max(500, len(ador_top) * 35)
         
         grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
-            x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos'),
+            x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos', axis=alt.Axis(format='d')),
             y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
             tooltip=[
                 alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
@@ -731,11 +748,11 @@ elif menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
             altura_adv = max(500, len(adversarios_grafico) * 35)
             
             grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
-                x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário'),
+                x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário', axis=alt.Axis(format='d')),
                 y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
                 tooltip=[
                     alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
-                    alt.Tooltip('QT_VOTOS:Q', title='Votos'),
+                    alt.Tooltip('QT_VOTOS:Q', title='Votos', format=','),
                     alt.Tooltip('Share (%):Q', title='% de Domínio', format='.1f')
                 ]
             ).properties(height=altura_adv)
