@@ -368,7 +368,6 @@ if menu_selecionado == "📊 1. Inteligência de Votos":
 
     st.subheader("🧩 Matriz de Inteligência de Território (Os 4 Quadrantes)")
     
-    # GUIA EXPLICATIVO IMEDIATO PARA O USUÁRIO (PEDIDO NA IMAGEM 3)
     st.markdown("""
     > 📖 **COMO LER ESTE GRÁFICO INSTANTANEAMENTE:**
     > * **Eixo Horizontal (Esquerda para Direita):** Tamanho da escola (Total de Votos Válidos). Quanto mais para a **direita**, maior é o colégio eleitoral.
@@ -525,23 +524,25 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
             st.subheader("Faixa Etária do Eleitorado")
             df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
             df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+            altura_idade = max(350, len(df_idade) * 28)
             grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
-                x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)'),
-                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
-                tooltip=['DS_FAIXA_ETARIA:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
-            ).properties(height=350)
+                x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)', axis=alt.Axis(format='d')),
+                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                tooltip=['DS_FAIXA_ETARIA:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
+            ).properties(height=altura_idade)
             st.altair_chart(grafico_idade, use_container_width=True)
 
         st.markdown("---")
         st.subheader("Grau de Instrução (Nível de Escolaridade)")
         df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
         df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+        altura_escola = max(350, len(df_escola) * 28)
         
         grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
-            x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)'),
-            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
-            tooltip=['DS_GRAU_ESCOLARIDADE:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
-        ).properties(height=350)
+            x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)', axis=alt.Axis(format='d')),
+            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+            tooltip=['DS_GRAU_ESCOLARIDADE:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
+        ).properties(height=altura_escola)
         st.altair_chart(grafico_escola, use_container_width=True)
         
         st.markdown("---")
@@ -561,7 +562,6 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
         if not avatar_df.empty:
             avatar_df = avatar_df.sort_values(by='VOTOS_ESTIMADOS_SAMIR', ascending=False)
             
-            # Função auxiliar para renderizar o Radar de qualquer Avatar
             def renderizar_radar_avatar(posicao_label, top_avatar_row, cor_barra):
                 avatar_genero = top_avatar_row['DS_GENERO']
                 avatar_idade = top_avatar_row['DS_FAIXA_ETARIA']
@@ -580,7 +580,6 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
                 
                 radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
                 
-                # Arredondamento e formatação estrita para evitar floats nos números (Pedido da Imagem 2)
                 tabela_radar = radar_df.copy()
                 tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].round(0).astype(int)
                 tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].round(0).astype(int)
@@ -591,7 +590,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
                 
                 grafico_radar = alt.Chart(radar_df).mark_bar(color=cor_barra).encode(
                     x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Eleitores do seu Perfil a Conquistar', axis=alt.Axis(format='d')),
-                    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+                    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000)),
                     tooltip=[
                         alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
                         alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Potencial a Conquistar', format=','),
@@ -604,7 +603,7 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
             if len(avatar_df) >= 1:
                 renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00") # Laranja
                 
-            # Renderiza o 2º Avatar (Pedido da Imagem 1)
+            # Renderiza o 2º Avatar
             if len(avatar_df) >= 2:
                 st.markdown("---")
                 renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8") # Azul Corporativo
@@ -673,7 +672,7 @@ elif menu_selecionado == "🗺️ 3. Mapa de Votos Adormecidos":
         
         grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
             x=alt.X('VOTOS_ADORMECIDOS:Q', title='Quantidade de Votos Adormecidos', axis=alt.Axis(format='d')),
-            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
             tooltip=[
                 alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
                 alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total Adormecidos', format=','),
@@ -749,7 +748,7 @@ elif menu_selecionado == "⚔️ 4. Raio-X da Concorrência":
             
             grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
                 x=alt.X('QT_VOTOS:Q', title='Votos Conquistados pelo Adversário', axis=alt.Axis(format='d')),
-                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
                 tooltip=[
                     alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
                     alt.Tooltip('QT_VOTOS:Q', title='Votos', format=','),
@@ -824,7 +823,7 @@ elif menu_selecionado == "🔗 5. Análise de Votos Casados":
                     
                     grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
                         x=alt.X('Índice de Correlação (r):Q', title='Força do Voto Casado (0 = Neutro, 1 = Perfeito)', scale=alt.Scale(domain=[0, 1])),
-                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+                        y=alt.Y('Candidato Parceiro:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
                         tooltip=[
                             alt.Tooltip('Candidato Parceiro:N', title='Candidato'),
                             alt.Tooltip('Índice de Correlação (r):Q', title='Índice Pearson', format='.2f')
