@@ -43,6 +43,7 @@ def registrar_log(usuario):
         aba_logs.append_row([usuario, data_formatada, hora_formatada])
         
     except Exception as e:
+        # Se der erro, ele não trava o app, apenas avisa nos bastidores
         print(f"❌ Falha ao registrar log no Sheets: {e}")
 
 
@@ -105,7 +106,9 @@ with col_logo2:
         st.markdown("<h3 style='text-align: center;'>🎯 Painel Estratégico</h3>", unsafe_allow_html=True)
 st.markdown("---")
 
-# 2. Carregamento dos Dados
+# ==========================================
+# CARREGAMENTO DOS DADOS E INTEGRAÇÃO DE ZONAS
+# ==========================================
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("dados.csv")
@@ -139,8 +142,33 @@ def carregar_dados():
         df['lon'] = df['lon'].fillna(-67.8243)
     return df
 
+def aplicar_zonas(df_principal):
+    # Lista oficial cruzada com bases do TRE-AC e dados de localização
+    escolas_rurais = [
+        'ESCOLA ESTADUAL RURAL JORGE KALUME', 'ESCOLA RURAL BEIJA-FLOR', 
+        'INSTITUTO FEDERAL DO ACRE (IFAC) - TRANSACREANA', 'ESCOLA RURAL CAPITÃO EDGARD CERQUEIRA FILHO', 
+        'ESCOLA RURAL PROF. CLAUDIO AUGUSTO F. DE SALES', 'ESCOLA RURAL RUY AZEVEDO', 
+        'IDAF - VILA ACRE', 'ESCOLA RURAL SÃO PEDRO I', 'ESCOLA RURAL ERCÍLIA FEITOSA GOMES', 
+        'ESCOLA EST. DALVA DE SOUZA DAS NEVES (TRANSACREANA)', 'ESCOLA VALERIA BISPO SABALA - KM 26', 
+        'ESCOLA ESTADUAL PADRE JÓSIMO - COMUNIDADE SÃO JOÃO DO GUARANI', 'ESCOLA RURAL NOVA VIDA', 
+        'ESCOLA ESTADUAL RURAL MANUEL DE BARROS', 'ESCOLA ESTADUAL RURAL FLAVIA BARROS PIMENTEL', 
+        'ESCOLA ESTADUAL RURAL BOM DESTINO', 'ESCOLA RURAL ALTO ALEGRE I', 
+        'ESCOLA CASTELO BRANCO - KM 20', 'ESCOLA VALDOMIRO FERREIRA BARROSO - KM 19', 
+        'ESCOLA FRANCISCO GERMANO DA SILVA - KM 68', 'IFAC - POLO PORTO ACRE', 
+        'ESCOLA LAGO - KM 05 MAIS 28 DE RAMAL (SERINGAL PORONGABA)', 
+        'PRÉDIO DA SEATER - BOCA DO RAMAL AREIA BRANCA', 'ESCOLA RURAL MARIA DO CARMO RAMOS', 
+        'ESCOLA LUIZ GONZAGA DA ROCHA - KM 09 VILA PROGRESSO', 
+        'UNIDADE DE SAÚDE SEBASTIÃO PRADO (TRANSACREANA)', 'ESCOLA RURAL ALTO ALEGRE II',
+        'ESCOLA ESTADUAL PROFESSORA TEREZINHA MIGUÉIS', 'ESCOLA MÁRIO LOBÃO', 'CENTRO DE SAUDE DE PORTO ACRE'
+    ]
+    
+    # O sistema marca como RURAL se estiver na lista, e URBANA todo o restante
+    df_principal['TIPO_ZONA'] = np.where(df_principal['NM_LOCAL_VOTACAO'].isin(escolas_rurais), 'RURAL', 'URBANA')
+    return df_principal
+
 try:
     dados = carregar_dados()
+    dados = aplicar_zonas(dados) # Aplica a classificação urbana/rural com precisão
 except:
     st.error("Erro ao carregar o arquivo 'dados.csv'.")
     st.stop()
@@ -207,7 +235,9 @@ dados_demo = carregar_demografia(dados)
 dados_adormecidos = carregar_adormecidos(dados)
 dados_concorrencia = carregar_concorrencia(dados)
 
-# 3. Barra Lateral 
+# ==========================================
+# 3. BARRA LATERAL (MENUS E FILTROS)
+# ==========================================
 try:
     st.sidebar.image("IMG_3571.PNG", use_container_width=True)
 except:
@@ -221,7 +251,8 @@ menu_selecionado = st.sidebar.radio(
         "👥 2. Perfil Estimado do Eleitor", 
         "🗺️ 3. Mapa de Votos Adormecidos",
         "⚔️ 4. Raio-X da Concorrência",
-        "🔗 5. Análise de Votos Casados"
+        "🔗 5. Análise de Votos Casados",
+        "🚜 6. Análise Campo vs. Cidade"
     ]
 )
 st.sidebar.markdown("---")
@@ -250,6 +281,14 @@ if col_municipio:
         texto_local = f"em {municipios_selecionados[0].title()} e {municipios_selecionados[1].title()}"
     else:
         texto_local = "nos Municípios Selecionados"
+
+st.sidebar.markdown("---")
+st.sidebar.header("🚜 Filtro de Localidade")
+zonas_disponiveis = ['Todas as Zonas', 'URBANA', 'RURAL']
+zona_selecionada = st.sidebar.selectbox("Selecione o Tipo de Zona:", zonas_disponiveis)
+
+if zona_selecionada != 'Todas as Zonas':
+    dados = dados[dados['TIPO_ZONA'] == zona_selecionada]
 
 st.sidebar.markdown("---")
 mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODAS as escolas", value=False)
@@ -837,26 +876,74 @@ elif menu_selecionado == "🔗 5. Análise de Votos Casados":
                 st.warning("Não há volume de urnas suficientes nos filtros selecionados para garantir significância estatística no cálculo de Pearson.")
 
 # ==========================================
-# FERRAMENTA INTERNA: GERADOR DE BASE DE ZONAS
+# ROTA 6: EVOLUÇÃO CAMPO VS. CIDADE
 # ==========================================
-st.markdown("---")
-st.subheader("⚙️ Ferramenta de Mapeamento (Uso Interno)")
-st.info("Use este botão para baixar a lista de todas as escolas e classificar as zonas rurais.")
+elif menu_selecionado == "🚜 6. Análise Campo vs. Cidade":
+    st.title("🚜 Análise Comparativa: Zona Rural vs. Zona Urbana")
+    
+    st.info("""
+    **💡 Fundamentação Estratégica: Diferenciação Logística e Comportamental**
+    
+    A geografia determina a logística e o comportamento do eleitorado. O custo de manter uma estrutura de campanha na zona rural é incomparável ao da área urbana. Esta análise revela com precisão matemática em qual dos dois territórios o capital eleitoral do candidato está ancorado.
+    
+    Se as curvas do gráfico abaixo demonstrarem que a força do candidato está migrando do interior para a capital (ou vice-versa) ao longo das eleições, os recursos de equipe de rua, combustível e comunicação audiovisual devem acompanhar essa migração proporcionalmente para evitar desperdício.
+    """)
 
-if not dados.empty:
-    # Pega apenas os nomes únicos das escolas
-    escolas_unicas = dados['NM_LOCAL_VOTACAO'].dropna().unique()
-    df_mapeamento = pd.DataFrame(escolas_unicas, columns=['NM_LOCAL_VOTACAO'])
-    
-    # Define TODAS como Urbana por padrão (O Pulo do Gato)
-    df_mapeamento['TIPO_ZONA'] = 'URBANA'
-    
-    # Transforma em CSV para download
-    csv = df_mapeamento.to_csv(index=False).encode('utf-8')
-    
-    st.download_button(
-        label="📥 Baixar Planilha de Escolas (CSV)",
-        data=csv,
-        file_name="mapeamento_escolas_acre.csv",
-        mime="text/csv",
-    )
+    if dados.empty:
+        st.error("Não há dados carregados no momento.")
+    else:
+        # Pega a somatória global
+        total_rural = dados[dados['TIPO_ZONA'] == 'RURAL']['QT_VOTOS_SAMIR'].sum()
+        total_urbano = dados[dados['TIPO_ZONA'] == 'URBANA']['QT_VOTOS_SAMIR'].sum()
+        total_geral = total_rural + total_urbano
+        
+        pct_rural = (total_rural / total_geral) * 100 if total_geral > 0 else 0
+        pct_urbano = (total_urbano / total_geral) * 100 if total_geral > 0 else 0
+
+        st.markdown(f"#### 📊 Distribuição Total ({label_periodo})")
+        c1, c2 = st.columns(2)
+        c1.metric("Votos na Zona Urbana", f"{int(total_urbano):,} ({pct_urbano:.1f}%)".replace(',', '.'))
+        c2.metric("Votos na Zona Rural", f"{int(total_rural):,} ({pct_rural:.1f}%)".replace(',', '.'))
+        
+        st.markdown("---")
+        
+        st.subheader("📈 Curva de Evolução Histórica (2020 a 2024)")
+        
+        # Agrupa por Ano e Tipo de Zona
+        df_evolucao = dados.groupby(['ANO_ELEICAO', 'TIPO_ZONA'], as_index=False)['QT_VOTOS_SAMIR'].sum()
+        
+        if df_evolucao['ANO_ELEICAO'].nunique() > 1:
+            grafico_evolucao = alt.Chart(df_evolucao).mark_line(point=alt.OverlayMarkDef(size=100), strokeWidth=4).encode(
+                x=alt.X('ANO_ELEICAO:O', title='Ano da Eleição'),
+                y=alt.Y('QT_VOTOS_SAMIR:Q', title='Total de Votos Obtidos'),
+                color=alt.Color('TIPO_ZONA:N', title='Território', scale=alt.Scale(domain=['URBANA', 'RURAL'], range=['#1A73E8', '#28A745'])),
+                tooltip=[
+                    alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
+                    alt.Tooltip('TIPO_ZONA:N', title='Território'),
+                    alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos', format=',')
+                ]
+            ).properties(height=450)
+            st.altair_chart(grafico_evolucao, use_container_width=True)
+            
+            # Tabela de detalhamento
+            tabela_evol = df_evolucao.pivot_table(index='TIPO_ZONA', columns='ANO_ELEICAO', values='QT_VOTOS_SAMIR', aggfunc='sum').fillna(0).reset_index()
+            st.dataframe(tabela_evol, use_container_width=True)
+        else:
+            st.info("O gráfico de evolução exige dados de pelo menos dois anos eleitorais diferentes. Ajuste o filtro lateral.")
+            
+        st.markdown("---")
+        st.subheader("🔥 Top 20 Escolas Rurais (Fidelidade no Campo)")
+        
+        df_rural = dados[dados['TIPO_ZONA'] == 'RURAL']
+        if not df_rural.empty:
+            top_rurais = df_rural.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index()
+            top_rurais = top_rurais.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(20)
+            
+            grafico_rural = alt.Chart(top_rurais).mark_bar(color="#28A745").encode(
+                x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos no Campo', axis=alt.Axis(format='d')),
+                y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                tooltip=['NM_LOCAL_VOTACAO:N', alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos', format=',')]
+            ).properties(height=max(400, len(top_rurais) * 35))
+            st.altair_chart(grafico_rural, use_container_width=True)
+        else:
+            st.warning("Não há nenhuma escola marcada como RURAL na sua classificação até o momento.")
