@@ -472,15 +472,18 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
     if dados_demo.empty:
         st.error("⚠️ A base 'base_demografica_ac.zip' não foi encontrada. Faça o upload do arquivo ZIP diretamente pelo site do GitHub.")
     else:
-        df_demo_filtrado = dados_demo.copy()
+        # Base macro contendo TODAS as escolas (necessária para calcular o Avatar Geral)
+        df_demo_macro = dados_demo.copy()
         if ano_selecionado != 'Todos os Anos (Série Histórica)':
-            df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['ANO_ELEICAO'] == int(ano_selecionado)]
+            df_demo_macro = df_demo_macro[df_demo_macro['ANO_ELEICAO'] == int(ano_selecionado)]
         if col_municipio and municipios_selecionados:
-            if 'NM_MUNICIPIO_x' in df_demo_filtrado.columns:
-                df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_demo_filtrado['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
-            elif 'NM_MUNICIPIO' in df_demo_filtrado.columns:
-                 df_demo_filtrado = df_demo_filtrado[df_demo_filtrado['NM_MUNICIPIO'].isin(municipios_selecionados)]
+            if 'NM_MUNICIPIO_x' in df_demo_macro.columns:
+                df_demo_macro = df_demo_macro[df_demo_macro['NM_MUNICIPIO_x'].isin(municipios_selecionados) | df_demo_macro['NM_MUNICIPIO_y'].isin(municipios_selecionados)]
+            elif 'NM_MUNICIPIO' in df_demo_macro.columns:
+                 df_demo_macro = df_demo_macro[df_demo_macro['NM_MUNICIPIO'].isin(municipios_selecionados)]
 
+        df_demo_filtrado = df_demo_macro.copy()
+        
         escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist())
         escola_alvo = st.selectbox("🎯 Aprofundar o Raio-X em um Local de Votação:", escolas_tse)
         
@@ -529,6 +532,66 @@ elif menu_selecionado == "👥 2. Perfil Estimado do Eleitor":
             tooltip=['DS_GRAU_ESCOLARIDADE:N', 'VOTOS_ESTIMADOS_SAMIR:Q']
         ).properties(height=350)
         st.altair_chart(grafico_escola, use_container_width=True)
+        
+        st.markdown("---")
+        
+        # --- NOVA FUNÇÃO: TETO DE CRESCIMENTO DEMOGRÁFICO ---
+        st.subheader("🚀 Radar de Expansão (O Mapa do Tesouro Demográfico)")
+        
+        st.info("""
+        **💡 Fundamentação Estratégica: Expansão de Base por "Lookalike" (Públicos Semelhantes) e Teto Demográfico**
+        
+        No marketing político de alta precisão, o custo de converter um eleitor cujo perfil demográfico já possui afinidade orgânica com o candidato é drasticamente menor. Este módulo aplica a lógica de *Lookalike Audiences* (Públicos Semelhantes). 
+        
+        O algoritmo identifica o seu "Eleitor Avatar" (o extrato sociodemográfico que mais vota em você) e varre a base do TSE cruzando com o seu *Market Share*. O resultado aponta cirurgicamente em quais territórios o seu "eleitor ideal" existe em abundância, mas ainda não foi conquistado. Isso revela o verdadeiro mapa do tesouro para o impulsionamento de tráfego pago geolocalizado e para direcionar agendas de rua com conversão garantida.
+        """)
+        
+        # 1. Identificar o Eleitor Avatar na base Macro
+        avatar_df = df_demo_macro.groupby(['DS_GENERO', 'DS_FAIXA_ETARIA'])['VOTOS_ESTIMADOS_SAMIR'].sum().reset_index()
+        if not avatar_df.empty:
+            avatar_df = avatar_df.sort_values(by='VOTOS_ESTIMADOS_SAMIR', ascending=False)
+            top_avatar = avatar_df.iloc[0]
+            avatar_genero = top_avatar['DS_GENERO']
+            avatar_idade = top_avatar['DS_FAIXA_ETARIA']
+            
+            st.success(f"**Seu Eleitor Avatar (Maior Afinidade):** O algoritmo detectou que o seu eleitorado mais forte na região selecionada é composto pelo perfil **{avatar_genero}**, na faixa etária de **{avatar_idade}**.")
+            
+            # 2. Encontrar onde esse avatar está subaproveitado
+            df_alvo = df_demo_macro[(df_demo_macro['DS_GENERO'] == avatar_genero) & (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)].copy()
+            
+            # O Potencial é o Total de Eleitores desse perfil subtraído dos que já estimamos votar no Samir
+            df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['QT_ELEITORES_PERFIL'] - df_alvo['VOTOS_ESTIMADOS_SAMIR']
+            df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['VOTOS_NAO_CONQUISTADOS'].apply(lambda x: max(0, x))
+            
+            radar_df = df_alvo.groupby('NM_LOCAL_VOTACAO').agg({
+                'QT_ELEITORES_PERFIL': 'sum', 
+                'VOTOS_ESTIMADOS_SAMIR': 'sum', 
+                'VOTOS_NAO_CONQUISTADOS': 'sum'
+            }).reset_index()
+            
+            radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
+            
+            # Tabela
+            tabela_radar = radar_df.copy()
+            tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].astype(int)
+            tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+            tabela_radar['VOTOS_NAO_CONQUISTADOS'] = tabela_radar['VOTOS_NAO_CONQUISTADOS'].astype(int)
+            tabela_radar.columns = ['Local de Votação', f'Total de {avatar_genero.title()}s ({avatar_idade})', 'Já Votam em Você (Estimado)', '🔥 Potencial de Crescimento (Alvo)']
+            st.dataframe(tabela_radar, use_container_width=True)
+            
+            # Gráfico Visual
+            grafico_radar = alt.Chart(radar_df).mark_bar(color="#FF8C00").encode(
+                x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Eleitores do seu Perfil a Conquistar'),
+                y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+                tooltip=[
+                    alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Escola'),
+                    alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Potencial a Conquistar', format=','),
+                    alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil na Escola', format=',')
+                ]
+            ).properties(height=max(400, len(radar_df) * 35))
+            st.altair_chart(grafico_radar, use_container_width=True)
+        else:
+            st.warning("Não há dados demográficos suficientes para calcular o Avatar do eleitor nesta seleção.")
 
 
 # ==========================================
