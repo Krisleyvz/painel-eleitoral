@@ -1,13 +1,18 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 from datetime import datetime, timezone, timedelta
 import numpy as np
 import urllib.parse
+import urllib.request
+import urllib.error
 import json
 import re
 import unicodedata
+import hashlib
+import html
+import time
 import folium
+from folium.plugins import MarkerCluster, Fullscreen, LocateControl
 from streamlit_folium import st_folium
 import pytz
 import gspread
@@ -192,33 +197,41 @@ def card_html(nome, tel_exibicao, cidade, bairro, extra=""):
     """
 
 # ==========================================
-# FUNÇÕES EXCLUSIVAS DO MAPA DE APOIADORES
+# MAPA GRATUITO: OPENSTREETMAP + CACHE NO SHEETS
 # ==========================================
-def normalizar_rotulo_mapa(valor):
+PLANILHA_ID_MAPA = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
+ABA_CACHE_MAPA = "Mapa_Coordenadas"
+CABECALHO_CACHE_MAPA = [
+    'CHAVE_ENDERECO', 'ENDERECO_CONSULTADO', 'LATITUDE', 'LONGITUDE',
+    'FONTE', 'PRECISAO', 'ENDERECO_RETORNADO', 'DATA_CONSULTA'
+]
+LIMITE_GEOCODIFICACAO_POR_CLIQUE = 10
+
+
+def normalizar_texto_mapa(valor):
     texto = unicodedata.normalize('NFKD', str(valor))
     texto = texto.encode('ascii', errors='ignore').decode('ascii').lower()
     return re.sub(r'[^a-z0-9]+', ' ', texto).strip()
 
 
 def localizar_coluna_mapa(dataframe, opcoes):
-    """Localiza uma coluna mesmo quando há diferenças de acento ou pontuação."""
     mapa_colunas = {
-        normalizar_rotulo_mapa(coluna): coluna for coluna in dataframe.columns
+        normalizar_texto_mapa(coluna): coluna for coluna in dataframe.columns
     }
     for opcao in opcoes:
-        opcao_normalizada = normalizar_rotulo_mapa(opcao)
-        if opcao_normalizada in mapa_colunas:
-            return mapa_colunas[opcao_normalizada]
-    for rotulo_normalizado, coluna_original in mapa_colunas.items():
+        normalizada = normalizar_texto_mapa(opcao)
+        if normalizada in mapa_colunas:
+            return mapa_colunas[normalizada]
+    for nome_normalizado, nome_original in mapa_colunas.items():
         if any(
-            normalizar_rotulo_mapa(opcao) in rotulo_normalizado
+            normalizar_texto_mapa(opcao) in nome_normalizado
             for opcao in opcoes
         ):
-            return coluna_original
+            return nome_original
     return None
 
 
-def valor_texto_mapa(row, coluna, padrao=""):
+def texto_linha_mapa(row, coluna, padrao=""):
     if not coluna:
         return padrao
     valor = row.get(coluna, padrao)
@@ -228,8 +241,8 @@ def valor_texto_mapa(row, coluna, padrao=""):
     return padrao if texto.lower() in ('', 'nan', 'none') else texto
 
 
-def categoria_estrategica_mapa(classificacao):
-    texto = normalizar_rotulo_mapa(classificacao)
+def categoria_mapa(classificacao):
+    texto = normalizar_texto_mapa(classificacao)
     if 'lider' in texto:
         return 'Liderança'
     if 'parceria' in texto or 'estrategic' in texto:
@@ -239,57 +252,61 @@ def categoria_estrategica_mapa(classificacao):
     return 'Padrão'
 
 
-def converter_coordenada_mapa(valor):
+def coordenada_numerica(valor):
     try:
         return float(str(valor).strip().replace(',', '.'))
     except (TypeError, ValueError):
         return None
 
 
-def coordenadas_informadas_mapa(row, col_lat, col_lon, col_coordenadas):
-    """Prioriza coordenadas existentes na planilha antes de geocodificar."""
-    latitude = converter_coordenada_mapa(row.get(col_lat)) if col_lat else None
-    longitude = converter_coordenada_mapa(row.get(col_lon)) if col_lon else None
+def coordenada_valida_acre(latitude, longitude):
+    return (
+        latitude is not None and longitude is not None and
+        -12.0 <= latitude <= -6.5 and -74.5 <= longitude <= -66.0
+    )
 
-    if (latitude is None or longitude is None) and col_coordenadas:
-        valor = valor_texto_mapa(row, col_coordenadas)
+
+def coordenadas_da_linha(row, col_lat, col_lon, col_coordenadas):
+    latitude = coordenada_numerica(row.get(col_lat)) if col_lat else None
+    longitude = coordenada_numerica(row.get(col_lon)) if col_lon else None
+
+    if not coordenada_valida_acre(latitude, longitude) and col_coordenadas:
+        valor = texto_linha_mapa(row, col_coordenadas)
         numeros = re.findall(r'-?\d{1,3}(?:[\.,]\d+)', valor)
         if len(numeros) >= 2:
-            latitude = converter_coordenada_mapa(numeros[0])
-            longitude = converter_coordenada_mapa(numeros[1])
+            latitude = coordenada_numerica(numeros[0])
+            longitude = coordenada_numerica(numeros[1])
 
-    if latitude is None or longitude is None:
-        return None, None
-    if not (-12.0 <= latitude <= -6.5 and -74.5 <= longitude <= -66.0):
-        return None, None
-    return latitude, longitude
+    if coordenada_valida_acre(latitude, longitude):
+        return latitude, longitude
+    return None, None
 
 
-def montar_endereco_geocodificacao(
+def montar_endereco_mapa(
     row, col_endereco, col_rua, col_bairro, col_cep, coluna_municipio
 ):
-    municipio = valor_texto_mapa(row, coluna_municipio, 'Rio Branco')
-    bairro = valor_texto_mapa(row, col_bairro)
-    cep = valor_texto_mapa(row, col_cep)
-    endereco_completo = valor_texto_mapa(row, col_endereco)
+    municipio = texto_linha_mapa(row, coluna_municipio, 'Rio Branco')
+    bairro = texto_linha_mapa(row, col_bairro)
+    cep = re.sub(r'\D', '', texto_linha_mapa(row, col_cep))
+    endereco_completo = texto_linha_mapa(row, col_endereco)
 
     if endereco_completo:
         partes = [endereco_completo]
-        texto_base = normalizar_rotulo_mapa(endereco_completo)
-        if normalizar_rotulo_mapa(municipio) not in texto_base:
+        texto_normalizado = normalizar_texto_mapa(endereco_completo)
+        if normalizar_texto_mapa(municipio) not in texto_normalizado:
             partes.append(municipio)
-        if cep and normalizar_rotulo_mapa(cep) not in texto_base:
+        if cep and cep not in re.sub(r'\D', '', endereco_completo):
             partes.append(cep)
         partes.extend(['Acre', 'Brasil'])
     else:
-        rua = valor_texto_mapa(row, col_rua)
+        rua = texto_linha_mapa(row, col_rua)
         partes = [rua, bairro, municipio, 'Acre', cep, 'Brasil']
 
-    return ', '.join(parte for parte in partes if parte).strip(' ,')
+    endereco = ', '.join(parte for parte in partes if parte).strip(' ,')
+    return endereco, cep
 
 
-def preparar_enderecos_mapa(dataframe, coluna_municipio):
-    """Gera um ponto por endereço e reúne moradores do mesmo domicílio."""
+def preparar_pontos_mapa(dataframe, coluna_municipio):
     if dataframe.empty:
         return []
 
@@ -299,7 +316,7 @@ def preparar_enderecos_mapa(dataframe, coluna_municipio):
     col_rua = localizar_coluna_mapa(
         dataframe, ['Rua e Número', 'Rua e Numero', 'Logradouro']
     )
-    col_bairro_mapa = localizar_coluna_mapa(dataframe, ['Bairro'])
+    col_bairro = localizar_coluna_mapa(dataframe, ['Bairro'])
     col_cep = localizar_coluna_mapa(dataframe, ['CEP'])
     col_classificacao = localizar_coluna_mapa(
         dataframe, ['Classificação Interna', 'Classificacao Interna']
@@ -313,369 +330,399 @@ def preparar_enderecos_mapa(dataframe, coluna_municipio):
     )
 
     prioridades = {'Padrão': 1, 'Manutenção': 2, 'Parceria': 3, 'Liderança': 4}
-    enderecos = {}
+    pontos = {}
 
     for _, row in dataframe.iterrows():
-        endereco = montar_endereco_geocodificacao(
-            row, col_endereco, col_rua, col_bairro_mapa, col_cep,
+        endereco, cep = montar_endereco_mapa(
+            row, col_endereco, col_rua, col_bairro, col_cep,
             coluna_municipio
         )
         if not endereco:
             continue
 
-        chave_endereco = normalizar_rotulo_mapa(endereco)
-        nome = valor_texto_mapa(row, 'Nome Completo', 'Sem nome')
-        bairro = valor_texto_mapa(row, col_bairro_mapa)
-        municipio = valor_texto_mapa(row, coluna_municipio, 'Rio Branco')
-        classificacao_original = valor_texto_mapa(row, col_classificacao)
-        categoria = categoria_estrategica_mapa(classificacao_original)
+        endereco_normalizado = normalizar_texto_mapa(endereco)
+        chave = hashlib.sha256(
+            endereco_normalizado.encode('utf-8')
+        ).hexdigest()[:24]
+        classificacao = texto_linha_mapa(row, col_classificacao)
+        categoria = categoria_mapa(classificacao)
         telefone_numero, telefone_exibicao = tratar_telefone(
             row.get('Telefone', '')
         )
-        latitude, longitude = coordenadas_informadas_mapa(
+        latitude, longitude = coordenadas_da_linha(
             row, col_lat, col_lon, col_coordenadas
         )
-
         apoiador = {
-            'nome': nome,
+            'nome': texto_linha_mapa(row, 'Nome Completo', 'Sem nome'),
             'telefone': telefone_exibicao,
             'telefone_numero': telefone_numero,
-            'classificacao': classificacao_original or categoria,
+            'classificacao': classificacao or categoria,
         }
 
-        if chave_endereco not in enderecos:
-            enderecos[chave_endereco] = {
+        if chave not in pontos:
+            pontos[chave] = {
+                'chave': chave,
                 'endereco': endereco,
-                'bairro': bairro,
-                'municipio': municipio,
+                'cep': cep,
+                'bairro': texto_linha_mapa(row, col_bairro),
+                'municipio': texto_linha_mapa(
+                    row, coluna_municipio, 'Rio Branco'
+                ),
                 'categoria': categoria,
                 'latitude': latitude,
                 'longitude': longitude,
+                'fonte': 'Coordenada informada' if latitude is not None else '',
+                'precisao': 'ALTA' if latitude is not None else '',
                 'apoiadores': [apoiador],
             }
         else:
-            ponto = enderecos[chave_endereco]
+            ponto = pontos[chave]
             ponto['apoiadores'].append(apoiador)
             if prioridades[categoria] > prioridades[ponto['categoria']]:
                 ponto['categoria'] = categoria
             if ponto['latitude'] is None and latitude is not None:
                 ponto['latitude'] = latitude
                 ponto['longitude'] = longitude
+                ponto['fonte'] = 'Coordenada informada'
+                ponto['precisao'] = 'ALTA'
 
-    return list(enderecos.values())
+    return list(pontos.values())
 
 
-def renderizar_mapa_google(pontos, api_key, map_id):
-    """Renderiza Google Maps com geocodificação, agrupamento e cache local."""
-    dados_json = json.dumps(
-        pontos, ensure_ascii=False, separators=(',', ':')
-    ).replace('</', '<\\/')
-    chave_url = urllib.parse.quote(str(api_key), safe='')
-    map_id_json = json.dumps(str(map_id or 'DEMO_MAP_ID'))
+def autorizar_google_sheets_mapa():
+    scopes = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+    credenciais = Credentials.from_service_account_info(
+        st.secrets['gcp_service_account'], scopes=scopes
+    )
+    return gspread.authorize(credenciais)
 
-    mapa_html = r"""
-<style>
-    html, body, #mapa-apoiadores { height: 100%; margin: 0; padding: 0; }
-    #mapa-apoiadores { min-height: 620px; font-family: Arial, sans-serif; }
-    #status-geocodificacao {
-        position: absolute; z-index: 5; top: 10px; left: 50%;
-        transform: translateX(-50%); max-width: calc(100% - 130px);
-        background: rgba(10, 28, 46, 0.94); color: #fff;
-        padding: 8px 12px; border-radius: 8px; font-size: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,.28); text-align: center;
+
+@st.cache_data(ttl=60, show_spinner=False)
+def carregar_cache_mapa():
+    try:
+        cliente = autorizar_google_sheets_mapa()
+        aba = cliente.open_by_key(PLANILHA_ID_MAPA).worksheet(ABA_CACHE_MAPA)
+        registros = aba.get_all_records()
+        if not registros:
+            return pd.DataFrame(columns=CABECALHO_CACHE_MAPA)
+        cache = pd.DataFrame(registros)
+        for coluna in CABECALHO_CACHE_MAPA:
+            if coluna not in cache.columns:
+                cache[coluna] = ''
+        return cache[CABECALHO_CACHE_MAPA]
+    except Exception:
+        return pd.DataFrame(columns=CABECALHO_CACHE_MAPA)
+
+
+def salvar_cache_mapa(registros):
+    if not registros:
+        return 0, None
+    try:
+        cliente = autorizar_google_sheets_mapa()
+        planilha = cliente.open_by_key(PLANILHA_ID_MAPA)
+        try:
+            aba = planilha.worksheet(ABA_CACHE_MAPA)
+        except Exception:
+            aba = planilha.add_worksheet(
+                title=ABA_CACHE_MAPA, rows=3000,
+                cols=len(CABECALHO_CACHE_MAPA)
+            )
+
+        primeira_linha = aba.row_values(1)
+        if not primeira_linha:
+            aba.append_row(CABECALHO_CACHE_MAPA, value_input_option='RAW')
+
+        chaves_existentes = set(aba.col_values(1)[1:])
+        linhas = []
+        for registro in registros:
+            if registro['CHAVE_ENDERECO'] in chaves_existentes:
+                continue
+            linhas.append([
+                registro.get(coluna, '') for coluna in CABECALHO_CACHE_MAPA
+            ])
+            chaves_existentes.add(registro['CHAVE_ENDERECO'])
+
+        if linhas:
+            aba.append_rows(linhas, value_input_option='RAW')
+        carregar_cache_mapa.clear()
+        return len(linhas), None
+    except Exception as erro:
+        return 0, str(erro)
+
+
+def consultar_json_mapa(url, headers=None, timeout=12):
+    requisicao = urllib.request.Request(url, headers=headers or {})
+    with urllib.request.urlopen(requisicao, timeout=timeout) as resposta:
+        return json.loads(resposta.read().decode('utf-8'))
+
+
+def geocodificar_nominatim(endereco):
+    parametros = urllib.parse.urlencode({
+        'q': endereco,
+        'format': 'jsonv2',
+        'addressdetails': 1,
+        'limit': 1,
+        'countrycodes': 'br',
+        'viewbox': '-74.0,-7.0,-66.5,-11.2',
+        'bounded': 1,
+        'accept-language': 'pt-BR',
+    })
+    url = 'https://nominatim.openstreetmap.org/search?' + parametros
+    headers = {
+        'User-Agent': (
+            'AppDeRuaGestao/1.0 '
+            '(https://github.com/Krisleyvz/painel-eleitoral)'
+        ),
+        'Referer': 'https://github.com/Krisleyvz/painel-eleitoral',
+        'Accept': 'application/json',
     }
-    .popup-mapa { min-width: 220px; max-width: 300px; color: #0A1C2E; }
-    .popup-mapa h3 { margin: 0 0 5px; color: #0A1C2E; font-size: 16px; }
-    .popup-mapa .endereco { color: #4d5966; font-size: 12px; margin-bottom: 8px; }
-    .popup-mapa .pessoa { border-top: 1px solid #e4e8ec; padding: 7px 0; }
-    .popup-mapa .pessoa strong { display: block; font-size: 13px; }
-    .popup-mapa .detalhe { color: #65717e; font-size: 12px; }
-    .popup-mapa a {
-        display: inline-block; margin-top: 4px; padding: 5px 7px;
-        background: #25D366; color: #fff; border-radius: 4px;
-        text-decoration: none; font-size: 12px; font-weight: bold;
-    }
-    .popup-mapa .abrir-mapas { background: #1A73E8; margin-left: 4px; }
-    @media (max-width: 480px) {
-        #mapa-apoiadores { min-height: 560px; }
-        #status-geocodificacao { max-width: calc(100% - 90px); }
-    }
-</style>
-<div style="position:relative; height:100%; min-height:620px;">
-    <div id="status-geocodificacao">Preparando o mapa…</div>
-    <div id="mapa-apoiadores" role="application" aria-label="Mapa dos endereços de apoiadores"></div>
-</div>
-<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-<script>
-const pontosApoiadores = __DADOS_MAPA__;
-const mapIdApoiadores = __MAP_ID__;
-const coresCategoria = {
-    "Liderança": "#DC3545",
-    "Parceria": "#6F42C1",
-    "Manutenção": "#28A745",
-    "Padrão": "#007BFF"
-};
-const limiteCacheMs = 24 * 60 * 60 * 1000;
+    try:
+        resultados = consultar_json_mapa(url, headers=headers)
+        if not resultados:
+            return None
+        resultado = resultados[0]
+        latitude = coordenada_numerica(resultado.get('lat'))
+        longitude = coordenada_numerica(resultado.get('lon'))
+        if not coordenada_valida_acre(latitude, longitude):
+            return None
 
-function aguardar(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function hashEndereco(texto) {
-    let hash = 2166136261;
-    for (let i = 0; i < texto.length; i += 1) {
-        hash ^= texto.charCodeAt(i);
-        hash = Math.imul(hash, 16777619);
-    }
-    return (hash >>> 0).toString(16);
-}
-
-function lerCache(endereco) {
-    try {
-        const chave = "app-rua-geocode-" + hashEndereco(endereco);
-        const item = JSON.parse(localStorage.getItem(chave));
-        if (!item || item.endereco !== endereco) return null;
-        if (Date.now() - item.salvo_em > limiteCacheMs) return null;
-        return item;
-    } catch (erro) {
-        return null;
-    }
-}
-
-function salvarCache(endereco, resultado) {
-    try {
-        const chave = "app-rua-geocode-" + hashEndereco(endereco);
-        localStorage.setItem(chave, JSON.stringify({
-            ...resultado, endereco: endereco, salvo_em: Date.now()
-        }));
-    } catch (erro) {
-        // O mapa continua funcionando mesmo se o navegador bloquear o cache.
-    }
-}
-
-function dentroDoAcre(posicao) {
-    return posicao.lat >= -12.0 && posicao.lat <= -6.5 &&
-           posicao.lng >= -74.5 && posicao.lng <= -66.0;
-}
-
-async function geocodificarComTentativas(geocoder, endereco, limitesAcre) {
-    const armazenado = lerCache(endereco);
-    if (armazenado && dentroDoAcre(armazenado)) {
-        return armazenado;
-    }
-
-    for (let tentativa = 0; tentativa < 4; tentativa += 1) {
-        try {
-            const resposta = await geocoder.geocode({
-                address: endereco,
-                bounds: limitesAcre,
-                region: "BR",
-                componentRestrictions: { country: "BR" }
-            });
-            if (resposta.results && resposta.results.length) {
-                const melhor = resposta.results[0];
-                const posicao = {
-                    lat: melhor.geometry.location.lat(),
-                    lng: melhor.geometry.location.lng(),
-                    qualidade: melhor.geometry.location_type || "APPROXIMATE",
-                    endereco_formatado: melhor.formatted_address || endereco
-                };
-                if (dentroDoAcre(posicao)) {
-                    salvarCache(endereco, posicao);
-                    return posicao;
-                }
-            }
-            return null;
-        } catch (erro) {
-            const mensagem = String(erro && (erro.code || erro.message || erro));
-            if (!mensagem.includes("OVER_QUERY_LIMIT") || tentativa === 3) {
-                return null;
-            }
-            await aguardar(800 * Math.pow(2, tentativa));
+        tipo = normalizar_texto_mapa(
+            resultado.get('addresstype') or resultado.get('type') or ''
+        )
+        if tipo in {'house', 'building', 'amenity', 'shop', 'office'}:
+            precisao = 'ALTA'
+        elif tipo in {'road', 'residential', 'street', 'postcode'}:
+            precisao = 'MÉDIA'
+        else:
+            precisao = 'BAIXA'
+        return {
+            'latitude': latitude,
+            'longitude': longitude,
+            'fonte': 'OpenStreetMap/Nominatim',
+            'precisao': precisao,
+            'endereco_retornado': resultado.get('display_name', ''),
         }
-    }
-    return null;
-}
+    except Exception:
+        return None
 
-function criarConteudoPopup(ponto, qualidade) {
-    const caixa = document.createElement("div");
-    caixa.className = "popup-mapa";
 
-    const titulo = document.createElement("h3");
-    titulo.textContent = ponto.apoiadores.length === 1
-        ? ponto.apoiadores[0].nome
-        : ponto.apoiadores.length + " apoiadores neste endereço";
-    caixa.appendChild(titulo);
-
-    const endereco = document.createElement("div");
-    endereco.className = "endereco";
-    const rotuloQualidade = qualidade === "ROOFTOP" || qualidade === "INFORMADA"
-        ? "localização precisa"
-        : "localização aproximada — conferir";
-    endereco.textContent = "📍 " + ponto.endereco + " · " + rotuloQualidade;
-    caixa.appendChild(endereco);
-
-    ponto.apoiadores.slice(0, 12).forEach(apoiador => {
-        const pessoa = document.createElement("div");
-        pessoa.className = "pessoa";
-
-        const nome = document.createElement("strong");
-        nome.textContent = apoiador.nome;
-        pessoa.appendChild(nome);
-
-        const detalhe = document.createElement("div");
-        detalhe.className = "detalhe";
-        detalhe.textContent = apoiador.classificacao + " · " + apoiador.telefone;
-        pessoa.appendChild(detalhe);
-
-        if (apoiador.telefone_numero) {
-            const whatsapp = document.createElement("a");
-            whatsapp.target = "_blank";
-            whatsapp.rel = "noopener noreferrer";
-            whatsapp.href = "https://api.whatsapp.com/send?phone=55" +
-                apoiador.telefone_numero + "&text=" +
-                encodeURIComponent("Olá " + apoiador.nome.split(" ")[0] + ", tudo bem?");
-            whatsapp.textContent = "💬 WhatsApp";
-            pessoa.appendChild(whatsapp);
+def geocodificar_brasilapi(cep):
+    cep_limpo = re.sub(r'\D', '', str(cep))
+    if len(cep_limpo) != 8:
+        return None
+    try:
+        resultado = consultar_json_mapa(
+            f'https://brasilapi.com.br/api/cep/v2/{cep_limpo}'
+        )
+        coordenadas = resultado.get('location', {}).get('coordinates', {})
+        latitude = coordenada_numerica(coordenadas.get('latitude'))
+        longitude = coordenada_numerica(coordenadas.get('longitude'))
+        if not coordenada_valida_acre(latitude, longitude):
+            return None
+        endereco_retornado = ', '.join(
+            str(valor) for valor in [
+                resultado.get('street'), resultado.get('neighborhood'),
+                resultado.get('city'), resultado.get('state'),
+                resultado.get('cep')
+            ] if valor
+        )
+        return {
+            'latitude': latitude,
+            'longitude': longitude,
+            'fonte': 'BrasilAPI/CEP',
+            'precisao': 'MÉDIA',
+            'endereco_retornado': endereco_retornado,
         }
-        caixa.appendChild(pessoa);
-    });
+    except Exception:
+        return None
 
-    if (ponto.apoiadores.length > 12) {
-        const restante = document.createElement("div");
-        restante.className = "detalhe";
-        restante.textContent = "+ " + (ponto.apoiadores.length - 12) + " pessoas";
-        caixa.appendChild(restante);
-    }
 
-    const abrirMapas = document.createElement("a");
-    abrirMapas.className = "abrir-mapas";
-    abrirMapas.target = "_blank";
-    abrirMapas.rel = "noopener noreferrer";
-    abrirMapas.href = "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(ponto.endereco);
-    abrirMapas.textContent = "🧭 Abrir no Maps";
-    caixa.appendChild(abrirMapas);
-    return caixa;
-}
+def geocodificar_ponto_gratuito(ponto):
+    resultado = geocodificar_nominatim(ponto['endereco'])
+    if resultado is None:
+        resultado = geocodificar_brasilapi(ponto.get('cep', ''))
 
-window.gm_authFailure = function() {
-    document.getElementById("status-geocodificacao").textContent =
-        "A chave do Google Maps não foi autorizada para este endereço do aplicativo.";
-};
-
-async function initMap() {
-    const status = document.getElementById("status-geocodificacao");
-    try {
-        const [{ Map, InfoWindow }, { AdvancedMarkerElement, PinElement }] =
-            await Promise.all([
-                google.maps.importLibrary("maps"),
-                google.maps.importLibrary("marker")
-            ]);
-
-        const mapa = new Map(document.getElementById("mapa-apoiadores"), {
-            center: { lat: -9.9749, lng: -67.8243 },
-            zoom: 12,
-            mapId: mapIdApoiadores,
-            mapTypeControl: true,
-            streetViewControl: true,
-            fullscreenControl: true,
-            gestureHandling: "greedy"
-        });
-        const geocoder = new google.maps.Geocoder();
-        const infoWindow = new InfoWindow();
-        const limitesAcre = new google.maps.LatLngBounds(
-            { lat: -11.2, lng: -74.0 },
-            { lat: -7.0, lng: -66.5 }
-        );
-        const limitesPontos = new google.maps.LatLngBounds();
-        const cluster = new markerClusterer.MarkerClusterer({
-            map: mapa,
-            markers: []
-        });
-
-        let localizados = 0;
-        let precisos = 0;
-        let aproximados = 0;
-        let pendentes = 0;
-
-        for (let indice = 0; indice < pontosApoiadores.length; indice += 1) {
-            const ponto = pontosApoiadores[indice];
-            status.textContent = "Localizando endereços: " +
-                (indice + 1) + " de " + pontosApoiadores.length;
-
-            let resultado = null;
-            if (Number.isFinite(ponto.latitude) && Number.isFinite(ponto.longitude)) {
-                resultado = {
-                    lat: ponto.latitude,
-                    lng: ponto.longitude,
-                    qualidade: "INFORMADA",
-                    endereco_formatado: ponto.endereco
-                };
-            } else {
-                resultado = await geocodificarComTentativas(
-                    geocoder, ponto.endereco, limitesAcre
-                );
-                await aguardar(120);
-            }
-
-            if (!resultado) {
-                pendentes += 1;
-                continue;
-            }
-
-            const posicao = { lat: resultado.lat, lng: resultado.lng };
-            const quantidade = ponto.apoiadores.length;
-            const pin = new PinElement({
-                background: coresCategoria[ponto.categoria] || coresCategoria.Padrão,
-                borderColor: "#FFFFFF",
-                glyphColor: "#FFFFFF",
-                glyph: quantidade > 1 ? String(quantidade) : "",
-                scale: quantidade > 1 ? 1.12 : 0.95
-            });
-            const marcador = new AdvancedMarkerElement({
-                position: posicao,
-                title: quantidade === 1
-                    ? ponto.apoiadores[0].nome
-                    : quantidade + " apoiadores — " + ponto.endereco,
-                content: pin.element
-            });
-            marcador.addListener("click", () => {
-                infoWindow.setContent(criarConteudoPopup(ponto, resultado.qualidade));
-                infoWindow.open({ map: mapa, anchor: marcador });
-            });
-            cluster.addMarker(marcador);
-            limitesPontos.extend(posicao);
-            localizados += 1;
-            if (resultado.qualidade === "ROOFTOP" || resultado.qualidade === "INFORMADA") {
-                precisos += 1;
-            } else {
-                aproximados += 1;
-            }
+    fuso_acre = pytz.timezone('America/Rio_Branco')
+    agora = datetime.now(fuso_acre).strftime('%d/%m/%Y %H:%M:%S')
+    if resultado is None:
+        return {
+            'CHAVE_ENDERECO': ponto['chave'],
+            'ENDERECO_CONSULTADO': ponto['endereco'],
+            'LATITUDE': '',
+            'LONGITUDE': '',
+            'FONTE': 'Não localizado',
+            'PRECISAO': 'NÃO LOCALIZADO',
+            'ENDERECO_RETORNADO': '',
+            'DATA_CONSULTA': agora,
         }
 
-        if (localizados > 1) {
-            mapa.fitBounds(limitesPontos, 45);
-        } else if (localizados === 1) {
-            mapa.setCenter(limitesPontos.getCenter());
-            mapa.setZoom(16);
-        }
-
-        status.textContent = localizados + " endereços localizados · " +
-            precisos + " precisos · " + aproximados + " aproximados" +
-            (pendentes ? " · " + pendentes + " pendentes" : "");
-    } catch (erro) {
-        status.textContent = "Não foi possível iniciar o Google Maps: " +
-            String(erro && (erro.message || erro));
+    return {
+        'CHAVE_ENDERECO': ponto['chave'],
+        'ENDERECO_CONSULTADO': ponto['endereco'],
+        'LATITUDE': resultado['latitude'],
+        'LONGITUDE': resultado['longitude'],
+        'FONTE': resultado['fonte'],
+        'PRECISAO': resultado['precisao'],
+        'ENDERECO_RETORNADO': resultado['endereco_retornado'],
+        'DATA_CONSULTA': agora,
     }
-}
-</script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=__CHAVE_API__&callback=initMap&v=weekly&libraries=marker"></script>
-"""
-    mapa_html = mapa_html.replace('__DADOS_MAPA__', dados_json)
-    mapa_html = mapa_html.replace('__MAP_ID__', map_id_json)
-    mapa_html = mapa_html.replace('__CHAVE_API__', chave_url)
-    components.html(mapa_html, height=650, scrolling=False)
+
+
+def aplicar_cache_aos_pontos(pontos, cache):
+    if cache.empty:
+        localizados = [
+            ponto for ponto in pontos
+            if coordenada_valida_acre(
+                ponto['latitude'], ponto['longitude']
+            )
+        ]
+        pendentes = [
+            ponto for ponto in pontos
+            if not coordenada_valida_acre(
+                ponto['latitude'], ponto['longitude']
+            )
+        ]
+        return localizados, [], pendentes
+
+    cache_por_chave = {
+        str(row['CHAVE_ENDERECO']).strip(): row
+        for _, row in cache.iterrows()
+    }
+    localizados = []
+    nao_localizados = []
+    pendentes = []
+
+    for ponto in pontos:
+        if coordenada_valida_acre(ponto['latitude'], ponto['longitude']):
+            localizados.append(ponto)
+            continue
+
+        registro = cache_por_chave.get(ponto['chave'])
+        if registro is None:
+            pendentes.append(ponto)
+            continue
+
+        latitude = coordenada_numerica(registro.get('LATITUDE'))
+        longitude = coordenada_numerica(registro.get('LONGITUDE'))
+        if coordenada_valida_acre(latitude, longitude):
+            ponto['latitude'] = latitude
+            ponto['longitude'] = longitude
+            ponto['fonte'] = str(registro.get('FONTE', ''))
+            ponto['precisao'] = str(registro.get('PRECISAO', ''))
+            ponto['endereco_retornado'] = str(
+                registro.get('ENDERECO_RETORNADO', '')
+            )
+            localizados.append(ponto)
+        else:
+            nao_localizados.append(ponto)
+
+    return localizados, nao_localizados, pendentes
+
+
+def popup_ponto_mapa(ponto):
+    titulo = (
+        html.escape(ponto['apoiadores'][0]['nome'])
+        if len(ponto['apoiadores']) == 1
+        else f"{len(ponto['apoiadores'])} apoiadores neste endereço"
+    )
+    linhas = [
+        "<div style='min-width:230px;max-width:310px;font-family:Arial;'>",
+        f"<strong style='font-size:15px;color:#0A1C2E;'>{titulo}</strong>",
+        f"<div style='font-size:12px;color:#555;margin:5px 0 8px;'>📍 {html.escape(ponto['endereco'])}</div>",
+        f"<div style='font-size:12px;color:#555;'>Precisão: {html.escape(ponto.get('precisao', ''))} · {html.escape(ponto.get('fonte', ''))}</div>",
+    ]
+    for apoiador in ponto['apoiadores'][:12]:
+        nome = html.escape(apoiador['nome'])
+        classificacao = html.escape(apoiador['classificacao'])
+        telefone = html.escape(apoiador['telefone'])
+        linhas.append(
+            "<div style='border-top:1px solid #ddd;padding-top:6px;"
+            f"margin-top:6px;'><b>{nome}</b><br>"
+            f"<span style='font-size:12px;color:#666;'>{classificacao} · "
+            f"{telefone}</span>"
+        )
+        if apoiador['telefone_numero']:
+            mensagem = urllib.parse.quote(
+                f"Olá {apoiador['nome'].split()[0]}, tudo bem?"
+            )
+            linhas.append(
+                f"<br><a href='https://api.whatsapp.com/send?phone=55{apoiador['telefone_numero']}&text={mensagem}' "
+                "target='_blank' style='display:inline-block;background:#25D366;"
+                "color:white;padding:4px 7px;border-radius:4px;"
+                "text-decoration:none;margin-top:4px;'>💬 WhatsApp</a>"
+            )
+        linhas.append('</div>')
+
+    latitude = ponto['latitude']
+    longitude = ponto['longitude']
+    linhas.append(
+        f"<a href='https://www.openstreetmap.org/?mlat={latitude}&mlon={longitude}#map=18/{latitude}/{longitude}' "
+        "target='_blank' style='display:inline-block;background:#1A73E8;"
+        "color:white;padding:5px 8px;border-radius:4px;text-decoration:none;"
+        "margin-top:8px;'>🧭 Abrir localização</a></div>"
+    )
+    return ''.join(linhas)
+
+
+def criar_mapa_gratuito(pontos):
+    if pontos:
+        centro_lat = float(np.mean([p['latitude'] for p in pontos]))
+        centro_lon = float(np.mean([p['longitude'] for p in pontos]))
+        zoom_inicial = 12 if len({p['municipio'] for p in pontos}) == 1 else 7
+    else:
+        centro_lat, centro_lon, zoom_inicial = -9.9749, -67.8243, 7
+
+    mapa = folium.Map(
+        location=[centro_lat, centro_lon],
+        zoom_start=zoom_inicial,
+        tiles='OpenStreetMap',
+        control_scale=True
+    )
+    folium.TileLayer(
+        'CartoDB positron', name='Mapa claro', control=True
+    ).add_to(mapa)
+    Fullscreen(
+        position='topright', title='Tela cheia',
+        title_cancel='Sair da tela cheia'
+    ).add_to(mapa)
+    LocateControl(
+        position='topleft', strings={'title': 'Mostrar minha localização'}
+    ).add_to(mapa)
+    agrupador = MarkerCluster(
+        name='Apoiadores', control=True, show=True
+    ).add_to(mapa)
+
+    cores = {
+        'Liderança': '#DC3545', 'Parceria': '#6F42C1',
+        'Manutenção': '#28A745', 'Padrão': '#007BFF'
+    }
+    limites = []
+    for ponto in pontos:
+        localizacao = [ponto['latitude'], ponto['longitude']]
+        limites.append(localizacao)
+        quantidade = len(ponto['apoiadores'])
+        folium.CircleMarker(
+            location=localizacao,
+            radius=9 if quantidade > 1 else 7,
+            color='white',
+            weight=2,
+            fill=True,
+            fill_color=cores.get(ponto['categoria'], '#007BFF'),
+            fill_opacity=0.95,
+            tooltip=(
+                ponto['apoiadores'][0]['nome'] if quantidade == 1
+                else f'{quantidade} apoiadores neste endereço'
+            ),
+            popup=folium.Popup(popup_ponto_mapa(ponto), max_width=340)
+        ).add_to(agrupador)
+
+    if len(limites) > 1:
+        mapa.fit_bounds(limites, padding=(35, 35))
+    folium.LayerControl(collapsed=True).add_to(mapa)
+    return mapa
 
 aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lid.", "🤝 Reuniões"])
 
@@ -785,8 +832,8 @@ with aba3:
 with aba4:
     st.subheader("🗺️ Mapa de Apoiadores")
     st.markdown(
-        "O mapa usa o endereço completo informado no formulário. "
-        "Toque nos pontos ou agrupamentos para abrir as informações."
+        "Mapa gratuito com OpenStreetMap. Os endereços são localizados uma única "
+        "vez e as coordenadas ficam guardadas em uma aba separada da planilha."
     )
     st.markdown("""
     <div style='background-color: #152b45; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center;'>
@@ -802,24 +849,23 @@ with aba4:
             df_mapa, ['Classificação Interna', 'Classificacao Interna']
         )
         df_mapa['_CATEGORIA_MAPA'] = df_mapa.apply(
-            lambda linha: categoria_estrategica_mapa(
-                valor_texto_mapa(linha, col_classificacao_mapa)
-            ),
-            axis=1
+            lambda linha: categoria_mapa(
+                texto_linha_mapa(linha, col_classificacao_mapa)
+            ), axis=1
         )
 
         filtro_municipio, filtro_categoria = st.columns(2)
         with filtro_municipio:
             if col_mun:
                 municipios_mapa = sorted(
-                    texto for texto in
-                    df_mapa[col_mun].fillna('Rio Branco').astype(str).str.strip().unique()
-                    if texto and texto.lower() != 'nan'
+                    municipio for municipio in
+                    df_mapa[col_mun].fillna('Rio Branco').astype(str)
+                    .str.strip().unique()
+                    if municipio and municipio.lower() != 'nan'
                 )
                 municipio_mapa = st.selectbox(
-                    "Município no mapa:",
-                    ['Todos'] + municipios_mapa,
-                    key='municipio_mapa_apoiadores'
+                    "Município no mapa:", ['Todos'] + municipios_mapa,
+                    key='municipio_mapa_gratuito'
                 )
             else:
                 municipio_mapa = 'Todos'
@@ -830,10 +876,9 @@ with aba4:
                 if categoria in df_mapa['_CATEGORIA_MAPA'].unique()
             ]
             categorias_mapa = st.multiselect(
-                "Classificação no mapa:",
-                categorias_disponiveis,
+                "Classificação no mapa:", categorias_disponiveis,
                 default=categorias_disponiveis,
-                key='categorias_mapa_apoiadores'
+                key='categorias_mapa_gratuito'
             )
 
         if col_mun and municipio_mapa != 'Todos':
@@ -844,70 +889,96 @@ with aba4:
         df_mapa = df_mapa[
             df_mapa['_CATEGORIA_MAPA'].isin(categorias_mapa)
         ]
-        pontos_mapa = preparar_enderecos_mapa(df_mapa, col_mun)
 
-        st.caption(
-            f"{len(df_mapa)} cadastro(s) em {len(pontos_mapa)} "
-            "endereço(s) único(s). Cadastros no mesmo endereço são reunidos "
-            "em um único ponto."
+        pontos = preparar_pontos_mapa(df_mapa, col_mun)
+        cache_mapa = carregar_cache_mapa()
+        pontos_localizados, pontos_nao_localizados, pontos_pendentes = (
+            aplicar_cache_aos_pontos(pontos, cache_mapa)
         )
 
-        try:
-            google_maps_api_key = str(
-                st.secrets['google_maps_api_key']
-            ).strip()
-        except Exception:
-            google_maps_api_key = ''
-        try:
-            google_maps_map_id = str(
-                st.secrets['google_maps_map_id']
-            ).strip()
-        except Exception:
-            google_maps_map_id = 'DEMO_MAP_ID'
+        total_precisos = sum(
+            normalizar_texto_mapa(ponto.get('precisao', '')) == 'alta'
+            for ponto in pontos_localizados
+        )
+        metrica1, metrica2, metrica3 = st.columns(3)
+        metrica1.metric("Localizados", len(pontos_localizados))
+        metrica2.metric("Precisão alta", total_precisos)
+        metrica3.metric(
+            "Pendentes",
+            len(pontos_pendentes) + len(pontos_nao_localizados)
+        )
+        st.caption(
+            f"{len(df_mapa)} cadastro(s) em {len(pontos)} endereço(s) único(s). "
+            "Pessoas do mesmo endereço aparecem no mesmo ponto."
+        )
 
-        if google_maps_api_key and pontos_mapa:
-            renderizar_mapa_google(
-                pontos_mapa, google_maps_api_key, google_maps_map_id
+        if pontos_pendentes:
+            st.info(
+                "Há endereços novos ainda sem coordenadas. O botão abaixo "
+                f"processa no máximo {LIMITE_GEOCODIFICACAO_POR_CLIQUE} por vez, "
+                "respeitando o limite do serviço gratuito."
             )
-        elif not pontos_mapa:
-            st.info("Nenhum endereço disponível para os filtros selecionados.")
-        else:
-            st.warning(
-                "O mapa abaixo está no modo aproximado porque a chave do Google "
-                "Maps ainda não foi configurada. Adicione "
-                "google_maps_api_key ao Secrets do Streamlit para ativar a "
-                "localização por endereço."
-            )
+            if st.button(
+                f"📍 Localizar próximos {min(LIMITE_GEOCODIFICACAO_POR_CLIQUE, len(pontos_pendentes))} endereços",
+                use_container_width=True,
+                key='geocodificar_lote_gratuito'
+            ):
+                lote = pontos_pendentes[:LIMITE_GEOCODIFICACAO_POR_CLIQUE]
+                barra = st.progress(0)
+                mensagem_progresso = st.empty()
+                novos_registros = []
+                for posicao, ponto in enumerate(lote, start=1):
+                    mensagem_progresso.write(
+                        f"Localizando {posicao} de {len(lote)}: "
+                        f"{ponto['endereco']}"
+                    )
+                    novos_registros.append(
+                        geocodificar_ponto_gratuito(ponto)
+                    )
+                    barra.progress(posicao / len(lote))
+                    # Política pública do Nominatim: no máximo 1 consulta/segundo.
+                    time.sleep(1.05)
 
-            # MAPA ORIGINAL PRESERVADO COMO CONTINGÊNCIA
-            coord_referencia = {'SENA MADUREIRA': (-9.0658, -68.6571), 'CRUZEIRO DO SUL': (-7.6311, -72.6714), 'TARAUACÁ': (-8.1614, -70.7656), 'XAPURI': (-10.6515, -68.5044), 'PORTO ACRE': (-9.5878, -67.5333), 'BRASILÉIA': (-11.0116, -68.7483), 'CENTRO': (-9.9749, -67.8243), 'DOCA FURTADO': (-9.9650, -67.8100), 'FLORESTA': (-9.9820, -67.8400), 'PARQUE DOS SABIÁS': (-9.9550, -67.8000), 'VILA ACRE': (-10.0100, -67.7800), 'UNIVERSITÁRIO': (-9.9500, -67.8600), 'ESTAÇÃO EXPERIMENTAL': (-9.9580, -67.8250), 'CALAFATE': (-9.9600, -67.8700), 'BAIXADA': (-9.9800, -67.8000), 'SÃO FRANCISCO': (-9.9600, -67.8500), 'TANCREDO NEVES': (-9.9400, -67.8400)}
-            mapa = folium.Map(location=[-9.9749, -67.8243], zoom_start=12, tiles="CartoDB positron")
-            np.random.seed(42)
+                gravados, erro_cache = salvar_cache_mapa(novos_registros)
+                if erro_cache:
+                    st.error(
+                        "As coordenadas foram consultadas, mas não puderam ser "
+                        f"gravadas na aba {ABA_CACHE_MAPA}. Detalhe: {erro_cache}"
+                    )
+                else:
+                    st.success(
+                        f"{gravados} endereço(s) processado(s). Atualizando o mapa…"
+                    )
+                    st.rerun()
 
-            for idx, row in df_mapa.iterrows():
-                mun = str(row.get(col_mun, 'Rio Branco')).strip().upper()
-                bairro = str(row.get('Bairro', '')).strip().upper()
-                nome = str(row.get('Nome Completo', 'Sem Nome'))
-                classificacao = str(row.get('Classificação Interna', '')).strip().upper()
+        if pontos_nao_localizados:
+            with st.expander(
+                f"⚠️ {len(pontos_nao_localizados)} endereço(s) precisam de revisão"
+            ):
+                st.markdown(
+                    "Revise rua, número, CEP e município no formulário. Para uma "
+                    "correção exata, informe Latitude e Longitude na aba "
+                    f"**{ABA_CACHE_MAPA}** criada automaticamente."
+                )
+                st.dataframe(
+                    pd.DataFrame({
+                        'Endereço não localizado': [
+                            ponto['endereco'] for ponto in pontos_nao_localizados
+                        ]
+                    }),
+                    use_container_width=True,
+                    hide_index=True
+                )
 
-                if "LIDER" in classificacao or "LIDERANÇA" in classificacao: cor_ponto = "#DC3545"
-                elif "PARCERIA" in classificacao or "ESTRATÉGICA" in classificacao or "ESTRATEGICA" in classificacao: cor_ponto = "#6F42C1"
-                elif "MANUTENÇÃO" in classificacao or "MANUTENCAO" in classificacao: cor_ponto = "#28A745"
-                else: cor_ponto = "#007BFF"
-
-                base_lat, base_lon = coord_referencia[mun] if mun != 'RIO BRANCO' and mun in coord_referencia else coord_referencia.get(bairro, coord_referencia['CENTRO'])
-                lat_final = base_lat + np.random.normal(0, 0.005)
-                lon_final = base_lon + np.random.normal(0, 0.005)
-                tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
-
-                cidade_popup = str(row.get(col_mun, 'Rio Branco')).strip()
-                if cidade_popup.lower() == 'nan' or cidade_popup == '': cidade_popup = 'Rio Branco'
-
-                btn_html = f"<a href='https://api.whatsapp.com/send?phone=55{tel_num}&text={urllib.parse.quote(f'Olá {nome.split()[0]}, tudo bem?')}' target='_blank' style='background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-family: Arial; font-size: 13px; display: block; text-align: center; margin-top: 8px;'>💬 Abrir WhatsApp</a>" if tel_num else "<div style='background-color: #ccc; color: #666; padding: 6px; border-radius: 4px; font-family: Arial; font-size: 13px; text-align: center; margin-top: 8px;'>Sem Número</div>"
-                popup_html = f"<div style='min-width: 150px; font-family: Arial;'><strong style='font-size: 15px; color: #0A1C2E;'>{nome}</strong><br><span style='font-size: 13px; color: #555;'>📍 {cidade_popup} - {bairro.title()}</span><br><span style='font-size: 13px; color: #555;'>📞 {tel_exibicao}</span>{btn_html}</div>"
-
-                folium.CircleMarker(location=[lat_final, lon_final], radius=7, popup=folium.Popup(popup_html, max_width=250), color="white", weight=1, fill=True, fill_color=cor_ponto, fill_opacity=0.9).add_to(mapa)
-            st_folium(mapa, use_container_width=True, height=500, returned_objects=[])
+        mapa = criar_mapa_gratuito(pontos_localizados)
+        st_folium(
+            mapa, use_container_width=True, height=560,
+            returned_objects=[], key='mapa_apoiadores_gratuito'
+        )
+        st.caption(
+            "© OpenStreetMap contributors · Geocodificação gratuita e armazenada "
+            "em cache. Nenhuma API paga do Google Maps é utilizada."
+        )
     else:
         st.info("A planilha ainda não possui endereços disponíveis para o mapa.")
 
