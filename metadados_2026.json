@@ -1,0 +1,49 @@
+{
+  "version": "2026.08.03",
+  "scope": "Acre",
+  "source": {
+    "tse_dataset": "https://dadosabertos.tse.jus.br/dataset/eleitorado-2026",
+    "tre_reference": "https://www.tre-ac.jus.br/comunicacao/noticias/2026/Julho/acre-tem-614-631-eleitoras-e-eleitores-aptos-a-votar-nas-eleicoes-2026",
+    "raw_files": {
+      "eleitorado_local_votacao_2026_AC.csv": "7d1d41a8e044fc4a102a80217a3c8a72b2f3191e82e7bda9891d4b1d72afa8aa",
+      "perfil_eleitorado_2026_AC.csv": "8a62608d75baa5d7b3fed91054b2862197d5029d9d5ff6627263ae23f2f708b3",
+      "perfil_eleitor_secao_2026_AC.csv": "01c7145574844f044c3768a328d61755e4ff363e9a6fbf788b5b998743bb73ba"
+    }
+  },
+  "generation_dates": {
+    "locations": [
+      "03/08/2026"
+    ],
+    "profile": [
+      "14/07/2026"
+    ],
+    "official_reference": "21/07/2026"
+  },
+  "validated_totals": {
+    "electorate_snapshot": 614375,
+    "electorate_active_locations": 612793,
+    "electorate_blocked_locations": 1582,
+    "rural_identified_snapshot": 91694,
+    "official_tre_electorate": 614631,
+    "official_tre_rural": 91571,
+    "difference_snapshot_vs_official": -256,
+    "difference_rural_identified_vs_official": 123
+  },
+  "coverage": {
+    "municipalities": 22,
+    "zones": 23,
+    "sections": 2411,
+    "locations": 661,
+    "valid_coordinates_pct": 100.0
+  },
+  "territorial_method": {
+    "rural_identified": "Termo RURAL no campo NM_BAIRRO ou NM_LOCAL_VOTACAO do arquivo público do TSE.",
+    "review": "Indícios como ramal, seringal, comunidade ou assentamento; não são somados ao rural confirmado.",
+    "warning": "A classificação territorial é uma reconstrução auditável dos campos públicos e não substitui cadastro administrativo específico do TRE-AC."
+  },
+  "quality_checks": {
+    "section_key_duplicates": 0,
+    "local_profile_total_reconciled": true,
+    "local_section_profile_total_reconciled": true
+  }
+}

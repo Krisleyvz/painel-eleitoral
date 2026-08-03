@@ -7,4 +7,4 @@ google-auth
 folium
 streamlit-folium
 pytz
-openpyxl>=3.1,<4
+openpyxl
