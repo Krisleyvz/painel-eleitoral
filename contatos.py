@@ -3,16 +3,12 @@ import pandas as pd
 from datetime import datetime, timezone, timedelta
 import numpy as np
 import urllib.parse
-import urllib.request
-import urllib.error
-import json
 import re
 import unicodedata
 import hashlib
 import html
-import time
 import folium
-from folium.plugins import MarkerCluster, Fullscreen, LocateControl
+from folium.plugins import Fullscreen, LocateControl
 from streamlit_folium import st_folium
 import pytz
 import gspread
@@ -161,15 +157,6 @@ def carregar_dados_planilha():
     df.columns = df.columns.str.strip()
     return df
 
-col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
-with col_l2:
-    try:
-        st.image("IMG_6008.PNG", use_container_width=True)
-    except:
-        st.title("📱 Gestão de Contatos")
-
-st.markdown("---")
-
 try:
     df = carregar_dados_planilha()
 except Exception as e:
@@ -205,7 +192,6 @@ CABECALHO_CACHE_MAPA = [
     'CHAVE_ENDERECO', 'ENDERECO_CONSULTADO', 'LATITUDE', 'LONGITUDE',
     'FONTE', 'PRECISAO', 'ENDERECO_RETORNADO', 'DATA_CONSULTA'
 ]
-LIMITE_GEOCODIFICACAO_POR_CLIQUE = 10
 
 
 def normalizar_texto_mapa(valor):
@@ -390,10 +376,7 @@ def preparar_pontos_mapa(dataframe, coluna_municipio):
 
 
 def autorizar_google_sheets_mapa():
-    scopes = [
-        'https://www.googleapis.com/auth/spreadsheets',
-        'https://www.googleapis.com/auth/drive'
-    ]
+    scopes = ['https://www.googleapis.com/auth/spreadsheets.readonly']
     credenciais = Credentials.from_service_account_info(
         st.secrets['gcp_service_account'], scopes=scopes
     )
@@ -415,160 +398,6 @@ def carregar_cache_mapa():
         return cache[CABECALHO_CACHE_MAPA]
     except Exception:
         return pd.DataFrame(columns=CABECALHO_CACHE_MAPA)
-
-
-def salvar_cache_mapa(registros):
-    if not registros:
-        return 0, None
-    try:
-        cliente = autorizar_google_sheets_mapa()
-        planilha = cliente.open_by_key(PLANILHA_ID_MAPA)
-        try:
-            aba = planilha.worksheet(ABA_CACHE_MAPA)
-        except Exception:
-            aba = planilha.add_worksheet(
-                title=ABA_CACHE_MAPA, rows=3000,
-                cols=len(CABECALHO_CACHE_MAPA)
-            )
-
-        primeira_linha = aba.row_values(1)
-        if not primeira_linha:
-            aba.append_row(CABECALHO_CACHE_MAPA, value_input_option='RAW')
-
-        chaves_existentes = set(aba.col_values(1)[1:])
-        linhas = []
-        for registro in registros:
-            if registro['CHAVE_ENDERECO'] in chaves_existentes:
-                continue
-            linhas.append([
-                registro.get(coluna, '') for coluna in CABECALHO_CACHE_MAPA
-            ])
-            chaves_existentes.add(registro['CHAVE_ENDERECO'])
-
-        if linhas:
-            aba.append_rows(linhas, value_input_option='RAW')
-        carregar_cache_mapa.clear()
-        return len(linhas), None
-    except Exception as erro:
-        return 0, str(erro)
-
-
-def consultar_json_mapa(url, headers=None, timeout=12):
-    requisicao = urllib.request.Request(url, headers=headers or {})
-    with urllib.request.urlopen(requisicao, timeout=timeout) as resposta:
-        return json.loads(resposta.read().decode('utf-8'))
-
-
-def geocodificar_nominatim(endereco):
-    parametros = urllib.parse.urlencode({
-        'q': endereco,
-        'format': 'jsonv2',
-        'addressdetails': 1,
-        'limit': 1,
-        'countrycodes': 'br',
-        'viewbox': '-74.0,-7.0,-66.5,-11.2',
-        'bounded': 1,
-        'accept-language': 'pt-BR',
-    })
-    url = 'https://nominatim.openstreetmap.org/search?' + parametros
-    headers = {
-        'User-Agent': (
-            'AppDeRuaGestao/1.0 '
-            '(https://github.com/Krisleyvz/painel-eleitoral)'
-        ),
-        'Referer': 'https://github.com/Krisleyvz/painel-eleitoral',
-        'Accept': 'application/json',
-    }
-    try:
-        resultados = consultar_json_mapa(url, headers=headers)
-        if not resultados:
-            return None
-        resultado = resultados[0]
-        latitude = coordenada_numerica(resultado.get('lat'))
-        longitude = coordenada_numerica(resultado.get('lon'))
-        if not coordenada_valida_acre(latitude, longitude):
-            return None
-
-        tipo = normalizar_texto_mapa(
-            resultado.get('addresstype') or resultado.get('type') or ''
-        )
-        if tipo in {'house', 'building', 'amenity', 'shop', 'office'}:
-            precisao = 'ALTA'
-        elif tipo in {'road', 'residential', 'street', 'postcode'}:
-            precisao = 'MÉDIA'
-        else:
-            precisao = 'BAIXA'
-        return {
-            'latitude': latitude,
-            'longitude': longitude,
-            'fonte': 'OpenStreetMap/Nominatim',
-            'precisao': precisao,
-            'endereco_retornado': resultado.get('display_name', ''),
-        }
-    except Exception:
-        return None
-
-
-def geocodificar_brasilapi(cep):
-    cep_limpo = re.sub(r'\D', '', str(cep))
-    if len(cep_limpo) != 8:
-        return None
-    try:
-        resultado = consultar_json_mapa(
-            f'https://brasilapi.com.br/api/cep/v2/{cep_limpo}'
-        )
-        coordenadas = resultado.get('location', {}).get('coordinates', {})
-        latitude = coordenada_numerica(coordenadas.get('latitude'))
-        longitude = coordenada_numerica(coordenadas.get('longitude'))
-        if not coordenada_valida_acre(latitude, longitude):
-            return None
-        endereco_retornado = ', '.join(
-            str(valor) for valor in [
-                resultado.get('street'), resultado.get('neighborhood'),
-                resultado.get('city'), resultado.get('state'),
-                resultado.get('cep')
-            ] if valor
-        )
-        return {
-            'latitude': latitude,
-            'longitude': longitude,
-            'fonte': 'BrasilAPI/CEP',
-            'precisao': 'MÉDIA',
-            'endereco_retornado': endereco_retornado,
-        }
-    except Exception:
-        return None
-
-
-def geocodificar_ponto_gratuito(ponto):
-    resultado = geocodificar_nominatim(ponto['endereco'])
-    if resultado is None:
-        resultado = geocodificar_brasilapi(ponto.get('cep', ''))
-
-    fuso_acre = pytz.timezone('America/Rio_Branco')
-    agora = datetime.now(fuso_acre).strftime('%d/%m/%Y %H:%M:%S')
-    if resultado is None:
-        return {
-            'CHAVE_ENDERECO': ponto['chave'],
-            'ENDERECO_CONSULTADO': ponto['endereco'],
-            'LATITUDE': '',
-            'LONGITUDE': '',
-            'FONTE': 'Não localizado',
-            'PRECISAO': 'NÃO LOCALIZADO',
-            'ENDERECO_RETORNADO': '',
-            'DATA_CONSULTA': agora,
-        }
-
-    return {
-        'CHAVE_ENDERECO': ponto['chave'],
-        'ENDERECO_CONSULTADO': ponto['endereco'],
-        'LATITUDE': resultado['latitude'],
-        'LONGITUDE': resultado['longitude'],
-        'FONTE': resultado['fonte'],
-        'PRECISAO': resultado['precisao'],
-        'ENDERECO_RETORNADO': resultado['endereco_retornado'],
-        'DATA_CONSULTA': agora,
-    }
 
 
 def aplicar_cache_aos_pontos(pontos, cache):
@@ -617,12 +446,144 @@ def aplicar_cache_aos_pontos(pontos, cache):
             )
             localizados.append(ponto)
         else:
+            ponto['motivo_falha'] = str(registro.get('FONTE', ''))
             nao_localizados.append(ponto)
 
     return localizados, nao_localizados, pendentes
 
 
+# Referências territoriais usadas somente quando não existe coordenada real.
+_MUNICIPIOS_REFERENCIA = {
+    'Acrelândia': (-9.8258, -66.8972),
+    'Assis Brasil': (-10.9297, -69.5738),
+    'Brasiléia': (-11.0164, -68.7482),
+    'Bujari': (-9.8153, -67.9550),
+    'Capixaba': (-10.5660, -67.6860),
+    'Cruzeiro do Sul': (-7.6276, -72.6756),
+    'Epitaciolândia': (-11.0288, -68.7440),
+    'Feijó': (-8.1645, -70.3536),
+    'Jordão': (-9.4309, -71.8974),
+    'Mâncio Lima': (-7.6142, -72.8954),
+    'Manoel Urbano': (-8.8389, -69.2599),
+    'Marechal Thaumaturgo': (-8.9536, -72.7903),
+    'Plácido de Castro': (-10.3353, -67.1889),
+    'Porto Acre': (-9.5883, -67.5439),
+    'Porto Walter': (-8.2686, -72.7430),
+    'Rio Branco': (-9.9749, -67.8243),
+    'Rodrigues Alves': (-7.7386, -72.6479),
+    'Santa Rosa do Purus': (-9.4465, -70.4903),
+    'Sena Madureira': (-9.0635, -68.6727),
+    'Senador Guiomard': (-10.1497, -67.7374),
+    'Tarauacá': (-8.1569, -70.7722),
+    'Xapuri': (-10.6516, -68.4969),
+}
+REFERENCIAS_MUNICIPIOS_MAPA = {
+    normalizar_texto_mapa(nome): coordenadas
+    for nome, coordenadas in _MUNICIPIOS_REFERENCIA.items()
+}
+
+_BAIRROS_REFERENCIA = {
+    'Centro': (-9.9749, -67.8243),
+    'Doca Furtado': (-9.9650, -67.8100),
+    'Floresta': (-9.9820, -67.8400),
+    'Parque dos Sabiás': (-9.9550, -67.8000),
+    'Vila Acre': (-10.0100, -67.7800),
+    'Universitário': (-9.9500, -67.8600),
+    'Estação Experimental': (-9.9580, -67.8250),
+    'Calafate': (-9.9600, -67.8700),
+    'Baixada': (-9.9800, -67.8000),
+    'São Francisco': (-9.9600, -67.8500),
+    'Tancredo Neves': (-9.9400, -67.8400),
+}
+REFERENCIAS_BAIRROS_MAPA = {
+    normalizar_texto_mapa(nome): coordenadas
+    for nome, coordenadas in _BAIRROS_REFERENCIA.items()
+}
+ALIASES_BAIRROS_MAPA = {
+    'baixada da cadeia velha': 'baixada',
+    'cadeia velha': 'baixada',
+    'parque dos sabias': 'parque dos sabias',
+}
+
+
+def referencia_territorial_mapa(ponto):
+    bairro_original = str(ponto.get('bairro', '')).strip()
+    municipio_original = str(
+        ponto.get('municipio', 'Rio Branco')
+    ).strip() or 'Rio Branco'
+    bairro = normalizar_texto_mapa(bairro_original)
+    municipio = normalizar_texto_mapa(municipio_original)
+    bairro = ALIASES_BAIRROS_MAPA.get(bairro, bairro)
+
+    if bairro in REFERENCIAS_BAIRROS_MAPA:
+        latitude, longitude = REFERENCIAS_BAIRROS_MAPA[bairro]
+        return (
+            latitude, longitude, 0.0045,
+            f'Bairro {bairro_original or bairro.title()}'
+        )
+
+    if municipio in REFERENCIAS_MUNICIPIOS_MAPA:
+        latitude, longitude = REFERENCIAS_MUNICIPIOS_MAPA[municipio]
+        raio = 0.008 if municipio == 'rio branco' else 0.012
+        return (
+            latitude, longitude, raio,
+            f'Município {municipio_original}'
+        )
+
+    return -9.9749, -67.8243, 0.015, 'Referência geral de Rio Branco'
+
+
+def deslocamento_estavel_mapa(chave, latitude, longitude, raio):
+    resumo = hashlib.sha256(
+        f'aproximado|{chave}'.encode('utf-8')
+    ).digest()
+    maximo = float((1 << 64) - 1)
+    fracao_angulo = int.from_bytes(resumo[:8], 'big') / maximo
+    fracao_raio = int.from_bytes(resumo[8:16], 'big') / maximo
+    angulo = 2 * np.pi * fracao_angulo
+    distancia = raio * (0.20 + 0.80 * np.sqrt(fracao_raio))
+    ajuste_longitude = max(abs(np.cos(np.radians(latitude))), 0.20)
+    return (
+        latitude + distancia * np.cos(angulo),
+        longitude + distancia * np.sin(angulo) / ajuste_longitude
+    )
+
+
+def construir_pontos_hibridos_mapa(pontos, cache):
+    localizados, nao_localizados, pendentes = aplicar_cache_aos_pontos(
+        pontos, cache
+    )
+
+    for ponto in localizados:
+        ponto['tipo_localizacao'] = 'coordenada'
+        if not ponto.get('precisao'):
+            ponto['precisao'] = 'COORDENADA DISPONÍVEL'
+
+    aproximados = nao_localizados + pendentes
+    for ponto in aproximados:
+        latitude, longitude, raio, referencia = referencia_territorial_mapa(
+            ponto
+        )
+        latitude, longitude = deslocamento_estavel_mapa(
+            ponto['chave'], latitude, longitude, raio
+        )
+        ponto['latitude'] = latitude
+        ponto['longitude'] = longitude
+        ponto['tipo_localizacao'] = 'aproximada'
+        ponto['precisao'] = 'APROXIMADA'
+        ponto['fonte'] = f'Referência territorial: {referencia}'
+
+    return localizados + aproximados, len(localizados), len(aproximados)
+
+
+def total_apoiadores_nos_pontos(pontos):
+    return sum(len(ponto.get('apoiadores', [])) for ponto in pontos)
+
+
 def popup_ponto_mapa(ponto):
+    localizacao_aproximada = (
+        ponto.get('tipo_localizacao') == 'aproximada'
+    )
     titulo = (
         html.escape(ponto['apoiadores'][0]['nome'])
         if len(ponto['apoiadores']) == 1
@@ -634,6 +595,13 @@ def popup_ponto_mapa(ponto):
         f"<div style='font-size:12px;color:#555;margin:5px 0 8px;'>📍 {html.escape(ponto['endereco'])}</div>",
         f"<div style='font-size:12px;color:#555;'>Precisão: {html.escape(ponto.get('precisao', ''))} · {html.escape(ponto.get('fonte', ''))}</div>",
     ]
+    if localizacao_aproximada:
+        linhas.append(
+            "<div style='background:#FFF3CD;color:#664D03;padding:6px;"
+            "border-radius:4px;font-size:12px;margin-top:7px;'>"
+            "≈ Ponto aproximado para leitura territorial. Não corresponde "
+            "necessariamente ao imóvel informado.</div>"
+        )
     for apoiador in ponto['apoiadores'][:12]:
         nome = html.escape(apoiador['nome'])
         classificacao = html.escape(apoiador['classificacao'])
@@ -658,11 +626,17 @@ def popup_ponto_mapa(ponto):
 
     latitude = ponto['latitude']
     longitude = ponto['longitude']
+    zoom_link = 15 if localizacao_aproximada else 18
+    texto_link = (
+        'Ver área aproximada'
+        if localizacao_aproximada
+        else 'Abrir localização'
+    )
     linhas.append(
-        f"<a href='https://www.openstreetmap.org/?mlat={latitude}&mlon={longitude}#map=18/{latitude}/{longitude}' "
+        f"<a href='https://www.openstreetmap.org/?mlat={latitude}&mlon={longitude}#map={zoom_link}/{latitude}/{longitude}' "
         "target='_blank' style='display:inline-block;background:#1A73E8;"
         "color:white;padding:5px 8px;border-radius:4px;text-decoration:none;"
-        "margin-top:8px;'>🧭 Abrir localização</a></div>"
+        f"margin-top:8px;'>🧭 {texto_link}</a></div>"
     )
     return ''.join(linhas)
 
@@ -678,11 +652,11 @@ def criar_mapa_gratuito(pontos):
     mapa = folium.Map(
         location=[centro_lat, centro_lon],
         zoom_start=zoom_inicial,
-        tiles='OpenStreetMap',
+        tiles='CartoDB positron',
         control_scale=True
     )
     folium.TileLayer(
-        'CartoDB positron', name='Mapa claro', control=True
+        'OpenStreetMap', name='Mapa detalhado', control=True
     ).add_to(mapa)
     Fullscreen(
         position='topright', title='Tela cheia',
@@ -691,7 +665,7 @@ def criar_mapa_gratuito(pontos):
     LocateControl(
         position='topleft', strings={'title': 'Mostrar minha localização'}
     ).add_to(mapa)
-    agrupador = MarkerCluster(
+    camada_apoiadores = folium.FeatureGroup(
         name='Apoiadores', control=True, show=True
     ).add_to(mapa)
 
@@ -704,25 +678,199 @@ def criar_mapa_gratuito(pontos):
         localizacao = [ponto['latitude'], ponto['longitude']]
         limites.append(localizacao)
         quantidade = len(ponto['apoiadores'])
+        localizacao_aproximada = (
+            ponto.get('tipo_localizacao') == 'aproximada'
+        )
+        nome_tooltip = (
+            ponto['apoiadores'][0]['nome'] if quantidade == 1
+            else f'{quantidade} apoiadores neste ponto'
+        )
+        if localizacao_aproximada:
+            nome_tooltip = f'≈ {nome_tooltip} · aproximação territorial'
         folium.CircleMarker(
             location=localizacao,
-            radius=9 if quantidade > 1 else 7,
-            color='white',
-            weight=2,
+            radius=6.5 if quantidade > 1 else 5.5,
+            color='#D9E2EC' if localizacao_aproximada else 'white',
+            weight=1 if localizacao_aproximada else 2,
+            dash_array='3,3' if localizacao_aproximada else None,
             fill=True,
             fill_color=cores.get(ponto['categoria'], '#007BFF'),
-            fill_opacity=0.95,
-            tooltip=(
-                ponto['apoiadores'][0]['nome'] if quantidade == 1
-                else f'{quantidade} apoiadores neste endereço'
-            ),
+            fill_opacity=0.72 if localizacao_aproximada else 0.95,
+            tooltip=nome_tooltip,
             popup=folium.Popup(popup_ponto_mapa(ponto), max_width=340)
-        ).add_to(agrupador)
+        ).add_to(camada_apoiadores)
 
     if len(limites) > 1:
         mapa.fit_bounds(limites, padding=(35, 35))
     folium.LayerControl(collapsed=True).add_to(mapa)
     return mapa
+
+
+# ==========================================
+# CABEÇAL GLOBAL: LOGO + MAPA COMPARTILHADO ENTRE AS ABAS
+# ==========================================
+df_mapa_completo = pd.DataFrame()
+col_classificacao_mapa = None
+municipios_mapa = []
+categorias_disponiveis = []
+bairros_disp = ["Todos"]
+cache_mapa = pd.DataFrame(columns=CABECALHO_CACHE_MAPA)
+pontos_mapa_completo = []
+pontos_mapa_filtrado = []
+pontos_hibridos_global = []
+enderecos_com_coordenada_global = 0
+enderecos_aproximados_global = 0
+
+if not df.empty and 'Bairro' in df.columns:
+    df_mapa_completo = df.copy()
+    col_classificacao_mapa = localizar_coluna_mapa(
+        df_mapa_completo,
+        ['Classificação Interna', 'Classificacao Interna']
+    )
+    df_mapa_completo['_CATEGORIA_MAPA'] = df_mapa_completo.apply(
+        lambda linha: categoria_mapa(
+            texto_linha_mapa(linha, col_classificacao_mapa)
+        ),
+        axis=1
+    )
+
+    bairros_disp = ["Todos"] + sorted({
+        str(bairro).strip()
+        for bairro in df_mapa_completo['Bairro'].dropna()
+        if str(bairro).strip() and str(bairro).strip().lower() != 'nan'
+    })
+
+    if col_mun:
+        municipios_mapa = sorted({
+            str(municipio).strip()
+            for municipio in df_mapa_completo[col_mun].dropna()
+            if str(municipio).strip()
+            and str(municipio).strip().lower() != 'nan'
+        })
+
+    categorias_disponiveis = [
+        categoria
+        for categoria in ['Liderança', 'Parceria', 'Manutenção', 'Padrão']
+        if categoria in df_mapa_completo['_CATEGORIA_MAPA'].unique()
+    ]
+
+    if (
+        'bairro_filtro_compartilhado' not in st.session_state
+        or st.session_state['bairro_filtro_compartilhado'] not in bairros_disp
+    ):
+        st.session_state['bairro_filtro_compartilhado'] = 'Todos'
+
+    opcoes_municipio = ['Todos'] + municipios_mapa
+    if (
+        'municipio_mapa_gratuito' not in st.session_state
+        or st.session_state['municipio_mapa_gratuito'] not in opcoes_municipio
+    ):
+        st.session_state['municipio_mapa_gratuito'] = 'Todos'
+
+    if 'categorias_mapa_gratuito' not in st.session_state:
+        st.session_state['categorias_mapa_gratuito'] = categorias_disponiveis.copy()
+    else:
+        categorias_salvas = st.session_state['categorias_mapa_gratuito']
+        categorias_validas = [
+            categoria for categoria in categorias_salvas
+            if categoria in categorias_disponiveis
+        ]
+        if categorias_salvas and not categorias_validas:
+            categorias_validas = categorias_disponiveis.copy()
+        st.session_state['categorias_mapa_gratuito'] = categorias_validas
+
+    bairro_mapa_ativo = st.session_state['bairro_filtro_compartilhado']
+    municipio_mapa_ativo = st.session_state['municipio_mapa_gratuito']
+    categorias_mapa_ativas = st.session_state['categorias_mapa_gratuito']
+
+    df_mapa_filtrado = df_mapa_completo.copy()
+    if bairro_mapa_ativo != 'Todos':
+        df_mapa_filtrado = df_mapa_filtrado[
+            df_mapa_filtrado['Bairro'].fillna('').astype(str).str.strip()
+            == bairro_mapa_ativo
+        ]
+    if col_mun and municipio_mapa_ativo != 'Todos':
+        df_mapa_filtrado = df_mapa_filtrado[
+            df_mapa_filtrado[col_mun].fillna('Rio Branco')
+            .astype(str).str.strip() == municipio_mapa_ativo
+        ]
+    df_mapa_filtrado = df_mapa_filtrado[
+        df_mapa_filtrado['_CATEGORIA_MAPA'].isin(categorias_mapa_ativas)
+    ]
+
+    cache_mapa = carregar_cache_mapa()
+    pontos_mapa_completo = preparar_pontos_mapa(df_mapa_completo, col_mun)
+    pontos_mapa_filtrado = preparar_pontos_mapa(df_mapa_filtrado, col_mun)
+    (
+        pontos_hibridos_global,
+        enderecos_com_coordenada_global,
+        enderecos_aproximados_global
+    ) = construir_pontos_hibridos_mapa(
+        pontos_mapa_filtrado, cache_mapa
+    )
+else:
+    bairro_mapa_ativo = 'Todos'
+    municipio_mapa_ativo = 'Todos'
+    categorias_mapa_ativas = []
+    df_mapa_filtrado = pd.DataFrame()
+
+col_logo, col_mapa_global = st.columns([1, 3], gap='medium')
+with col_logo:
+    try:
+        st.image("IMG_6008.PNG", use_container_width=True)
+    except Exception:
+        st.title("📱 Gestão de Contatos")
+
+    if not df.empty and 'Bairro' in df.columns:
+        rotulo_bairro = (
+            'Todos os bairros'
+            if bairro_mapa_ativo == 'Todos'
+            else bairro_mapa_ativo
+        )
+        st.markdown(f"**Bairro no mapa:** {rotulo_bairro}")
+        st.metric(
+            "Apoiadores no recorte",
+            len(df_mapa_filtrado)
+        )
+        st.markdown(
+            "<span style='color:#DC3545;font-size:17px;'>●</span> Liderança<br>"
+            "<span style='color:#6F42C1;font-size:17px;'>●</span> Parceria<br>"
+            "<span style='color:#28A745;font-size:17px;'>●</span> Manutenção<br>"
+            "<span style='color:#007BFF;font-size:17px;'>●</span> Padrão<br>"
+            "<hr style='margin:8px 0;border-color:#334e68;'>"
+            "<span style='font-size:13px;'>Ponto contínuo: coordenada "
+            "disponível<br>Ponto tracejado: aproximação territorial</span>",
+            unsafe_allow_html=True
+        )
+
+with col_mapa_global:
+    st.subheader("🗺️ Mapa de Apoiadores")
+    if not df.empty and 'Bairro' in df.columns:
+        mapa_global = criar_mapa_gratuito(pontos_hibridos_global)
+        assinatura_filtro = hashlib.md5(
+            (
+                f"{bairro_mapa_ativo}|{municipio_mapa_ativo}|"
+                f"{'|'.join(categorias_mapa_ativas)}"
+            ).encode('utf-8')
+        ).hexdigest()[:10]
+        st_folium(
+            mapa_global,
+            use_container_width=True,
+            height=420,
+            returned_objects=[],
+            key=f'mapa_apoiadores_global_{assinatura_filtro}'
+        )
+        st.caption(
+            f"{total_apoiadores_nos_pontos(pontos_hibridos_global)} "
+            f"apoiador(es) em {len(pontos_hibridos_global)} ponto(s) · "
+            f"{enderecos_com_coordenada_global} com coordenada · "
+            f"{enderecos_aproximados_global} aproximado(s) · "
+            "o filtro da aba Bairros atualiza este mapa automaticamente."
+        )
+    else:
+        st.info("A planilha ainda não possui endereços disponíveis para o mapa.")
+
+st.markdown("---")
 
 aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lid.", "🤝 Reuniões"])
 
@@ -782,8 +930,14 @@ with aba1:
 with aba2:
     st.subheader("📍 Filtro por Bairro")
     if not df.empty and 'Bairro' in df.columns:
-        bairros_disp = ["Todos"] + sorted([str(b).strip() for b in df['Bairro'].dropna().unique() if str(b).strip() != ''])
-        bairro_sel = st.selectbox("Selecione o Bairro:", bairros_disp)
+        bairro_sel = st.selectbox(
+            "Selecione o Bairro:",
+            bairros_disp,
+            key='bairro_filtro_compartilhado'
+        )
+        st.caption(
+            "O bairro selecionado também filtra automaticamente o mapa no topo."
+        )
         filtrados = df if bairro_sel == "Todos" else df[df['Bairro'].astype(str).str.strip() == bairro_sel]
         
         st.markdown(f"**Total encontrado:** {len(filtrados)} pessoa(s)")
@@ -828,156 +982,96 @@ with aba3:
                 else: st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             st.markdown("")
 
-# --- ABA 4: MAPA ---
+# --- ABA 4: LEITURA TERRITORIAL E FILTROS DO MAPA ---
 with aba4:
-    st.subheader("🗺️ Mapa de Apoiadores")
+    st.subheader("🗺️ Leitura Territorial do Mapa")
     st.markdown(
-        "Mapa gratuito com OpenStreetMap. Os endereços são localizados uma única "
-        "vez e as coordenadas ficam guardadas em uma aba separada da planilha."
+        "Todos os apoiadores com endereço são representados no mapa. "
+        "Quando existe uma coordenada disponível, ela é usada. Nos demais "
+        "casos, o sistema mostra uma aproximação estável pelo bairro ou "
+        "município, sem alterar a planilha nem o AppSheet."
     )
-    st.markdown("""
-    <div style='background-color: #152b45; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; text-align: center;'>
-        <b>Legenda Tática:</b><br>
-        <span style="color:#DC3545; font-size: 18px;">●</span> Liderança &nbsp;|&nbsp; <span style="color:#6F42C1; font-size: 18px;">●</span> Parceria<br>
-        <span style="color:#28A745; font-size: 18px;">●</span> Manutenção &nbsp;|&nbsp; <span style="color:#007BFF; font-size: 18px;">●</span> Padrão
-    </div>
-    """, unsafe_allow_html=True)
 
     if not df.empty and 'Bairro' in df.columns:
-        df_mapa = df.copy()
-        col_classificacao_mapa = localizar_coluna_mapa(
-            df_mapa, ['Classificação Interna', 'Classificacao Interna']
+        bairro_compartilhado = st.session_state.get(
+            'bairro_filtro_compartilhado', 'Todos'
         )
-        df_mapa['_CATEGORIA_MAPA'] = df_mapa.apply(
-            lambda linha: categoria_mapa(
-                texto_linha_mapa(linha, col_classificacao_mapa)
-            ), axis=1
+        st.info(
+            "Filtro de bairro compartilhado: "
+            + (
+                "Todos os bairros"
+                if bairro_compartilhado == 'Todos'
+                else bairro_compartilhado
+            )
         )
 
         filtro_municipio, filtro_categoria = st.columns(2)
         with filtro_municipio:
             if col_mun:
-                municipios_mapa = sorted(
-                    municipio for municipio in
-                    df_mapa[col_mun].fillna('Rio Branco').astype(str)
-                    .str.strip().unique()
-                    if municipio and municipio.lower() != 'nan'
-                )
-                municipio_mapa = st.selectbox(
-                    "Município no mapa:", ['Todos'] + municipios_mapa,
+                st.selectbox(
+                    "Município no mapa:",
+                    ['Todos'] + municipios_mapa,
                     key='municipio_mapa_gratuito'
                 )
             else:
-                municipio_mapa = 'Todos'
+                st.caption("Município não identificado na planilha.")
         with filtro_categoria:
-            categorias_disponiveis = [
-                categoria for categoria in
-                ['Liderança', 'Parceria', 'Manutenção', 'Padrão']
-                if categoria in df_mapa['_CATEGORIA_MAPA'].unique()
-            ]
-            categorias_mapa = st.multiselect(
-                "Classificação no mapa:", categorias_disponiveis,
-                default=categorias_disponiveis,
+            st.multiselect(
+                "Classificação no mapa:",
+                categorias_disponiveis,
                 key='categorias_mapa_gratuito'
             )
 
-        if col_mun and municipio_mapa != 'Todos':
-            df_mapa = df_mapa[
-                df_mapa[col_mun].fillna('Rio Branco').astype(str).str.strip()
-                == municipio_mapa
-            ]
-        df_mapa = df_mapa[
-            df_mapa['_CATEGORIA_MAPA'].isin(categorias_mapa)
-        ]
-
-        pontos = preparar_pontos_mapa(df_mapa, col_mun)
-        cache_mapa = carregar_cache_mapa()
-        pontos_localizados, pontos_nao_localizados, pontos_pendentes = (
-            aplicar_cache_aos_pontos(pontos, cache_mapa)
+        (
+            pontos_hibridos_manutencao,
+            enderecos_com_coordenada,
+            enderecos_aproximados
+        ) = construir_pontos_hibridos_mapa(
+            pontos_mapa_completo, cache_mapa
         )
-
-        total_precisos = sum(
-            normalizar_texto_mapa(ponto.get('precisao', '')) == 'alta'
-            for ponto in pontos_localizados
+        apoiadores_com_coordenada = sum(
+            len(ponto.get('apoiadores', []))
+            for ponto in pontos_hibridos_manutencao
+            if ponto.get('tipo_localizacao') == 'coordenada'
+        )
+        apoiadores_aproximados = sum(
+            len(ponto.get('apoiadores', []))
+            for ponto in pontos_hibridos_manutencao
+            if ponto.get('tipo_localizacao') == 'aproximada'
         )
         metrica1, metrica2, metrica3 = st.columns(3)
-        metrica1.metric("Localizados", len(pontos_localizados))
-        metrica2.metric("Precisão alta", total_precisos)
-        metrica3.metric(
-            "Pendentes",
-            len(pontos_pendentes) + len(pontos_nao_localizados)
+        metrica1.metric(
+            "Apoiadores no mapa",
+            total_apoiadores_nos_pontos(pontos_hibridos_manutencao)
         )
+        metrica2.metric("Com coordenada", apoiadores_com_coordenada)
+        metrica3.metric("Aproximados", apoiadores_aproximados)
         st.caption(
-            f"{len(df_mapa)} cadastro(s) em {len(pontos)} endereço(s) único(s). "
+            f"{len(df_mapa_completo)} cadastro(s) em "
+            f"{len(pontos_mapa_completo)} endereço(s) único(s). "
+            f"{enderecos_com_coordenada} endereço(s) com coordenada e "
+            f"{enderecos_aproximados} com aproximação territorial. "
             "Pessoas do mesmo endereço aparecem no mesmo ponto."
         )
 
-        if pontos_pendentes:
-            st.info(
-                "Há endereços novos ainda sem coordenadas. O botão abaixo "
-                f"processa no máximo {LIMITE_GEOCODIFICACAO_POR_CLIQUE} por vez, "
-                "respeitando o limite do serviço gratuito."
-            )
-            if st.button(
-                f"📍 Localizar próximos {min(LIMITE_GEOCODIFICACAO_POR_CLIQUE, len(pontos_pendentes))} endereços",
-                use_container_width=True,
-                key='geocodificar_lote_gratuito'
-            ):
-                lote = pontos_pendentes[:LIMITE_GEOCODIFICACAO_POR_CLIQUE]
-                barra = st.progress(0)
-                mensagem_progresso = st.empty()
-                novos_registros = []
-                for posicao, ponto in enumerate(lote, start=1):
-                    mensagem_progresso.write(
-                        f"Localizando {posicao} de {len(lote)}: "
-                        f"{ponto['endereco']}"
-                    )
-                    novos_registros.append(
-                        geocodificar_ponto_gratuito(ponto)
-                    )
-                    barra.progress(posicao / len(lote))
-                    # Política pública do Nominatim: no máximo 1 consulta/segundo.
-                    time.sleep(1.05)
-
-                gravados, erro_cache = salvar_cache_mapa(novos_registros)
-                if erro_cache:
-                    st.error(
-                        "As coordenadas foram consultadas, mas não puderam ser "
-                        f"gravadas na aba {ABA_CACHE_MAPA}. Detalhe: {erro_cache}"
-                    )
-                else:
-                    st.success(
-                        f"{gravados} endereço(s) processado(s). Atualizando o mapa…"
-                    )
-                    st.rerun()
-
-        if pontos_nao_localizados:
-            with st.expander(
-                f"⚠️ {len(pontos_nao_localizados)} endereço(s) precisam de revisão"
-            ):
-                st.markdown(
-                    "Revise rua, número, CEP e município no formulário. Para uma "
-                    "correção exata, informe Latitude e Longitude na aba "
-                    f"**{ABA_CACHE_MAPA}** criada automaticamente."
-                )
-                st.dataframe(
-                    pd.DataFrame({
-                        'Endereço não localizado': [
-                            ponto['endereco'] for ponto in pontos_nao_localizados
-                        ]
-                    }),
-                    use_container_width=True,
-                    hide_index=True
-                )
-
-        mapa = criar_mapa_gratuito(pontos_localizados)
-        st_folium(
-            mapa, use_container_width=True, height=560,
-            returned_objects=[], key='mapa_apoiadores_gratuito'
+        st.info(
+            "Os pontos aproximados servem para visualizar concentração "
+            "territorial por bairro ou município. Eles não representam a "
+            "localização exata da residência."
         )
+        with st.expander("ℹ️ Como interpretar os pontos"):
+            st.markdown(
+                "- **Ponto com contorno contínuo:** o cadastro ou o cache "
+                "já possui latitude e longitude válidas.\n"
+                "- **Ponto com contorno tracejado e símbolo ≈:** posição "
+                "aproximada e fixa dentro da referência territorial.\n"
+                "- O mapa apenas lê os dados; esta funcionalidade não cria "
+                "colunas, abas nem registros na planilha."
+            )
+
         st.caption(
-            "© OpenStreetMap contributors · Geocodificação gratuita e armazenada "
-            "em cache. Nenhuma API paga do Google Maps é utilizada."
+            "© OpenStreetMap contributors · mapa sem API paga e sem "
+            "alteração da planilha ou do AppSheet."
         )
     else:
         st.info("A planilha ainda não possui endereços disponíveis para o mapa.")
