@@ -877,6 +877,36 @@ with col_logo:
 with col_mapa_global:
     st.subheader("🗺️ Mapa de Apoiadores")
     if not df.empty and 'Bairro' in df.columns:
+        filtro_municipio, filtro_bairro, filtro_classificacao = st.columns(3)
+        with filtro_municipio:
+            st.selectbox(
+                "Município:",
+                ['Todos'] + municipios_mapa,
+                key='municipio_filtro_compartilhado',
+                format_func=lambda valor: (
+                    'Todos os municípios'
+                    if valor == 'Todos'
+                    else valor
+                )
+            )
+        with filtro_bairro:
+            st.selectbox(
+                "Bairro:",
+                bairros_disp,
+                key='bairro_filtro_compartilhado',
+                format_func=lambda valor: (
+                    'Todos os bairros'
+                    if valor == 'Todos'
+                    else valor
+                )
+            )
+        with filtro_classificacao:
+            st.multiselect(
+                "Classificação:",
+                categorias_disponiveis,
+                key='categorias_mapa_gratuito'
+            )
+
         mapa_global = criar_mapa_gratuito(pontos_hibridos_global)
         assinatura_filtro = hashlib.md5(
             (
@@ -896,14 +926,14 @@ with col_mapa_global:
             f"apoiador(es) em {len(pontos_hibridos_global)} ponto(s) · "
             f"{enderecos_com_coordenada_global} com coordenada · "
             f"{enderecos_aproximados_global} aproximado(s) · "
-            "o filtro da aba Bairros atualiza este mapa automaticamente."
+            "os filtros acima atualizam o mapa e a aba Território."
         )
     else:
         st.info("A planilha ainda não possui endereços disponíveis para o mapa.")
 
 st.markdown("---")
 
-aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Território", "📞 Contatos", "🗺️ Mapa", "🏆 Lid.", "🤝 Reuniões"])
+aba1, aba2, aba3, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Território", "📞 Contatos", "🏆 Lid.", "🤝 Reuniões"])
 
 # --- ABA 1: ANIVERSARIANTES ---
 with aba1:
@@ -959,52 +989,20 @@ with aba1:
 
 # --- ABA 2: BAIRROS ---
 with aba2:
-    st.subheader("📍 Filtro Territorial")
+    st.subheader("📍 Apoiadores no Recorte Territorial")
     if not df.empty and 'Bairro' in df.columns:
-        coluna_filtro_municipio, coluna_filtro_bairro = st.columns(2)
-        with coluna_filtro_municipio:
-            municipio_sel = st.selectbox(
-                "Selecione o município:",
-                ['Todos'] + municipios_mapa,
-                key='municipio_filtro_compartilhado',
-                format_func=lambda valor: (
-                    'Todos os municípios'
-                    if valor == 'Todos'
-                    else valor
-                )
-            )
-        with coluna_filtro_bairro:
-            bairro_sel = st.selectbox(
-                "Selecione o bairro:",
-                bairros_disp,
-                key='bairro_filtro_compartilhado',
-                format_func=lambda valor: (
-                    'Todos os bairros'
-                    if valor == 'Todos'
-                    else valor
-                )
-            )
         st.caption(
-            "O município limita a lista de bairros. Os dois filtros atualizam "
-            "automaticamente os apoiadores abaixo e o mapa no topo."
+            "Esta relação acompanha os filtros de município, bairro e "
+            "classificação posicionados acima do mapa."
         )
 
-        filtrados = df_mapa_completo.copy()
-        if municipio_sel != 'Todos':
-            filtrados = filtrados[
-                filtrados['_MUNICIPIO_MAPA'] == municipio_sel
-            ]
-        if bairro_sel != "Todos":
-            filtrados = filtrados[
-                filtrados['Bairro'].fillna('').astype(str).str.strip()
-                == bairro_sel
-            ]
+        filtrados = df_mapa_filtrado.copy()
         
         st.markdown(f"**Total encontrado:** {len(filtrados)} pessoa(s)")
         
         for idx, row in filtrados.iterrows():
             nome, bairro = str(row.get('Nome Completo', 'Sem Nome')), str(row.get('Bairro', ''))
-            cidade = str(row.get(col_mun, 'Rio Branco')).strip()
+            cidade = str(row.get('_MUNICIPIO_MAPA', 'Rio Branco')).strip()
             tel_num, tel_exibicao = tratar_telefone(row.get('Telefone', ''))
             
             st.markdown(card_html(nome, tel_exibicao, cidade, bairro), unsafe_allow_html=True)
@@ -1041,99 +1039,6 @@ with aba3:
                 if tel_num: st.markdown(f"<a href='tel:{tel_num}' style='display: block; text-align: center; background-color: #1A73E8; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>📞 Ligar</a>", unsafe_allow_html=True)
                 else: st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
             st.markdown("")
-
-# --- ABA 4: LEITURA TERRITORIAL E FILTROS DO MAPA ---
-with aba4:
-    st.subheader("🗺️ Leitura Territorial do Mapa")
-    st.markdown(
-        "Todos os apoiadores com endereço são representados no mapa. "
-        "Quando existe uma coordenada disponível, ela é usada. Nos demais "
-        "casos, o sistema mostra uma aproximação estável pelo bairro ou "
-        "município, sem alterar a planilha nem o AppSheet."
-    )
-
-    if not df.empty and 'Bairro' in df.columns:
-        bairro_compartilhado = st.session_state.get(
-            'bairro_filtro_compartilhado', 'Todos'
-        )
-        municipio_compartilhado = st.session_state.get(
-            'municipio_filtro_compartilhado', 'Todos'
-        )
-        st.info(
-            "Recorte territorial compartilhado: "
-            + (
-                "Todos os municípios"
-                if municipio_compartilhado == 'Todos'
-                else municipio_compartilhado
-            )
-            + " · "
-            + (
-                "Todos os bairros"
-                if bairro_compartilhado == 'Todos'
-                else bairro_compartilhado
-            )
-            + ". Altere esse recorte na aba Filtro Territorial."
-        )
-
-        st.multiselect(
-            "Classificação no mapa:",
-            categorias_disponiveis,
-            key='categorias_mapa_gratuito'
-        )
-
-        (
-            pontos_hibridos_manutencao,
-            enderecos_com_coordenada,
-            enderecos_aproximados
-        ) = construir_pontos_hibridos_mapa(
-            pontos_mapa_completo, cache_mapa
-        )
-        apoiadores_com_coordenada = sum(
-            len(ponto.get('apoiadores', []))
-            for ponto in pontos_hibridos_manutencao
-            if ponto.get('tipo_localizacao') == 'coordenada'
-        )
-        apoiadores_aproximados = sum(
-            len(ponto.get('apoiadores', []))
-            for ponto in pontos_hibridos_manutencao
-            if ponto.get('tipo_localizacao') == 'aproximada'
-        )
-        metrica1, metrica2, metrica3 = st.columns(3)
-        metrica1.metric(
-            "Apoiadores no mapa",
-            total_apoiadores_nos_pontos(pontos_hibridos_manutencao)
-        )
-        metrica2.metric("Com coordenada", apoiadores_com_coordenada)
-        metrica3.metric("Aproximados", apoiadores_aproximados)
-        st.caption(
-            f"{len(df_mapa_completo)} cadastro(s) em "
-            f"{len(pontos_mapa_completo)} endereço(s) único(s). "
-            f"{enderecos_com_coordenada} endereço(s) com coordenada e "
-            f"{enderecos_aproximados} com aproximação territorial. "
-            "Pessoas do mesmo endereço aparecem no mesmo ponto."
-        )
-
-        st.info(
-            "Os pontos aproximados servem para visualizar concentração "
-            "territorial por bairro ou município. Eles não representam a "
-            "localização exata da residência."
-        )
-        with st.expander("ℹ️ Como interpretar os pontos"):
-            st.markdown(
-                "- **Ponto com contorno contínuo:** o cadastro ou o cache "
-                "já possui latitude e longitude válidas.\n"
-                "- **Ponto com contorno tracejado e símbolo ≈:** posição "
-                "aproximada e fixa dentro da referência territorial.\n"
-                "- O mapa apenas lê os dados; esta funcionalidade não cria "
-                "colunas, abas nem registros na planilha."
-            )
-
-        st.caption(
-            "© OpenStreetMap contributors · mapa sem API paga e sem "
-            "alteração da planilha ou do AppSheet."
-        )
-    else:
-        st.info("A planilha ainda não possui endereços disponíveis para o mapa.")
 
 # --- ABA 5: RANKING DE LIDERANÇAS ---
 with aba5:
