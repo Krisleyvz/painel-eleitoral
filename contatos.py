@@ -217,6 +217,21 @@ def localizar_coluna_mapa(dataframe, opcoes):
     return None
 
 
+def serie_municipios_mapa(dataframe, coluna_municipio):
+    """Padroniza o município e considera cadastros vazios como Rio Branco."""
+    if not coluna_municipio or coluna_municipio not in dataframe.columns:
+        return pd.Series('Rio Branco', index=dataframe.index, dtype='object')
+
+    municipios = (
+        dataframe[coluna_municipio]
+        .fillna('')
+        .astype(str)
+        .str.strip()
+    )
+    sem_municipio = municipios.str.lower().isin(['', 'nan', 'none'])
+    return municipios.mask(sem_municipio, 'Rio Branco')
+
+
 def texto_linha_mapa(row, coluna, padrao=""):
     if not coluna:
         return padrao
@@ -723,6 +738,9 @@ enderecos_aproximados_global = 0
 
 if not df.empty and 'Bairro' in df.columns:
     df_mapa_completo = df.copy()
+    df_mapa_completo['_MUNICIPIO_MAPA'] = serie_municipios_mapa(
+        df_mapa_completo, col_mun
+    )
     col_classificacao_mapa = localizar_coluna_mapa(
         df_mapa_completo,
         ['Classificação Interna', 'Classificacao Interna']
@@ -734,19 +752,35 @@ if not df.empty and 'Bairro' in df.columns:
         axis=1
     )
 
-    bairros_disp = ["Todos"] + sorted({
-        str(bairro).strip()
-        for bairro in df_mapa_completo['Bairro'].dropna()
-        if str(bairro).strip() and str(bairro).strip().lower() != 'nan'
+    municipios_mapa = sorted({
+        str(municipio).strip()
+        for municipio in df_mapa_completo['_MUNICIPIO_MAPA']
+        if str(municipio).strip()
     })
 
-    if col_mun:
-        municipios_mapa = sorted({
-            str(municipio).strip()
-            for municipio in df_mapa_completo[col_mun].dropna()
-            if str(municipio).strip()
-            and str(municipio).strip().lower() != 'nan'
-        })
+    opcoes_municipio = ['Todos'] + municipios_mapa
+    municipio_anterior = st.session_state.get(
+        'municipio_filtro_compartilhado',
+        st.session_state.get('municipio_mapa_gratuito', 'Todos')
+    )
+    if municipio_anterior not in opcoes_municipio:
+        municipio_anterior = 'Todos'
+    st.session_state['municipio_filtro_compartilhado'] = municipio_anterior
+    municipio_mapa_ativo = st.session_state[
+        'municipio_filtro_compartilhado'
+    ]
+
+    df_referencia_bairros = df_mapa_completo
+    if municipio_mapa_ativo != 'Todos':
+        df_referencia_bairros = df_referencia_bairros[
+            df_referencia_bairros['_MUNICIPIO_MAPA']
+            == municipio_mapa_ativo
+        ]
+    bairros_disp = ["Todos"] + sorted({
+        str(bairro).strip()
+        for bairro in df_referencia_bairros['Bairro'].dropna()
+        if str(bairro).strip() and str(bairro).strip().lower() != 'nan'
+    })
 
     categorias_disponiveis = [
         categoria
@@ -759,13 +793,6 @@ if not df.empty and 'Bairro' in df.columns:
         or st.session_state['bairro_filtro_compartilhado'] not in bairros_disp
     ):
         st.session_state['bairro_filtro_compartilhado'] = 'Todos'
-
-    opcoes_municipio = ['Todos'] + municipios_mapa
-    if (
-        'municipio_mapa_gratuito' not in st.session_state
-        or st.session_state['municipio_mapa_gratuito'] not in opcoes_municipio
-    ):
-        st.session_state['municipio_mapa_gratuito'] = 'Todos'
 
     if 'categorias_mapa_gratuito' not in st.session_state:
         st.session_state['categorias_mapa_gratuito'] = categorias_disponiveis.copy()
@@ -780,7 +807,6 @@ if not df.empty and 'Bairro' in df.columns:
         st.session_state['categorias_mapa_gratuito'] = categorias_validas
 
     bairro_mapa_ativo = st.session_state['bairro_filtro_compartilhado']
-    municipio_mapa_ativo = st.session_state['municipio_mapa_gratuito']
     categorias_mapa_ativas = st.session_state['categorias_mapa_gratuito']
 
     df_mapa_filtrado = df_mapa_completo.copy()
@@ -789,10 +815,9 @@ if not df.empty and 'Bairro' in df.columns:
             df_mapa_filtrado['Bairro'].fillna('').astype(str).str.strip()
             == bairro_mapa_ativo
         ]
-    if col_mun and municipio_mapa_ativo != 'Todos':
+    if municipio_mapa_ativo != 'Todos':
         df_mapa_filtrado = df_mapa_filtrado[
-            df_mapa_filtrado[col_mun].fillna('Rio Branco')
-            .astype(str).str.strip() == municipio_mapa_ativo
+            df_mapa_filtrado['_MUNICIPIO_MAPA'] == municipio_mapa_ativo
         ]
     df_mapa_filtrado = df_mapa_filtrado[
         df_mapa_filtrado['_CATEGORIA_MAPA'].isin(categorias_mapa_ativas)
@@ -822,11 +847,17 @@ with col_logo:
         st.title("📱 Gestão de Contatos")
 
     if not df.empty and 'Bairro' in df.columns:
+        rotulo_municipio = (
+            'Todos os municípios'
+            if municipio_mapa_ativo == 'Todos'
+            else municipio_mapa_ativo
+        )
         rotulo_bairro = (
             'Todos os bairros'
             if bairro_mapa_ativo == 'Todos'
             else bairro_mapa_ativo
         )
+        st.markdown(f"**Município no mapa:** {rotulo_municipio}")
         st.markdown(f"**Bairro no mapa:** {rotulo_bairro}")
         st.metric(
             "Apoiadores no recorte",
@@ -872,7 +903,7 @@ with col_mapa_global:
 
 st.markdown("---")
 
-aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Bairros", "📞 Contatos", "🗺️ Mapa", "🏆 Lid.", "🤝 Reuniões"])
+aba1, aba2, aba3, aba4, aba5, aba6 = st.tabs(["🎂 Aniver.", "📍 Território", "📞 Contatos", "🗺️ Mapa", "🏆 Lid.", "🤝 Reuniões"])
 
 # --- ABA 1: ANIVERSARIANTES ---
 with aba1:
@@ -928,17 +959,46 @@ with aba1:
 
 # --- ABA 2: BAIRROS ---
 with aba2:
-    st.subheader("📍 Filtro por Bairro")
+    st.subheader("📍 Filtro Territorial")
     if not df.empty and 'Bairro' in df.columns:
-        bairro_sel = st.selectbox(
-            "Selecione o Bairro:",
-            bairros_disp,
-            key='bairro_filtro_compartilhado'
-        )
+        coluna_filtro_municipio, coluna_filtro_bairro = st.columns(2)
+        with coluna_filtro_municipio:
+            municipio_sel = st.selectbox(
+                "Selecione o município:",
+                ['Todos'] + municipios_mapa,
+                key='municipio_filtro_compartilhado',
+                format_func=lambda valor: (
+                    'Todos os municípios'
+                    if valor == 'Todos'
+                    else valor
+                )
+            )
+        with coluna_filtro_bairro:
+            bairro_sel = st.selectbox(
+                "Selecione o bairro:",
+                bairros_disp,
+                key='bairro_filtro_compartilhado',
+                format_func=lambda valor: (
+                    'Todos os bairros'
+                    if valor == 'Todos'
+                    else valor
+                )
+            )
         st.caption(
-            "O bairro selecionado também filtra automaticamente o mapa no topo."
+            "O município limita a lista de bairros. Os dois filtros atualizam "
+            "automaticamente os apoiadores abaixo e o mapa no topo."
         )
-        filtrados = df if bairro_sel == "Todos" else df[df['Bairro'].astype(str).str.strip() == bairro_sel]
+
+        filtrados = df_mapa_completo.copy()
+        if municipio_sel != 'Todos':
+            filtrados = filtrados[
+                filtrados['_MUNICIPIO_MAPA'] == municipio_sel
+            ]
+        if bairro_sel != "Todos":
+            filtrados = filtrados[
+                filtrados['Bairro'].fillna('').astype(str).str.strip()
+                == bairro_sel
+            ]
         
         st.markdown(f"**Total encontrado:** {len(filtrados)} pessoa(s)")
         
@@ -996,31 +1056,30 @@ with aba4:
         bairro_compartilhado = st.session_state.get(
             'bairro_filtro_compartilhado', 'Todos'
         )
+        municipio_compartilhado = st.session_state.get(
+            'municipio_filtro_compartilhado', 'Todos'
+        )
         st.info(
-            "Filtro de bairro compartilhado: "
+            "Recorte territorial compartilhado: "
+            + (
+                "Todos os municípios"
+                if municipio_compartilhado == 'Todos'
+                else municipio_compartilhado
+            )
+            + " · "
             + (
                 "Todos os bairros"
                 if bairro_compartilhado == 'Todos'
                 else bairro_compartilhado
             )
+            + ". Altere esse recorte na aba Filtro Territorial."
         )
 
-        filtro_municipio, filtro_categoria = st.columns(2)
-        with filtro_municipio:
-            if col_mun:
-                st.selectbox(
-                    "Município no mapa:",
-                    ['Todos'] + municipios_mapa,
-                    key='municipio_mapa_gratuito'
-                )
-            else:
-                st.caption("Município não identificado na planilha.")
-        with filtro_categoria:
-            st.multiselect(
-                "Classificação no mapa:",
-                categorias_disponiveis,
-                key='categorias_mapa_gratuito'
-            )
+        st.multiselect(
+            "Classificação no mapa:",
+            categorias_disponiveis,
+            key='categorias_mapa_gratuito'
+        )
 
         (
             pontos_hibridos_manutencao,
