@@ -34,6 +34,20 @@ def exibir_grafico_altair(grafico):
     )
     st.altair_chart(grafico_responsivo, use_container_width=True)
 
+
+def exibir_metodologia_modulo(arquivos, metodo, limitacoes):
+    """Apresenta fontes, método e limites no mesmo padrão visual da aba 7."""
+    st.subheader("Fontes, Método e Limitações")
+    st.markdown("**Arquivos analisados**")
+    st.markdown("\n".join(f"- `{arquivo}`" for arquivo in arquivos))
+    st.markdown("**Método de leitura**")
+    st.write(metodo)
+    st.warning(limitacoes)
+    st.markdown(
+        "**Fonte oficial:** [Portal de Dados Abertos do TSE]"
+        "(https://dadosabertos.tse.jus.br/)."
+    )
+
 # ==========================================
 # SISTEMA DE LOGIN E SEGURANÇA
 # ==========================================
@@ -116,6 +130,11 @@ st.markdown("""
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, 
     [data-testid="stSidebar"] p, [data-testid="stSidebar"] label, [data-testid="stSidebar"] div.stMarkdown { color: #FFFFFF !important; }
     div[data-baseweb="select"] * { color: #262730 !important; }
+    [data-testid="stSidebar"] [role="radiogroup"] label p {
+        white-space: nowrap !important;
+        font-size: 0.92rem !important;
+        line-height: 1.25rem !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -799,18 +818,20 @@ except:
     pass 
 
 st.sidebar.header("🧭 Navegação do Sistema")
-menu_selecionado = st.sidebar.radio(
+rotas_menu = {
+    "📊 1. Desempenho Territorial": "📊 1. Desempenho Eleitoral por Território",
+    "👥 2. Perfil do Eleitorado": "👥 2. Composição do Eleitorado",
+    "🗺️ 3. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
+    "📋 4. Concorrência": "📋 4. Panorama da Concorrência",
+    "🔗 5. Correlação Territorial": "🔗 5. Correlação territorial",
+    "🚜 6. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
+    "🗳️ 7. Cenário Eleitoral 2026": "🗳️ 7. Cenário Eleitoral 2026",
+}
+opcao_menu = st.sidebar.radio(
     "Selecione o Painel Desejado:",
-    [
-        "📊 1. Desempenho Eleitoral por Território",
-        "👥 2. Composição do Eleitorado",
-        "🗺️ 3. Participação e Não Comparecimento",
-        "📋 4. Panorama da Concorrência",
-        "🔗 5. Correlação territorial",
-        "🚜 6. Análise Territorial da Zona Rural",
-        "🗳️ 7. Cenário Eleitoral 2026"
-    ]
+    list(rotas_menu.keys())
 )
+menu_selecionado = rotas_menu[opcao_menu]
 st.sidebar.markdown("---")
 
 rota_cenario_2026 = menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026"
@@ -941,192 +962,216 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     col1.metric(label=f"Total de Votos ({label_periodo})", value=f"{total_votos:,}".replace(",", "."))
     col2.metric(label="Locais de Votação Mapeados", value=total_escolas)
 
-    st.markdown("---")
-
-    st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo} {texto_local})")
-    group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
-    if col_municipio:
-        group_cols.append(col_municipio)
-
-    dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR'].sum()
-    dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
-
-    if not dados_mapa.empty:
-        st.map(dados_mapa, latitude='lat', longitude='lon')
-    else:
-        st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
-
-    st.markdown("---")
-
     texto_top = "Todos os Locais" if mostrar_todas else f"Top {limite_ranking}"
-    st.subheader(f"📊 Votos e Participação nos Válidos ({texto_top} - {label_periodo})")
+    (
+        aba_desempenho_visao,
+        aba_desempenho_evolucao,
+        aba_desempenho_territorio,
+        aba_desempenho_metas,
+        aba_desempenho_metodologia,
+    ) = st.tabs([
+        "Visão Geral",
+        "Evolução Histórica",
+        "Leitura Territorial",
+        "Metas de Referência",
+        "Metodologia",
+    ])
 
-    agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
-    if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-        agg_dict['QT_VOTOS_VALIDOS_SECAO'] = 'sum'
+    with aba_desempenho_visao:
+        st.subheader(f"📍 Mapa de Distribuição Geográfica ({label_periodo} {texto_local})")
+        group_cols = ['NM_LOCAL_VOTACAO', 'lat', 'lon']
+        if col_municipio:
+            group_cols.append(col_municipio)
+    
+        dados_mapa = dados_filtrados.groupby(group_cols, as_index=False)['QT_VOTOS_SAMIR'].sum()
+        dados_mapa = dados_mapa.dropna(subset=['lat', 'lon'])
+    
+        if not dados_mapa.empty:
+            st.map(dados_mapa, latitude='lat', longitude='lon')
+        else:
+            st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
+    
+        st.markdown("---")
+    
+        st.subheader(f"📊 Votos e Participação nos Válidos ({texto_top} - {label_periodo})")
+    
+        agg_dict = {'QT_VOTOS_SAMIR': 'sum'}
+        if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+            agg_dict['QT_VOTOS_VALIDOS_SECAO'] = 'sum'
+    
+        top_escolas = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg(agg_dict).reset_index()
+    
+        if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
+            top_escolas['MARKET_SHARE'] = (top_escolas['QT_VOTOS_SAMIR'] / top_escolas['QT_VOTOS_VALIDOS_SECAO']) * 100
+            top_escolas['MARKET_SHARE'] = top_escolas['MARKET_SHARE'].fillna(0).round(1)
+        else:
+            top_escolas['MARKET_SHARE'] = 0.0
+    
+        top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
+        altura_grafico = max(500, len(top_escolas) * 35)
+    
+        grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
+            x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
+            y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
+            tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', title='Participação nos válidos (%)', format='.1f')]
+        ).properties(height=altura_grafico)
+        exibir_grafico_altair(grafico_barras)
+    
+        if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
+            top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Participação nos Válidos (%)']
+        else:
+            top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Participação nos Válidos (%)']
+        st.dataframe(top_escolas, use_container_width=True)
+    
+    with aba_desempenho_evolucao:
+        st.subheader("📈 Matriz de Evolução Histórica (Comparativo entre Eleições)")
+        if len(anos_disponiveis) > 1:
+            tabela_comparativa = dados.pivot_table(index='NM_LOCAL_VOTACAO', columns='ANO_ELEICAO', values='QT_VOTOS_SAMIR', aggfunc='sum').fillna(0)
+            ano_recente = anos_disponiveis[0]
+            if ano_recente in tabela_comparativa.columns:
+                tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(limite_ranking)
+            st.dataframe(tabela_comparativa, use_container_width=True)
+        else:
+            st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado.")
+    
+    with aba_desempenho_territorio:
+        st.subheader("🎯 Distribuição entre Votos do Candidato e Demais Votos Válidos")
+        if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+            agenda_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({'QT_VOTOS_VALIDOS_SECAO': 'sum', 'QT_VOTOS_SAMIR': 'sum'}).reset_index()
+            agenda_df['VOTOS_EM_DISPUTA'] = agenda_df['QT_VOTOS_VALIDOS_SECAO'] - agenda_df['QT_VOTOS_SAMIR']
+            limite_reduto = agenda_df['QT_VOTOS_SAMIR'].quantile(0.75)
+            agenda_df['ESTRATEGIA'] = np.where(agenda_df['QT_VOTOS_SAMIR'] > limite_reduto, 'Alta votação histórica', 'Demais locais')
+            agenda_df = agenda_df.sort_values(by='VOTOS_EM_DISPUTA', ascending=False).head(limite_ranking)
+    
+            scatter = alt.Chart(agenda_df).mark_circle(size=350).encode(
+                x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Históricos do Candidato'),
+                y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Demais Votos Válidos'),
+                color=alt.Color('ESTRATEGIA:N', title='Faixa de desempenho', scale=alt.Scale(domain=['Alta votação histórica', 'Demais locais'], range=['#25D366', '#A7B0BE'])),
+                tooltip=['NM_LOCAL_VOTACAO', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR']
+            ).properties(height=450)
+            exibir_grafico_altair(scatter)
+        else:
+            st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente.")
+    
+        st.markdown("---")
+    
+        st.subheader("🧩 Matriz Descritiva dos Locais de Votação")
+    
+        st.markdown("""
+        > **Como ler:** o eixo horizontal mostra o total de votos válidos e o eixo
+        > vertical mostra os votos históricos do candidato. As linhas pontilhadas usam
+        > as médias da seleção e dividem os locais em quatro grupos descritivos.
+        """)
+    
+        if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+            matriz_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({'QT_VOTOS_VALIDOS_SECAO': 'sum', 'QT_VOTOS_SAMIR': 'sum'}).reset_index()
+            matriz_df = matriz_df.sort_values(by='QT_VOTOS_VALIDOS_SECAO', ascending=False).head(limite_ranking)
+            media_tamanho = matriz_df['QT_VOTOS_VALIDOS_SECAO'].mean()
+            media_votos = matriz_df['QT_VOTOS_SAMIR'].mean()
+    
+            def classificar_quadrante(row):
+                escola_grande = row['QT_VOTOS_VALIDOS_SECAO'] >= media_tamanho
+                samir_forte = row['QT_VOTOS_SAMIR'] >= media_votos
+                if escola_grande and samir_forte: return "Alta votação em local de grande volume"
+                elif escola_grande and not samir_forte: return "Baixa penetração histórica"
+                elif not escola_grande and samir_forte: return "Alta votação em local de menor volume"
+                else: return "Monitoramento"
+    
+            matriz_df['CLASSIFICACAO'] = matriz_df.apply(classificar_quadrante, axis=1)
+    
+            scatter_matriz = alt.Chart(matriz_df).mark_circle(size=400).encode(
+                x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Votos Válidos'),
+                y=alt.Y('QT_VOTOS_SAMIR:Q', title='Votos Históricos do Candidato'),
+                color=alt.Color(
+                    'CLASSIFICACAO:N',
+                    title='Classificação descritiva',
+                    scale=alt.Scale(
+                        domain=[
+                            "Alta votação em local de grande volume",
+                            "Baixa penetração histórica",
+                            "Alta votação em local de menor volume",
+                            "Monitoramento"
+                        ],
+                        range=['#1A73E8', '#25D366', '#FFC107', '#A7B0BE']
+                    )
+                ),
+                tooltip=['NM_LOCAL_VOTACAO', 'CLASSIFICACAO', alt.Tooltip('QT_VOTOS_VALIDOS_SECAO:Q', format=','), alt.Tooltip('QT_VOTOS_SAMIR:Q', format=',')]
+            ).properties(height=500)
+    
+            regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
+            regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
+            exibir_grafico_altair(scatter_matriz + regra_x + regra_y)
+    
+    with aba_desempenho_evolucao:
+        st.subheader("📈 Concentração dos Votos Históricos por Local")
+        if not dados_filtrados.empty:
+            pareto_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index().sort_values(by='QT_VOTOS_SAMIR', ascending=False)
+            pareto_df['Votos Acumulados'] = pareto_df['QT_VOTOS_SAMIR'].cumsum()
+            pareto_df['% Acumulado'] = (pareto_df['Votos Acumulados'] / pareto_df['QT_VOTOS_SAMIR'].sum()) * 100
+            pareto_df['Posição no Ranking'] = range(1, len(pareto_df) + 1)
+    
+            curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4, point=alt.OverlayMarkDef(color='#E83E8C', size=150)).encode(
+                x=alt.X('Posição no Ranking:Q', title='Quantidade de Locais'),
+                y=alt.Y('% Acumulado:Q', title='% Acumulada', scale=alt.Scale(domain=[0, 100])),
+                tooltip=['NM_LOCAL_VOTACAO:N', alt.Tooltip('% Acumulado:Q', format='.1f')]
+            ).properties(height=400)
+    
+            area = curva.mark_area(color='#E83E8C', opacity=0.2)
+            linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
+            exibir_grafico_altair(area + curva + linha_80)
+    
+    with aba_desempenho_metas:
+        st.subheader("🏁 Meta proporcional de referência")
+    
+        st.info("""
+        Este cenário distribui uma meta global proporcionalmente ao peso histórico de
+        cada local nos votos válidos. É uma referência matemática; não representa
+        previsão nem garantia de resultado futuro.
+        """)
+    
+        meta_global = st.number_input("Digite a Meta Global de Votos:", min_value=1, value=11000, step=500)
+    
+        if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
+            metas_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
+                'QT_VOTOS_VALIDOS_SECAO': 'sum',
+                'QT_VOTOS_SAMIR': 'sum'
+            }).reset_index()
+    
+            total_validos_estado = metas_df['QT_VOTOS_VALIDOS_SECAO'].sum()
+    
+            if total_validos_estado > 0:
+                metas_df['Peso_Calc'] = metas_df['QT_VOTOS_VALIDOS_SECAO'] / total_validos_estado
+                metas_df['Meta proporcional de referência'] = (meta_global * metas_df['Peso_Calc']).astype(int)
+    
+                metas_df['Diferença para o Cenário'] = metas_df['Meta proporcional de referência'] - metas_df['QT_VOTOS_SAMIR']
+                metas_df['Diferença para o Cenário'] = metas_df['Diferença para o Cenário'].apply(lambda x: max(0, x))
+    
+                metas_df['Peso do Local'] = (metas_df['Peso_Calc'] * 100).round(2).astype(str) + '%'
+    
+                metas_df = metas_df.sort_values(by='Diferença para o Cenário', ascending=False).head(limite_ranking)
+    
+                tabela_final_metas = metas_df[['NM_LOCAL_VOTACAO', 'Peso do Local', 'Meta proporcional de referência', 'QT_VOTOS_SAMIR', 'Diferença para o Cenário']]
+                tabela_final_metas.columns = ['Local de Votação', 'Peso na Eleição', 'Meta proporcional de referência', 'Votos Históricos', 'Diferença para o Cenário']
+    
+                st.markdown(f"#### 📋 Distribuição Matemática de Metas ({texto_top})")
+                st.dataframe(tabela_final_metas, use_container_width=True)
+        else:
+            st.warning("A coluna de Votos Válidos não está disponível para calcular a proporção da meta.")
 
-    top_escolas = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg(agg_dict).reset_index()
-
-    if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
-        top_escolas['MARKET_SHARE'] = (top_escolas['QT_VOTOS_SAMIR'] / top_escolas['QT_VOTOS_VALIDOS_SECAO']) * 100
-        top_escolas['MARKET_SHARE'] = top_escolas['MARKET_SHARE'].fillna(0).round(1)
-    else:
-        top_escolas['MARKET_SHARE'] = 0.0
-
-    top_escolas = top_escolas.sort_values(by='QT_VOTOS_SAMIR', ascending=False).head(limite_ranking)
-    altura_grafico = max(500, len(top_escolas) * 35)
-
-    grafico_barras = alt.Chart(top_escolas).mark_bar(color="#1A73E8").encode(
-        x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Obtidos', axis=alt.Axis(tickMinStep=1, format='d')),
-        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
-        tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', title='Participação nos válidos (%)', format='.1f')]
-    ).properties(height=altura_grafico)
-    exibir_grafico_altair(grafico_barras)
-
-    if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
-        top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Participação nos Válidos (%)']
-    else:
-        top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Participação nos Válidos (%)']
-    st.dataframe(top_escolas, use_container_width=True)
-
-    st.markdown("---")
-
-    st.subheader("📈 Matriz de Evolução Histórica (Comparativo entre Eleições)")
-    if len(anos_disponiveis) > 1:
-        tabela_comparativa = dados.pivot_table(index='NM_LOCAL_VOTACAO', columns='ANO_ELEICAO', values='QT_VOTOS_SAMIR', aggfunc='sum').fillna(0)
-        ano_recente = anos_disponiveis[0]
-        if ano_recente in tabela_comparativa.columns:
-            tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(limite_ranking)
-        st.dataframe(tabela_comparativa, use_container_width=True)
-    else:
-        st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado.")
-
-    st.markdown("---")
-
-    st.subheader("🎯 Distribuição entre Votos do Candidato e Demais Votos Válidos")
-    if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-        agenda_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({'QT_VOTOS_VALIDOS_SECAO': 'sum', 'QT_VOTOS_SAMIR': 'sum'}).reset_index()
-        agenda_df['VOTOS_EM_DISPUTA'] = agenda_df['QT_VOTOS_VALIDOS_SECAO'] - agenda_df['QT_VOTOS_SAMIR']
-        limite_reduto = agenda_df['QT_VOTOS_SAMIR'].quantile(0.75)
-        agenda_df['ESTRATEGIA'] = np.where(agenda_df['QT_VOTOS_SAMIR'] > limite_reduto, 'Alta votação histórica', 'Demais locais')
-        agenda_df = agenda_df.sort_values(by='VOTOS_EM_DISPUTA', ascending=False).head(limite_ranking)
-
-        scatter = alt.Chart(agenda_df).mark_circle(size=350).encode(
-            x=alt.X('QT_VOTOS_SAMIR:Q', title='Votos Históricos do Candidato'),
-            y=alt.Y('VOTOS_EM_DISPUTA:Q', title='Demais Votos Válidos'),
-            color=alt.Color('ESTRATEGIA:N', title='Faixa de desempenho', scale=alt.Scale(domain=['Alta votação histórica', 'Demais locais'], range=['#25D366', '#A7B0BE'])),
-            tooltip=['NM_LOCAL_VOTACAO', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR']
-        ).properties(height=450)
-        exibir_grafico_altair(scatter)
-    else:
-        st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente.")
-
-    st.markdown("---")
-
-    st.subheader("🧩 Matriz Descritiva dos Locais de Votação")
-
-    st.markdown("""
-    > **Como ler:** o eixo horizontal mostra o total de votos válidos e o eixo
-    > vertical mostra os votos históricos do candidato. As linhas pontilhadas usam
-    > as médias da seleção e dividem os locais em quatro grupos descritivos.
-    """)
-
-    if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-        matriz_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({'QT_VOTOS_VALIDOS_SECAO': 'sum', 'QT_VOTOS_SAMIR': 'sum'}).reset_index()
-        matriz_df = matriz_df.sort_values(by='QT_VOTOS_VALIDOS_SECAO', ascending=False).head(limite_ranking)
-        media_tamanho = matriz_df['QT_VOTOS_VALIDOS_SECAO'].mean()
-        media_votos = matriz_df['QT_VOTOS_SAMIR'].mean()
-
-        def classificar_quadrante(row):
-            escola_grande = row['QT_VOTOS_VALIDOS_SECAO'] >= media_tamanho
-            samir_forte = row['QT_VOTOS_SAMIR'] >= media_votos
-            if escola_grande and samir_forte: return "Alta votação em local de grande volume"
-            elif escola_grande and not samir_forte: return "Baixa penetração histórica"
-            elif not escola_grande and samir_forte: return "Alta votação em local de menor volume"
-            else: return "Monitoramento"
-
-        matriz_df['CLASSIFICACAO'] = matriz_df.apply(classificar_quadrante, axis=1)
-
-        scatter_matriz = alt.Chart(matriz_df).mark_circle(size=400).encode(
-            x=alt.X('QT_VOTOS_VALIDOS_SECAO:Q', title='Votos Válidos'),
-            y=alt.Y('QT_VOTOS_SAMIR:Q', title='Votos Históricos do Candidato'),
-            color=alt.Color(
-                'CLASSIFICACAO:N',
-                title='Classificação descritiva',
-                scale=alt.Scale(
-                    domain=[
-                        "Alta votação em local de grande volume",
-                        "Baixa penetração histórica",
-                        "Alta votação em local de menor volume",
-                        "Monitoramento"
-                    ],
-                    range=['#1A73E8', '#25D366', '#FFC107', '#A7B0BE']
-                )
+    with aba_desempenho_metodologia:
+        exibir_metodologia_modulo(
+            ["dados.csv"],
+            (
+                "Os votos do candidato são somados entre as seções e consolidados "
+                "por ano, município, zona e local de votação. Os votos válidos são "
+                "contados uma única vez por local no período analisado."
             ),
-            tooltip=['NM_LOCAL_VOTACAO', 'CLASSIFICACAO', alt.Tooltip('QT_VOTOS_VALIDOS_SECAO:Q', format=','), alt.Tooltip('QT_VOTOS_SAMIR:Q', format=',')]
-        ).properties(height=500)
-
-        regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
-        regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
-        exibir_grafico_altair(scatter_matriz + regra_x + regra_y)
-
-    st.markdown("---")
-
-    st.subheader("📈 Concentração dos Votos Históricos por Local")
-    if not dados_filtrados.empty:
-        pareto_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO')['QT_VOTOS_SAMIR'].sum().reset_index().sort_values(by='QT_VOTOS_SAMIR', ascending=False)
-        pareto_df['Votos Acumulados'] = pareto_df['QT_VOTOS_SAMIR'].cumsum()
-        pareto_df['% Acumulado'] = (pareto_df['Votos Acumulados'] / pareto_df['QT_VOTOS_SAMIR'].sum()) * 100
-        pareto_df['Posição no Ranking'] = range(1, len(pareto_df) + 1)
-
-        curva = alt.Chart(pareto_df).mark_line(color='#E83E8C', strokeWidth=4, point=alt.OverlayMarkDef(color='#E83E8C', size=150)).encode(
-            x=alt.X('Posição no Ranking:Q', title='Quantidade de Locais'),
-            y=alt.Y('% Acumulado:Q', title='% Acumulada', scale=alt.Scale(domain=[0, 100])),
-            tooltip=['NM_LOCAL_VOTACAO:N', alt.Tooltip('% Acumulado:Q', format='.1f')]
-        ).properties(height=400)
-
-        area = curva.mark_area(color='#E83E8C', opacity=0.2)
-        linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
-        exibir_grafico_altair(area + curva + linha_80)
-
-    st.markdown("---")
-
-    st.subheader("🏁 Meta proporcional de referência")
-
-    st.info("""
-    Este cenário distribui uma meta global proporcionalmente ao peso histórico de
-    cada local nos votos válidos. É uma referência matemática; não representa
-    previsão nem garantia de resultado futuro.
-    """)
-
-    meta_global = st.number_input("Digite a Meta Global de Votos:", min_value=1, value=11000, step=500)
-
-    if 'QT_VOTOS_VALIDOS_SECAO' in dados_filtrados.columns:
-        metas_df = dados_filtrados.groupby('NM_LOCAL_VOTACAO').agg({
-            'QT_VOTOS_VALIDOS_SECAO': 'sum',
-            'QT_VOTOS_SAMIR': 'sum'
-        }).reset_index()
-
-        total_validos_estado = metas_df['QT_VOTOS_VALIDOS_SECAO'].sum()
-
-        if total_validos_estado > 0:
-            metas_df['Peso_Calc'] = metas_df['QT_VOTOS_VALIDOS_SECAO'] / total_validos_estado
-            metas_df['Meta proporcional de referência'] = (meta_global * metas_df['Peso_Calc']).astype(int)
-
-            metas_df['Diferença para o Cenário'] = metas_df['Meta proporcional de referência'] - metas_df['QT_VOTOS_SAMIR']
-            metas_df['Diferença para o Cenário'] = metas_df['Diferença para o Cenário'].apply(lambda x: max(0, x))
-
-            metas_df['Peso do Local'] = (metas_df['Peso_Calc'] * 100).round(2).astype(str) + '%'
-
-            metas_df = metas_df.sort_values(by='Diferença para o Cenário', ascending=False).head(limite_ranking)
-
-            tabela_final_metas = metas_df[['NM_LOCAL_VOTACAO', 'Peso do Local', 'Meta proporcional de referência', 'QT_VOTOS_SAMIR', 'Diferença para o Cenário']]
-            tabela_final_metas.columns = ['Local de Votação', 'Peso na Eleição', 'Meta proporcional de referência', 'Votos Históricos', 'Diferença para o Cenário']
-
-            st.markdown(f"#### 📋 Distribuição Matemática de Metas ({texto_top})")
-            st.dataframe(tabela_final_metas, use_container_width=True)
-    else:
-        st.warning("A coluna de Votos Válidos não está disponível para calcular a proporção da meta.")
+            (
+                "2020 e 2024 foram eleições municipais, enquanto 2022 foi uma "
+                "eleição geral. As comparações são referências históricas e não "
+                "constituem previsão de votos."
+            ),
+        )
 
 # ==========================================
 # ROTA 2: COMPOSIÇÃO DO ELEITORADO
@@ -1166,108 +1211,133 @@ elif menu_selecionado == "👥 2. Composição do Eleitorado":
 
         total_votos_estimados = df_demo_filtrado['VOTOS_ESTIMADOS_SAMIR'].sum()
         st.metric("Votos Estimados na Seleção", f"{int(total_votos_estimados):,}".replace(',', '.'))
-        st.markdown("---")
 
-        col_graf1, col_graf2 = st.columns(2)
-        with col_graf1:
-            st.subheader("Distribuição por Gênero")
-            df_genero = df_demo_filtrado.groupby('DS_GENERO', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
-            df_genero['VOTOS_ESTIMADOS_SAMIR'] = df_genero['VOTOS_ESTIMADOS_SAMIR'].astype(int)
-            df_genero['Percentual'] = (df_genero['VOTOS_ESTIMADOS_SAMIR'] / total_votos_estimados) * 100
-            grafico_genero = alt.Chart(df_genero).mark_arc(innerRadius=65).encode(
-                theta=alt.Theta(field="VOTOS_ESTIMADOS_SAMIR", type="quantitative"),
-                color=alt.Color(field="DS_GENERO", type="nominal", scale=alt.Scale(domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'], range=['#E83E8C', '#1A73E8', '#808080'])),
-                tooltip=['DS_GENERO:N', 'VOTOS_ESTIMADOS_SAMIR:Q', 'Percentual:Q']
-            ).properties(height=350)
-            exibir_grafico_altair(grafico_genero)
+        (
+            aba_perfil_geral,
+            aba_perfil_escolaridade,
+            aba_perfil_territorial,
+            aba_perfil_metodologia,
+        ) = st.tabs([
+            "Perfil Geral",
+            "Escolaridade",
+            "Perfis Territoriais",
+            "Metodologia",
+        ])
 
-        with col_graf2:
-            st.subheader("Faixa Etária do Eleitorado")
-            df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
-            df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
-            altura_idade = max(350, len(df_idade) * 28)
-            grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
-                x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)', axis=alt.Axis(format='d')),
-                y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
-                tooltip=['DS_FAIXA_ETARIA:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
-            ).properties(height=altura_idade)
-            exibir_grafico_altair(grafico_idade)
+        with aba_perfil_geral:
+            col_graf1, col_graf2 = st.columns(2)
+            with col_graf1:
+                st.subheader("Distribuição por Gênero")
+                df_genero = df_demo_filtrado.groupby('DS_GENERO', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+                df_genero['VOTOS_ESTIMADOS_SAMIR'] = df_genero['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+                df_genero['Percentual'] = (df_genero['VOTOS_ESTIMADOS_SAMIR'] / total_votos_estimados) * 100
+                grafico_genero = alt.Chart(df_genero).mark_arc(innerRadius=65).encode(
+                    theta=alt.Theta(field="VOTOS_ESTIMADOS_SAMIR", type="quantitative"),
+                    color=alt.Color(field="DS_GENERO", type="nominal", scale=alt.Scale(domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'], range=['#E83E8C', '#1A73E8', '#808080'])),
+                    tooltip=['DS_GENERO:N', 'VOTOS_ESTIMADOS_SAMIR:Q', 'Percentual:Q']
+                ).properties(height=350)
+                exibir_grafico_altair(grafico_genero)
+    
+            with col_graf2:
+                st.subheader("Faixa Etária do Eleitorado")
+                df_idade = df_demo_filtrado.groupby('DS_FAIXA_ETARIA', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+                df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+                altura_idade = max(350, len(df_idade) * 28)
+                grafico_idade = alt.Chart(df_idade).mark_bar(color="#0A1C2E").encode(
+                    x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Qtd. Votos (Estimado)', axis=alt.Axis(format='d')),
+                    y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                    tooltip=['DS_FAIXA_ETARIA:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
+                ).properties(height=altura_idade)
+                exibir_grafico_altair(grafico_idade)
 
-        st.markdown("---")
-        st.subheader("Grau de Instrução (Nível de Escolaridade)")
-        df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
-        df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola['VOTOS_ESTIMADOS_SAMIR'].astype(int)
-        altura_escola = max(350, len(df_escola) * 28)
+        with aba_perfil_escolaridade:
+            st.subheader("Grau de Instrução (Nível de Escolaridade)")
+            df_escola = df_demo_filtrado.groupby('DS_GRAU_ESCOLARIDADE', as_index=False)['VOTOS_ESTIMADOS_SAMIR'].sum()
+            df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola['VOTOS_ESTIMADOS_SAMIR'].astype(int)
+            altura_escola = max(350, len(df_escola) * 28)
+    
+            grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
+                x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)', axis=alt.Axis(format='d')),
+                y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                tooltip=['DS_GRAU_ESCOLARIDADE:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
+            ).properties(height=altura_escola)
+            exibir_grafico_altair(grafico_escola)
 
-        grafico_escola = alt.Chart(df_escola).mark_bar(color="#1A73E8").encode(
-            x=alt.X('VOTOS_ESTIMADOS_SAMIR:Q', title='Quantidade de Votos (Estimado)', axis=alt.Axis(format='d')),
-            y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
-            tooltip=['DS_GRAU_ESCOLARIDADE:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
-        ).properties(height=altura_escola)
-        exibir_grafico_altair(grafico_escola)
+        with aba_perfil_territorial:
+            # --- FUNÇÃO: DISTRIBUIÇÃO ESTIMADA POR PERFIL ---
+            st.subheader("📍 Hipótese a validar por perfil demográfico")
+    
+            st.info("""
+            A comparação abaixo parte dos dois perfis com maior estimativa proporcional
+            na seleção. Ela descreve a presença desses perfis nos locais de votação, mas
+            não permite concluir intenção de voto individual nem estimar conversão futura.
+            """)
+    
+            avatar_df = df_demo_macro.groupby(['DS_GENERO', 'DS_FAIXA_ETARIA'])['VOTOS_ESTIMADOS_SAMIR'].sum().reset_index()
+            if not avatar_df.empty:
+                avatar_df = avatar_df.sort_values(by='VOTOS_ESTIMADOS_SAMIR', ascending=False)
+    
+                def renderizar_radar_avatar(posicao_label, top_avatar_row, cor_barra):
+                    avatar_genero = top_avatar_row['DS_GENERO']
+                    avatar_idade = top_avatar_row['DS_FAIXA_ETARIA']
+    
+                    st.success(f"**{posicao_label} Perfil estimado de maior volume:** **{avatar_genero}**, na faixa etária de **{avatar_idade}**.")
+    
+                    df_alvo = df_demo_macro[(df_demo_macro['DS_GENERO'] == avatar_genero) & (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)].copy()
+                    df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['QT_ELEITORES_PERFIL'] - df_alvo['VOTOS_ESTIMADOS_SAMIR']
+                    df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['VOTOS_NAO_CONQUISTADOS'].apply(lambda x: max(0, x))
+    
+                    radar_df = df_alvo.groupby('NM_LOCAL_VOTACAO').agg({
+                        'QT_ELEITORES_PERFIL': 'sum', 
+                        'VOTOS_ESTIMADOS_SAMIR': 'sum', 
+                        'VOTOS_NAO_CONQUISTADOS': 'sum'
+                    }).reset_index()
+    
+                    radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
+    
+                    tabela_radar = radar_df.copy()
+                    tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].round(0).astype(int)
+                    tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].round(0).astype(int)
+                    tabela_radar['VOTOS_NAO_CONQUISTADOS'] = tabela_radar['VOTOS_NAO_CONQUISTADOS'].round(0).astype(int)
+    
+                    tabela_radar.columns = ['Local de Votação', f'Total de {avatar_genero.title()}s ({avatar_idade})', 'Votos Estimados', 'Diferença entre Perfil e Estimativa']
+                    st.dataframe(tabela_radar, use_container_width=True)
+    
+                    grafico_radar = alt.Chart(radar_df).mark_bar(color=cor_barra).encode(
+                        x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Diferença entre Perfil e Estimativa', axis=alt.Axis(format='d')),
+                        y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000)),
+                        tooltip=[
+                            alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local de Votação'),
+                            alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Diferença estimada', format=','),
+                            alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil no Local', format=',')
+                        ]
+                    ).properties(height=max(400, len(radar_df) * 35))
+                    exibir_grafico_altair(grafico_radar)
+    
+                # Renderiza o 1º Avatar
+                if len(avatar_df) >= 1:
+                    renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00") # Laranja
+    
+                # Renderiza o 2º Avatar
+                if len(avatar_df) >= 2:
+                    st.markdown("---")
+                    renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8") # Azul Corporativo
+            else:
+                st.warning("Não há dados demográficos suficientes para esta análise na seleção atual.")
 
-        st.markdown("---")
-
-        # --- FUNÇÃO: DISTRIBUIÇÃO ESTIMADA POR PERFIL ---
-        st.subheader("📍 Hipótese a validar por perfil demográfico")
-
-        st.info("""
-        A comparação abaixo parte dos dois perfis com maior estimativa proporcional
-        na seleção. Ela descreve a presença desses perfis nos locais de votação, mas
-        não permite concluir intenção de voto individual nem estimar conversão futura.
-        """)
-
-        avatar_df = df_demo_macro.groupby(['DS_GENERO', 'DS_FAIXA_ETARIA'])['VOTOS_ESTIMADOS_SAMIR'].sum().reset_index()
-        if not avatar_df.empty:
-            avatar_df = avatar_df.sort_values(by='VOTOS_ESTIMADOS_SAMIR', ascending=False)
-
-            def renderizar_radar_avatar(posicao_label, top_avatar_row, cor_barra):
-                avatar_genero = top_avatar_row['DS_GENERO']
-                avatar_idade = top_avatar_row['DS_FAIXA_ETARIA']
-
-                st.success(f"**{posicao_label} Perfil estimado de maior volume:** **{avatar_genero}**, na faixa etária de **{avatar_idade}**.")
-
-                df_alvo = df_demo_macro[(df_demo_macro['DS_GENERO'] == avatar_genero) & (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)].copy()
-                df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['QT_ELEITORES_PERFIL'] - df_alvo['VOTOS_ESTIMADOS_SAMIR']
-                df_alvo['VOTOS_NAO_CONQUISTADOS'] = df_alvo['VOTOS_NAO_CONQUISTADOS'].apply(lambda x: max(0, x))
-
-                radar_df = df_alvo.groupby('NM_LOCAL_VOTACAO').agg({
-                    'QT_ELEITORES_PERFIL': 'sum', 
-                    'VOTOS_ESTIMADOS_SAMIR': 'sum', 
-                    'VOTOS_NAO_CONQUISTADOS': 'sum'
-                }).reset_index()
-
-                radar_df = radar_df.sort_values(by='VOTOS_NAO_CONQUISTADOS', ascending=False).head(limite_ranking)
-
-                tabela_radar = radar_df.copy()
-                tabela_radar['QT_ELEITORES_PERFIL'] = tabela_radar['QT_ELEITORES_PERFIL'].round(0).astype(int)
-                tabela_radar['VOTOS_ESTIMADOS_SAMIR'] = tabela_radar['VOTOS_ESTIMADOS_SAMIR'].round(0).astype(int)
-                tabela_radar['VOTOS_NAO_CONQUISTADOS'] = tabela_radar['VOTOS_NAO_CONQUISTADOS'].round(0).astype(int)
-
-                tabela_radar.columns = ['Local de Votação', f'Total de {avatar_genero.title()}s ({avatar_idade})', 'Votos Estimados', 'Diferença entre Perfil e Estimativa']
-                st.dataframe(tabela_radar, use_container_width=True)
-
-                grafico_radar = alt.Chart(radar_df).mark_bar(color=cor_barra).encode(
-                    x=alt.X('VOTOS_NAO_CONQUISTADOS:Q', title='Diferença entre Perfil e Estimativa', axis=alt.Axis(format='d')),
-                    y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000)),
-                    tooltip=[
-                        alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local de Votação'),
-                        alt.Tooltip('VOTOS_NAO_CONQUISTADOS:Q', title='Diferença estimada', format=','),
-                        alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil no Local', format=',')
-                    ]
-                ).properties(height=max(400, len(radar_df) * 35))
-                exibir_grafico_altair(grafico_radar)
-
-            # Renderiza o 1º Avatar
-            if len(avatar_df) >= 1:
-                renderizar_radar_avatar("1º", avatar_df.iloc[0], "#FF8C00") # Laranja
-
-            # Renderiza o 2º Avatar
-            if len(avatar_df) >= 2:
-                st.markdown("---")
-                renderizar_radar_avatar("2º", avatar_df.iloc[1], "#1A73E8") # Azul Corporativo
-        else:
-            st.warning("Não há dados demográficos suficientes para esta análise na seleção atual.")
+        with aba_perfil_metodologia:
+            exibir_metodologia_modulo(
+                ["base_demografica_ac.zip", "dados.csv"],
+                (
+                    "A composição agregada do eleitorado é cruzada com a participação "
+                    "histórica do candidato em cada local. As estimativas são "
+                    "proporcionais e corrigidas para manter o total observado."
+                ),
+                (
+                    "O resultado descreve grupos agregados. Não identifica pessoas, "
+                    "não comprova o perfil de quem votou e não mede intenção de voto."
+                ),
+            )
 
 
 # ==========================================
@@ -1311,40 +1381,57 @@ elif menu_selecionado == "🗺️ 3. Participação e Não Comparecimento":
         col2.metric("Percentual sobre Eleitores Aptos", f"{taxa_adormecidos:.1f}%")
         col3.metric("Abstenções", f"{int(ador_escola['QT_ABSTENCOES'].sum()):,}".replace(',', '.'))
 
-        st.markdown("---")
+        aba_participacao_visao, aba_participacao_ranking, aba_participacao_metodologia = st.tabs([
+            "Visão Geral",
+            "Ranking de Locais",
+            "Metodologia",
+        ])
 
-        st.subheader("📍 Dispersão Geográfica das Abstenções")
-        mapa_ador = ador_escola.dropna(subset=['lat', 'lon'])
-        if not mapa_ador.empty:
-            st.map(mapa_ador, latitude='lat', longitude='lon')
-        else:
-            st.info("Dados de localização não disponíveis para este filtro.")
+        with aba_participacao_visao:
+            st.subheader("📍 Dispersão Geográfica das Abstenções")
+            mapa_ador = ador_escola.dropna(subset=['lat', 'lon'])
+            if not mapa_ador.empty:
+                st.map(mapa_ador, latitude='lat', longitude='lon')
+            else:
+                st.info("Dados de localização não disponíveis para este filtro.")
 
-        st.markdown("---")
+        with aba_participacao_ranking:
+            st.subheader("📊 Locais com maior volume de abstenções, brancos e nulos")
+            ador_top = ador_escola.sort_values(by='VOTOS_ADORMECIDOS', ascending=False).head(limite_ranking)
+    
+            altura_ador = max(500, len(ador_top) * 35)
+    
+            grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
+                x=alt.X('VOTOS_ADORMECIDOS:Q', title='Abstenções, brancos e nulos', axis=alt.Axis(format='d')),
+                y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                tooltip=[
+                    alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
+                    alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total', format=','),
+                    alt.Tooltip('QT_ABSTENCOES:Q', title='Abstenções', format=','),
+                    alt.Tooltip('QT_VOTOS_BRANCOS:Q', title='Brancos', format=','),
+                    alt.Tooltip('QT_VOTOS_NULOS:Q', title='Nulos', format=','),
+                    alt.Tooltip('QT_APTOS:Q', title='Total de Aptos', format=',')
+                ]
+            ).properties(height=altura_ador)
+            exibir_grafico_altair(grafico_ador)
+    
+            st.markdown("#### 📋 Detalhamento da Participação")
+            tabela_ador = ador_top[['NM_LOCAL_VOTACAO', 'VOTOS_ADORMECIDOS', 'QT_ABSTENCOES', 'QT_VOTOS_BRANCOS', 'QT_VOTOS_NULOS', 'QT_APTOS']]
+            tabela_ador.columns = ['Local de Votação', 'Abstenções + brancos + nulos', 'Abstenções', 'Brancos', 'Nulos', 'Eleitores Aptos']
+            st.dataframe(tabela_ador, use_container_width=True)
 
-        st.subheader("📊 Locais com maior volume de abstenções, brancos e nulos")
-        ador_top = ador_escola.sort_values(by='VOTOS_ADORMECIDOS', ascending=False).head(limite_ranking)
-
-        altura_ador = max(500, len(ador_top) * 35)
-
-        grafico_ador = alt.Chart(ador_top).mark_bar(color="#E83E8C").encode(
-            x=alt.X('VOTOS_ADORMECIDOS:Q', title='Abstenções, brancos e nulos', axis=alt.Axis(format='d')),
-            y=alt.Y('NM_LOCAL_VOTACAO:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
-            tooltip=[
-                alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
-                alt.Tooltip('VOTOS_ADORMECIDOS:Q', title='Total', format=','),
-                alt.Tooltip('QT_ABSTENCOES:Q', title='Abstenções', format=','),
-                alt.Tooltip('QT_VOTOS_BRANCOS:Q', title='Brancos', format=','),
-                alt.Tooltip('QT_VOTOS_NULOS:Q', title='Nulos', format=','),
-                alt.Tooltip('QT_APTOS:Q', title='Total de Aptos', format=',')
-            ]
-        ).properties(height=altura_ador)
-        exibir_grafico_altair(grafico_ador)
-
-        st.markdown("#### 📋 Detalhamento da Participação")
-        tabela_ador = ador_top[['NM_LOCAL_VOTACAO', 'VOTOS_ADORMECIDOS', 'QT_ABSTENCOES', 'QT_VOTOS_BRANCOS', 'QT_VOTOS_NULOS', 'QT_APTOS']]
-        tabela_ador.columns = ['Local de Votação', 'Abstenções + brancos + nulos', 'Abstenções', 'Brancos', 'Nulos', 'Eleitores Aptos']
-        st.dataframe(tabela_ador, use_container_width=True)
+        with aba_participacao_metodologia:
+            exibir_metodologia_modulo(
+                ["base_adormecidos_ac.csv", "dados.csv"],
+                (
+                    "Abstenções, votos brancos e votos nulos são agregados por local "
+                    "de votação e comparados ao total de eleitores aptos."
+                ),
+                (
+                    "Esses registros não revelam motivação individual e não devem "
+                    "ser tratados como votos disponíveis para uma candidatura."
+                ),
+            )
 
 
 # ==========================================
@@ -1396,27 +1483,47 @@ elif menu_selecionado == "📋 4. Panorama da Concorrência":
             col1.metric("Candidatura Mais Votada", top_1['NM_VOTAVEL'])
             col2.metric("Participação", f"{top_1['Share (%)']:.1f}%")
 
-            st.markdown("---")
+            aba_concorrencia_distribuicao, aba_concorrencia_tabela, aba_concorrencia_metodologia = st.tabs([
+                "Distribuição",
+                "Concorrentes no Local",
+                "Metodologia",
+            ])
 
-            adversarios_grafico = adversarios.head(20) 
-            altura_adv = max(500, len(adversarios_grafico) * 35)
+            with aba_concorrencia_distribuicao:
+                adversarios_grafico = adversarios.head(20) 
+                altura_adv = max(500, len(adversarios_grafico) * 35)
+    
+                grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
+                    x=alt.X('QT_VOTOS:Q', title='Votos da Candidatura', axis=alt.Axis(format='d')),
+                    y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                    tooltip=[
+                        alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
+                        alt.Tooltip('QT_VOTOS:Q', title='Votos', format=','),
+                    alt.Tooltip('Share (%):Q', title='Participação (%)', format='.1f')
+                    ]
+                ).properties(height=altura_adv)
+                exibir_grafico_altair(grafico_adv)
 
-            grafico_adv = alt.Chart(adversarios_grafico).mark_bar(color="#FFC107").encode(
-                x=alt.X('QT_VOTOS:Q', title='Votos da Candidatura', axis=alt.Axis(format='d')),
-                y=alt.Y('NM_VOTAVEL:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
-                tooltip=[
-                    alt.Tooltip('NM_VOTAVEL:N', title='Candidato'),
-                    alt.Tooltip('QT_VOTOS:Q', title='Votos', format=','),
-                alt.Tooltip('Share (%):Q', title='Participação (%)', format='.1f')
-                ]
-            ).properties(height=altura_adv)
-            exibir_grafico_altair(grafico_adv)
+            with aba_concorrencia_tabela:
+                st.subheader("Concorrentes no Local")
+                tabela_adv = adversarios[['NM_VOTAVEL', 'QT_VOTOS', 'Share (%)']]
+                tabela_adv.columns = ['Candidatura', 'Votos no Local', 'Participação (%)']
+                tabela_adv['Participação (%)'] = tabela_adv['Participação (%)'].round(2).astype(str) + '%'
+                st.dataframe(tabela_adv.head(50), use_container_width=True)
 
-            st.markdown("#### 📋 Concorrentes no local")
-            tabela_adv = adversarios[['NM_VOTAVEL', 'QT_VOTOS', 'Share (%)']]
-            tabela_adv.columns = ['Candidatura', 'Votos no Local', 'Participação (%)']
-            tabela_adv['Participação (%)'] = tabela_adv['Participação (%)'].round(2).astype(str) + '%'
-            st.dataframe(tabela_adv.head(50), use_container_width=True)
+            with aba_concorrencia_metodologia:
+                exibir_metodologia_modulo(
+                    ["base_concorrencia_ac.zip", "dados.csv"],
+                    (
+                        "Os votos são agrupados por candidatura no local e cargo "
+                        "selecionados. A participação corresponde à proporção de cada "
+                        "candidatura no total analisado daquele recorte."
+                    ),
+                    (
+                        "A distribuição é descritiva. Ela não demonstra transferência "
+                        "de votos nem comportamento futuro do eleitorado."
+                    ),
+                )
         else:
             st.warning("Não há dados de concorrência suficientes para este local/cargo nos filtros selecionados.")
 
@@ -1472,20 +1579,42 @@ elif menu_selecionado == "🔗 5. Correlação territorial":
                     top_1_corr = corr_samir.iloc[0]
                     st.success(f"**Maior correlação observada:** **{top_1_corr['Candidatura']}** (r = {top_1_corr['Correlação de Pearson (r)']:.2f}). Este resultado descreve associação linear entre seções; não permite concluir causalidade ou transferência de votos.")
 
-                    altura_corr = max(500, len(corr_samir) * 35)
+                    aba_correlacao_grafico, aba_correlacao_tabela, aba_correlacao_metodologia = st.tabs([
+                        "Correlações",
+                        "Tabela de Resultados",
+                        "Metodologia",
+                    ])
 
-                    grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
-                        x=alt.X('Correlação de Pearson (r):Q', title='Correlação (r)', scale=alt.Scale(domain=[0, 1])),
-                        y=alt.Y('Candidatura:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
-                        tooltip=[
-                            alt.Tooltip('Candidatura:N', title='Candidatura'),
-                            alt.Tooltip('Correlação de Pearson (r):Q', title='Correlação de Pearson', format='.2f')
-                        ]
-                    ).properties(height=altura_corr)
-                    exibir_grafico_altair(grafico_corr)
+                    with aba_correlacao_grafico:
+                        altura_corr = max(500, len(corr_samir) * 35)
+    
+                        grafico_corr = alt.Chart(corr_samir).mark_bar(color="#25D366").encode(
+                            x=alt.X('Correlação de Pearson (r):Q', title='Correlação (r)', scale=alt.Scale(domain=[0, 1])),
+                            y=alt.Y('Candidatura:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
+                            tooltip=[
+                                alt.Tooltip('Candidatura:N', title='Candidatura'),
+                                alt.Tooltip('Correlação de Pearson (r):Q', title='Correlação de Pearson', format='.2f')
+                            ]
+                        ).properties(height=altura_corr)
+                        exibir_grafico_altair(grafico_corr)
 
-                    corr_samir['Correlação de Pearson (r)'] = corr_samir['Correlação de Pearson (r)'].round(3)
-                    st.dataframe(corr_samir, use_container_width=True)
+                    with aba_correlacao_tabela:
+                        corr_samir['Correlação de Pearson (r)'] = corr_samir['Correlação de Pearson (r)'].round(3)
+                        st.dataframe(corr_samir, use_container_width=True)
+
+                    with aba_correlacao_metodologia:
+                        exibir_metodologia_modulo(
+                            ["base_concorrencia_ac.zip", "dados.csv"],
+                            (
+                                "O coeficiente de Pearson compara, seção a seção, a "
+                                "variação dos votos do candidato com as demais "
+                                "candidaturas do mesmo ano e cargo."
+                            ),
+                            (
+                                "Correlação mede associação linear; não prova voto "
+                                "casado, aliança, causalidade ou transferência de votos."
+                            ),
+                        )
             else:
                 st.warning("Não há volume de urnas suficientes nos filtros selecionados para garantir significância estatística no cálculo de Pearson.")
 
@@ -1744,286 +1873,321 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
             "do cabeçalho continuam usando somente rurais confirmados."
         )
 
-    st.markdown("---")
-    st.subheader("📍 Mapa dos Locais Rurais")
-    if serie_historica_rural:
-        ano_mapa = st.selectbox(
-            "Ano exibido no mapa:",
-            sorted(anos_rurais_selecionados, reverse=True)
+    (
+        aba_rural_visao,
+        aba_rural_locais,
+        aba_rural_evolucao,
+        aba_rural_qualidade,
+        aba_rural_metodologia,
+    ) = st.tabs([
+        "Visão Geral",
+        "Locais Rurais",
+        "Evolução Histórica",
+        "Qualidade dos Dados",
+        "Metodologia",
+    ])
+
+    with aba_rural_visao:
+        st.subheader("📍 Mapa dos Locais Rurais")
+        if serie_historica_rural:
+            ano_mapa = st.selectbox(
+                "Ano exibido no mapa:",
+                sorted(anos_rurais_selecionados, reverse=True)
+            )
+            mapa_rural = base_rural[
+                base_rural['ANO_ELEICAO'] == ano_mapa
+            ].dropna(subset=['lat', 'lon'])
+            st.caption(
+                "O mapa exibe um ano por vez para evitar sobreposição de locais em "
+                "eleições diferentes. As tabelas seguem mostrando todos os anos."
+            )
+        else:
+            mapa_rural = base_rural.dropna(subset=['lat', 'lon'])
+        if not mapa_rural.empty:
+            st.map(mapa_rural, latitude='lat', longitude='lon')
+        else:
+            st.info("Não há coordenadas válidas para os filtros selecionados.")
+    
+        st.markdown("---")
+        st.subheader(f"📊 Resumo Rural por Município — {titulo_periodo_rural}")
+        chaves_municipio = (
+            ['ANO_ELEICAO', 'NM_MUNICIPIO']
+            if serie_historica_rural else ['NM_MUNICIPIO']
         )
-        mapa_rural = base_rural[
-            base_rural['ANO_ELEICAO'] == ano_mapa
-        ].dropna(subset=['lat', 'lon'])
-        st.caption(
-            "O mapa exibe um ano por vez para evitar sobreposição de locais em "
-            "eleições diferentes. As tabelas seguem mostrando todos os anos."
+        resumo_municipal = base_rural.groupby(
+            chaves_municipio, as_index=False
+        ).agg(
+            LOCAIS=('ID_LOCAL_ANO', 'nunique'),
+            SECOES=('QT_SECOES', 'sum'),
+            ELEITORES=('QT_ELEITORES', 'sum'),
+            VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
+            VOTOS_VALIDOS=('QT_VOTOS_VALIDOS_SECAO', 'sum')
         )
-    else:
-        mapa_rural = base_rural.dropna(subset=['lat', 'lon'])
-    if not mapa_rural.empty:
-        st.map(mapa_rural, latitude='lat', longitude='lon')
-    else:
-        st.info("Não há coordenadas válidas para os filtros selecionados.")
-
-    st.markdown("---")
-    st.subheader(f"📊 Resumo Rural por Município — {titulo_periodo_rural}")
-    chaves_municipio = (
-        ['ANO_ELEICAO', 'NM_MUNICIPIO']
-        if serie_historica_rural else ['NM_MUNICIPIO']
-    )
-    resumo_municipal = base_rural.groupby(
-        chaves_municipio, as_index=False
-    ).agg(
-        LOCAIS=('ID_LOCAL_ANO', 'nunique'),
-        SECOES=('QT_SECOES', 'sum'),
-        ELEITORES=('QT_ELEITORES', 'sum'),
-        VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
-        VOTOS_VALIDOS=('QT_VOTOS_VALIDOS_SECAO', 'sum')
-    )
-    resumo_municipal['PARTICIPACAO_VALIDOS_PCT'] = np.where(
-        resumo_municipal['VOTOS_VALIDOS'] > 0,
-        resumo_municipal['VOTOS_SAMIR'] /
-        resumo_municipal['VOTOS_VALIDOS'] * 100,
-        0
-    )
-    eleitorado_total_municipio = locais_resumo.groupby(
-        chaves_municipio, as_index=False
-    )['QT_ELEITORES'].sum().rename(
-        columns={'QT_ELEITORES': 'ELEITORADO_TOTAL_MUNICIPIO'}
-    )
-    resumo_municipal = pd.merge(
-        resumo_municipal,
-        eleitorado_total_municipio,
-        on=chaves_municipio,
-        how='left'
-    )
-    resumo_municipal['ELEITORADO_RURAL_PCT'] = np.where(
-        resumo_municipal['ELEITORADO_TOTAL_MUNICIPIO'] > 0,
-        resumo_municipal['ELEITORES'] /
-        resumo_municipal['ELEITORADO_TOTAL_MUNICIPIO'] * 100,
-        0
-    )
-    resumo_municipal = resumo_municipal.sort_values(
-        ['ANO_ELEICAO', 'ELEITORES'] if serie_historica_rural else 'ELEITORES',
-        ascending=[True, False] if serie_historica_rural else False
-    ).rename(columns={
-        'ANO_ELEICAO': 'Ano',
-        'NM_MUNICIPIO': 'Município',
-        'LOCAIS': 'Locais',
-        'SECOES': 'Seções',
-        'ELEITORES': 'Eleitores Rurais',
-        'VOTOS_SAMIR': 'Votos do Candidato',
-        'VOTOS_VALIDOS': 'Votos Válidos',
-        'PARTICIPACAO_VALIDOS_PCT': 'Participação nos Válidos (%)',
-        'ELEITORADO_RURAL_PCT': 'Eleitorado Rural no Município (%)'
-    })
-    resumo_municipal['Participação nos Válidos (%)'] = resumo_municipal[
-        'Participação nos Válidos (%)'
-    ].round(2)
-    resumo_municipal['Eleitorado Rural no Município (%)'] = resumo_municipal[
-        'Eleitorado Rural no Município (%)'
-    ].round(1)
-    colunas_resumo = (
-        ['Ano'] if serie_historica_rural else []
-    ) + [
-            'Município', 'Locais', 'Seções', 'Eleitores Rurais',
-            'Eleitorado Rural no Município (%)', 'Votos do Candidato',
-            'Votos Válidos', 'Participação nos Válidos (%)'
-        ]
-    st.dataframe(
-        resumo_municipal[colunas_resumo],
-        use_container_width=True
-    )
-
-    st.markdown("---")
-    titulo_ranking = (
-        "📋 Ranking Histórico por Local/Ano"
-        if serie_historica_rural else "📋 Desempenho por Local Rural"
-    )
-    st.subheader(titulo_ranking)
-    criterio_rural = st.selectbox(
-        "Ordenar os locais por:",
-        [
-            'Votos do Candidato', 'Participação nos Válidos',
-            'Eleitorado', 'Demais Votos Válidos'
-        ]
-    )
-    colunas_criterio = {
-        'Votos do Candidato': 'QT_VOTOS_SAMIR',
-        'Participação nos Válidos': 'PARTICIPACAO_VALIDOS',
-        'Eleitorado': 'QT_ELEITORES',
-        'Demais Votos Válidos': 'DEMAIS_VOTOS_VALIDOS'
-    }
-    coluna_ranking = colunas_criterio[criterio_rural]
-    ranking_rural = base_rural.sort_values(
-        coluna_ranking, ascending=False
-    ).head(limite_ranking)
-
-    if not ranking_rural.empty:
-        ranking_rural = ranking_rural.copy()
-        ranking_rural['LOCAL_EXIBICAO'] = np.where(
-            serie_historica_rural,
-            ranking_rural['ANO_ELEICAO'].astype(str) + ' — ' +
-            ranking_rural['NM_LOCAL_VOTACAO'],
-            ranking_rural['NM_LOCAL_VOTACAO']
+        resumo_municipal['PARTICIPACAO_VALIDOS_PCT'] = np.where(
+            resumo_municipal['VOTOS_VALIDOS'] > 0,
+            resumo_municipal['VOTOS_SAMIR'] /
+            resumo_municipal['VOTOS_VALIDOS'] * 100,
+            0
         )
-        grafico_rural = alt.Chart(ranking_rural).mark_bar(
-            color="#28A745"
-        ).encode(
-            x=alt.X(f'{coluna_ranking}:Q', title=criterio_rural),
-            y=alt.Y('LOCAL_EXIBICAO:N', title=None, sort='-x'),
-            tooltip=[
-                alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
-                alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
-                alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
-                alt.Tooltip('QT_ELEITORES:Q', title='Eleitores', format=','),
-                alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos', format=','),
-                alt.Tooltip('QT_VOTOS_VALIDOS_SECAO:Q', title='Válidos', format=','),
-                alt.Tooltip('PARTICIPACAO_VALIDOS:Q', title='Participação (%)', format='.2f'),
-                alt.Tooltip('CLASSIFICACAO_RURAL:N', title='Classificação')
-            ]
-        ).properties(height=max(450, len(ranking_rural) * 34))
-        exibir_grafico_altair(grafico_rural)
-
-        colunas_ranking = (
-            ['ANO_ELEICAO'] if serie_historica_rural else []
-        ) + [
-            'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
-            'NM_LOCAL_VOTACAO', 'NM_BAIRRO', 'QT_SECOES', 'QT_ELEITORES',
-            'QT_VOTOS_SAMIR', 'QT_VOTOS_VALIDOS_SECAO',
-            'PARTICIPACAO_VALIDOS', 'CLASSIFICACAO_RURAL',
-            'CONFIANCA_CLASSIFICACAO'
-        ]
-        tabela_ranking = ranking_rural[colunas_ranking].copy()
-        titulos_ranking = (
-            ['Ano'] if serie_historica_rural else []
-        ) + [
-            'Município', 'Zona', 'Nº Local', 'Local de Votação', 'Bairro',
-            'Seções', 'Eleitores', 'Votos do Candidato', 'Votos Válidos',
-            'Participação nos Válidos (%)', 'Classificação', 'Confiança'
-        ]
-        tabela_ranking.columns = titulos_ranking
-        tabela_ranking['Participação nos Válidos (%)'] = tabela_ranking[
+        eleitorado_total_municipio = locais_resumo.groupby(
+            chaves_municipio, as_index=False
+        )['QT_ELEITORES'].sum().rename(
+            columns={'QT_ELEITORES': 'ELEITORADO_TOTAL_MUNICIPIO'}
+        )
+        resumo_municipal = pd.merge(
+            resumo_municipal,
+            eleitorado_total_municipio,
+            on=chaves_municipio,
+            how='left'
+        )
+        resumo_municipal['ELEITORADO_RURAL_PCT'] = np.where(
+            resumo_municipal['ELEITORADO_TOTAL_MUNICIPIO'] > 0,
+            resumo_municipal['ELEITORES'] /
+            resumo_municipal['ELEITORADO_TOTAL_MUNICIPIO'] * 100,
+            0
+        )
+        resumo_municipal = resumo_municipal.sort_values(
+            ['ANO_ELEICAO', 'ELEITORES'] if serie_historica_rural else 'ELEITORES',
+            ascending=[True, False] if serie_historica_rural else False
+        ).rename(columns={
+            'ANO_ELEICAO': 'Ano',
+            'NM_MUNICIPIO': 'Município',
+            'LOCAIS': 'Locais',
+            'SECOES': 'Seções',
+            'ELEITORES': 'Eleitores Rurais',
+            'VOTOS_SAMIR': 'Votos do Candidato',
+            'VOTOS_VALIDOS': 'Votos Válidos',
+            'PARTICIPACAO_VALIDOS_PCT': 'Participação nos Válidos (%)',
+            'ELEITORADO_RURAL_PCT': 'Eleitorado Rural no Município (%)'
+        })
+        resumo_municipal['Participação nos Válidos (%)'] = resumo_municipal[
             'Participação nos Válidos (%)'
         ].round(2)
-        st.dataframe(tabela_ranking, use_container_width=True)
-    else:
-        st.info("Nenhum local rural encontrado para os filtros selecionados.")
-
-    st.markdown("---")
-    st.subheader("📈 Evolução Histórica Rural")
-    locais_hist = locais_tse_rural[
-        locais_tse_rural['ANO_ELEICAO'].isin(anos_rurais_selecionados)
-    ].copy()
-    if col_municipio and municipios_selecionados:
-        locais_hist = locais_hist[
-            locais_hist['NM_MUNICIPIO'].isin(municipios_selecionados)
-        ]
-
-    votos_hist = base_rural[
-        base_rural['CLASSIFICACAO_RURAL'] == 'RURAL'
-    ].groupby('ANO_ELEICAO', as_index=False).agg(
-        VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
-        VOTOS_VALIDOS=('QT_VOTOS_VALIDOS_SECAO', 'sum')
-    )
-    votos_hist['PARTICIPACAO_VALIDOS_PCT'] = np.where(
-        votos_hist['VOTOS_VALIDOS'] > 0,
-        votos_hist['VOTOS_SAMIR'] / votos_hist['VOTOS_VALIDOS'] * 100,
-        0
-    )
-
-    universo_hist = locais_hist[
-        locais_hist['CLASSIFICACAO_RURAL'] == 'RURAL'
-    ].groupby(
-        ['ANO_ELEICAO', 'ID_LOCAL_ANO'], as_index=False
-    ).agg(
-        SECOES=('NR_SECAO', 'nunique'),
-        ELEITORES=('QT_ELEITOR_SECAO', 'sum')
-    ).groupby('ANO_ELEICAO', as_index=False).agg(
-        LOCAIS=('ID_LOCAL_ANO', 'nunique'),
-        SECOES=('SECOES', 'sum'),
-        ELEITORES=('ELEITORES', 'sum')
-    )
-    evolucao_rural = pd.merge(
-        universo_hist, votos_hist, on='ANO_ELEICAO', how='left'
-    ).fillna(0)
-
-    if evolucao_rural['ANO_ELEICAO'].nunique() > 1:
-        grafico_evolucao_rural = alt.Chart(evolucao_rural).mark_line(
-            point=alt.OverlayMarkDef(size=100),
-            strokeWidth=4,
-            color="#28A745"
-        ).encode(
-            x=alt.X('ANO_ELEICAO:O', title='Ano da Eleição'),
-            y=alt.Y(
-                'PARTICIPACAO_VALIDOS_PCT:Q',
-                title='Participação nos Válidos Rurais (%)'
-            ),
-            tooltip=[
-                alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
-                alt.Tooltip('LOCAIS:Q', title='Locais', format=','),
-                alt.Tooltip('SECOES:Q', title='Seções', format=','),
-                alt.Tooltip('ELEITORES:Q', title='Eleitores', format=','),
-                alt.Tooltip('VOTOS_SAMIR:Q', title='Votos', format=','),
-                alt.Tooltip(
-                    'PARTICIPACAO_VALIDOS_PCT:Q',
-                    title='Participação (%)',
-                    format='.2f'
-                )
-            ]
-        ).properties(height=420)
-        exibir_grafico_altair(grafico_evolucao_rural)
-    st.caption(
-        "A comparação é descritiva. Mudanças de cargo, seções, eleitorado e contexto "
-        "eleitoral podem afetar os resultados entre anos."
-    )
-    evolucao_rural['PARTICIPACAO_VALIDOS_PCT'] = evolucao_rural[
-        'PARTICIPACAO_VALIDOS_PCT'
-    ].round(2)
-    st.dataframe(evolucao_rural, use_container_width=True)
-
-    st.markdown("---")
-    st.subheader("🔎 Controle de Qualidade da Classificação")
-    q1, q2, q3 = st.columns(3)
-    q1.metric(
-        "Rurais com Confiança Alta",
-        int((rurais_confirmados['CONFIANCA_CLASSIFICACAO'] == 'ALTA').sum())
-    )
-    q2.metric(
-        "Registros Pendentes de Revisão" if serie_historica_rural else "Locais Pendentes de Revisão",
-        len(locais_revisar)
-    )
-    q3.metric(
-        "Registros sem Coordenada" if serie_historica_rural else "Locais sem Coordenada",
-        int(locais_resumo[['lat', 'lon']].isna().any(axis=1).sum())
-    )
-
-    if not locais_revisar.empty:
-        colunas_revisao = (
-            ['ANO_ELEICAO'] if serie_historica_rural else []
-        ) + [
-            'ID_LOCAL_ANO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
-            'NM_LOCAL_VOTACAO', 'NM_BAIRRO', 'DS_ENDERECO', 'QT_ELEITORES',
-            'FONTE_CLASSIFICACAO_RURAL', 'CONFIANCA_CLASSIFICACAO'
-        ]
-        tabela_revisao = locais_revisar[colunas_revisao].copy()
-        tabela_revisao.columns = (
+        resumo_municipal['Eleitorado Rural no Município (%)'] = resumo_municipal[
+            'Eleitorado Rural no Município (%)'
+        ].round(1)
+        colunas_resumo = (
             ['Ano'] if serie_historica_rural else []
         ) + [
-            'ID Local/Ano', 'Município', 'Zona', 'Nº Local',
-            'Local de Votação', 'Bairro', 'Endereço', 'Eleitores',
-            'Motivo', 'Confiança'
-        ]
-        st.dataframe(tabela_revisao, use_container_width=True)
-        periodo_arquivo = (
-            "serie_historica" if serie_historica_rural
-            else str(anos_rurais_selecionados[0])
+                'Município', 'Locais', 'Seções', 'Eleitores Rurais',
+                'Eleitorado Rural no Município (%)', 'Votos do Candidato',
+                'Votos Válidos', 'Participação nos Válidos (%)'
+            ]
+        st.dataframe(
+            resumo_municipal[colunas_resumo],
+            use_container_width=True
         )
-        st.download_button(
-            "Baixar lista de locais pendentes",
-            data=tabela_revisao.to_csv(index=False).encode('utf-8-sig'),
-            file_name=f"locais_rurais_revisar_{periodo_arquivo}.csv",
-            mime="text/csv"
+
+    with aba_rural_locais:
+        titulo_ranking = (
+            "📋 Ranking Histórico por Local/Ano"
+            if serie_historica_rural else "📋 Desempenho por Local Rural"
+        )
+        st.subheader(titulo_ranking)
+        criterio_rural = st.selectbox(
+            "Ordenar os locais por:",
+            [
+                'Votos do Candidato', 'Participação nos Válidos',
+                'Eleitorado', 'Demais Votos Válidos'
+            ]
+        )
+        colunas_criterio = {
+            'Votos do Candidato': 'QT_VOTOS_SAMIR',
+            'Participação nos Válidos': 'PARTICIPACAO_VALIDOS',
+            'Eleitorado': 'QT_ELEITORES',
+            'Demais Votos Válidos': 'DEMAIS_VOTOS_VALIDOS'
+        }
+        coluna_ranking = colunas_criterio[criterio_rural]
+        ranking_rural = base_rural.sort_values(
+            coluna_ranking, ascending=False
+        ).head(limite_ranking)
+    
+        if not ranking_rural.empty:
+            ranking_rural = ranking_rural.copy()
+            ranking_rural['LOCAL_EXIBICAO'] = np.where(
+                serie_historica_rural,
+                ranking_rural['ANO_ELEICAO'].astype(str) + ' — ' +
+                ranking_rural['NM_LOCAL_VOTACAO'],
+                ranking_rural['NM_LOCAL_VOTACAO']
+            )
+            grafico_rural = alt.Chart(ranking_rural).mark_bar(
+                color="#28A745"
+            ).encode(
+                x=alt.X(f'{coluna_ranking}:Q', title=criterio_rural),
+                y=alt.Y('LOCAL_EXIBICAO:N', title=None, sort='-x'),
+                tooltip=[
+                    alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
+                    alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
+                    alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
+                    alt.Tooltip('QT_ELEITORES:Q', title='Eleitores', format=','),
+                    alt.Tooltip('QT_VOTOS_SAMIR:Q', title='Votos', format=','),
+                    alt.Tooltip('QT_VOTOS_VALIDOS_SECAO:Q', title='Válidos', format=','),
+                    alt.Tooltip('PARTICIPACAO_VALIDOS:Q', title='Participação (%)', format='.2f'),
+                    alt.Tooltip('CLASSIFICACAO_RURAL:N', title='Classificação')
+                ]
+            ).properties(height=max(450, len(ranking_rural) * 34))
+            exibir_grafico_altair(grafico_rural)
+    
+            colunas_ranking = (
+                ['ANO_ELEICAO'] if serie_historica_rural else []
+            ) + [
+                'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
+                'NM_LOCAL_VOTACAO', 'NM_BAIRRO', 'QT_SECOES', 'QT_ELEITORES',
+                'QT_VOTOS_SAMIR', 'QT_VOTOS_VALIDOS_SECAO',
+                'PARTICIPACAO_VALIDOS', 'CLASSIFICACAO_RURAL',
+                'CONFIANCA_CLASSIFICACAO'
+            ]
+            tabela_ranking = ranking_rural[colunas_ranking].copy()
+            titulos_ranking = (
+                ['Ano'] if serie_historica_rural else []
+            ) + [
+                'Município', 'Zona', 'Nº Local', 'Local de Votação', 'Bairro',
+                'Seções', 'Eleitores', 'Votos do Candidato', 'Votos Válidos',
+                'Participação nos Válidos (%)', 'Classificação', 'Confiança'
+            ]
+            tabela_ranking.columns = titulos_ranking
+            tabela_ranking['Participação nos Válidos (%)'] = tabela_ranking[
+                'Participação nos Válidos (%)'
+            ].round(2)
+            st.dataframe(tabela_ranking, use_container_width=True)
+        else:
+            st.info("Nenhum local rural encontrado para os filtros selecionados.")
+
+    with aba_rural_evolucao:
+        st.subheader("📈 Evolução Histórica Rural")
+        locais_hist = locais_tse_rural[
+            locais_tse_rural['ANO_ELEICAO'].isin(anos_rurais_selecionados)
+        ].copy()
+        if col_municipio and municipios_selecionados:
+            locais_hist = locais_hist[
+                locais_hist['NM_MUNICIPIO'].isin(municipios_selecionados)
+            ]
+    
+        votos_hist = base_rural[
+            base_rural['CLASSIFICACAO_RURAL'] == 'RURAL'
+        ].groupby('ANO_ELEICAO', as_index=False).agg(
+            VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
+            VOTOS_VALIDOS=('QT_VOTOS_VALIDOS_SECAO', 'sum')
+        )
+        votos_hist['PARTICIPACAO_VALIDOS_PCT'] = np.where(
+            votos_hist['VOTOS_VALIDOS'] > 0,
+            votos_hist['VOTOS_SAMIR'] / votos_hist['VOTOS_VALIDOS'] * 100,
+            0
+        )
+    
+        universo_hist = locais_hist[
+            locais_hist['CLASSIFICACAO_RURAL'] == 'RURAL'
+        ].groupby(
+            ['ANO_ELEICAO', 'ID_LOCAL_ANO'], as_index=False
+        ).agg(
+            SECOES=('NR_SECAO', 'nunique'),
+            ELEITORES=('QT_ELEITOR_SECAO', 'sum')
+        ).groupby('ANO_ELEICAO', as_index=False).agg(
+            LOCAIS=('ID_LOCAL_ANO', 'nunique'),
+            SECOES=('SECOES', 'sum'),
+            ELEITORES=('ELEITORES', 'sum')
+        )
+        evolucao_rural = pd.merge(
+            universo_hist, votos_hist, on='ANO_ELEICAO', how='left'
+        ).fillna(0)
+    
+        if evolucao_rural['ANO_ELEICAO'].nunique() > 1:
+            grafico_evolucao_rural = alt.Chart(evolucao_rural).mark_line(
+                point=alt.OverlayMarkDef(size=100),
+                strokeWidth=4,
+                color="#28A745"
+            ).encode(
+                x=alt.X('ANO_ELEICAO:O', title='Ano da Eleição'),
+                y=alt.Y(
+                    'PARTICIPACAO_VALIDOS_PCT:Q',
+                    title='Participação nos Válidos Rurais (%)'
+                ),
+                tooltip=[
+                    alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
+                    alt.Tooltip('LOCAIS:Q', title='Locais', format=','),
+                    alt.Tooltip('SECOES:Q', title='Seções', format=','),
+                    alt.Tooltip('ELEITORES:Q', title='Eleitores', format=','),
+                    alt.Tooltip('VOTOS_SAMIR:Q', title='Votos', format=','),
+                    alt.Tooltip(
+                        'PARTICIPACAO_VALIDOS_PCT:Q',
+                        title='Participação (%)',
+                        format='.2f'
+                    )
+                ]
+            ).properties(height=420)
+            exibir_grafico_altair(grafico_evolucao_rural)
+        st.caption(
+            "A comparação é descritiva. Mudanças de cargo, seções, eleitorado e contexto "
+            "eleitoral podem afetar os resultados entre anos."
+        )
+        evolucao_rural['PARTICIPACAO_VALIDOS_PCT'] = evolucao_rural[
+            'PARTICIPACAO_VALIDOS_PCT'
+        ].round(2)
+        st.dataframe(evolucao_rural, use_container_width=True)
+
+    with aba_rural_qualidade:
+        st.subheader("🔎 Controle de Qualidade da Classificação")
+        q1, q2, q3 = st.columns(3)
+        q1.metric(
+            "Rurais com Confiança Alta",
+            int((rurais_confirmados['CONFIANCA_CLASSIFICACAO'] == 'ALTA').sum())
+        )
+        q2.metric(
+            "Registros Pendentes de Revisão" if serie_historica_rural else "Locais Pendentes de Revisão",
+            len(locais_revisar)
+        )
+        q3.metric(
+            "Registros sem Coordenada" if serie_historica_rural else "Locais sem Coordenada",
+            int(locais_resumo[['lat', 'lon']].isna().any(axis=1).sum())
+        )
+    
+        if not locais_revisar.empty:
+            colunas_revisao = (
+                ['ANO_ELEICAO'] if serie_historica_rural else []
+            ) + [
+                'ID_LOCAL_ANO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
+                'NM_LOCAL_VOTACAO', 'NM_BAIRRO', 'DS_ENDERECO', 'QT_ELEITORES',
+                'FONTE_CLASSIFICACAO_RURAL', 'CONFIANCA_CLASSIFICACAO'
+            ]
+            tabela_revisao = locais_revisar[colunas_revisao].copy()
+            tabela_revisao.columns = (
+                ['Ano'] if serie_historica_rural else []
+            ) + [
+                'ID Local/Ano', 'Município', 'Zona', 'Nº Local',
+                'Local de Votação', 'Bairro', 'Endereço', 'Eleitores',
+                'Motivo', 'Confiança'
+            ]
+            st.dataframe(tabela_revisao, use_container_width=True)
+            periodo_arquivo = (
+                "serie_historica" if serie_historica_rural
+                else str(anos_rurais_selecionados[0])
+            )
+            st.download_button(
+                "Baixar lista de locais pendentes",
+                data=tabela_revisao.to_csv(index=False).encode('utf-8-sig'),
+                file_name=f"locais_rurais_revisar_{periodo_arquivo}.csv",
+                mime="text/csv"
+            )
+
+    with aba_rural_metodologia:
+        exibir_metodologia_modulo(
+            [
+                "tse_locais_acre_2020.csv.xlsx",
+                "tse_locais_acre_2022.csv.xlsx",
+                "tse_locais_acre_2024.csv.xlsx",
+                "dados.csv",
+                "base_concorrencia_ac.zip",
+            ],
+            (
+                "As seções são vinculadas por ano, município, zona e número da "
+                "seção. O local é confirmado como rural quando a identificação "
+                "territorial do TSE é explícita; indícios permanecem em revisão."
+            ),
+            (
+                "A cobertura de votos do candidato varia conforme o ano e o cargo. "
+                "Ausência de registro não comprova votação igual a zero, e a série "
+                "histórica não deve ser interpretada como previsão."
+            ),
         )
 
 
