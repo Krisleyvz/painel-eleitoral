@@ -352,12 +352,145 @@ def carregar_locais_tse_rota_rural():
     locais.attrs['avisos'] = avisos
     return locais
 
+
+@st.cache_data
+def carregar_validos_oficiais_por_local():
+    """Reconstrói os votos válidos do cargo com as bases já usadas pelo app."""
+    if not os.path.exists("base_concorrencia_ac.zip"):
+        return pd.DataFrame()
+
+    try:
+        with zipfile.ZipFile("base_concorrencia_ac.zip", 'r') as arquivo_zip:
+            nome_csv = arquivo_zip.namelist()[0]
+            with arquivo_zip.open(nome_csv) as arquivo_csv:
+                concorrencia = pd.read_csv(arquivo_csv)
+
+        cargos_samir = {
+            2020: 'Vereador',
+            2022: 'Deputado Federal',
+            2024: 'Vereador',
+        }
+        partes = []
+        for ano, cargo in cargos_samir.items():
+            parte = concorrencia[
+                (concorrencia['ANO_ELEICAO'] == ano) &
+                (concorrencia['DS_CARGO'] == cargo)
+            ].copy()
+            # Nas eleições municipais, a candidatura foi somente em Rio Branco.
+            if ano in (2020, 2024):
+                parte = parte[parte['NM_MUNICIPIO'] == 'RIO BRANCO']
+            partes.append(parte)
+
+        concorrencia = pd.concat(partes, ignore_index=True)
+        locais_tse = carregar_locais_tse_rota_rural()
+        mapa_secoes = locais_tse[[
+            'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO',
+            'NM_LOCAL_VOTACAO'
+        ]].drop_duplicates()
+
+        concorrencia = pd.merge(
+            concorrencia,
+            mapa_secoes,
+            on=['ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO'],
+            how='inner'
+        )
+        return concorrencia.groupby(
+            [
+                'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA',
+                'NM_LOCAL_VOTACAO'
+            ],
+            as_index=False,
+            dropna=False
+        ).agg(QT_VOTOS_VALIDOS_CARGO=('QT_VOTOS', 'sum'))
+    except Exception:
+        # Mantém o restante do painel disponível se alguma base auxiliar faltar.
+        return pd.DataFrame()
+
 try:
     dados = carregar_dados()
     dados = aplicar_zonas(dados) # Aplica a classificação urbana/rural com precisão
 except:
     st.error("Erro ao carregar o arquivo 'dados.csv'.")
     st.stop()
+
+# VERSAO_VALIDOS_CORRIGIDOS_2026_08_03
+@st.cache_data
+def consolidar_votos_por_local(df):
+    """Consolida as seções sem repetir o total de válidos do local.
+
+    Em dados.csv, QT_VOTOS_VALIDOS_SECAO contém o total do local de votação e
+    aparece repetido nas linhas das seções em que o candidato teve votos.
+    Portanto, os votos do candidato devem ser somados, enquanto o total de
+    válidos deve ser considerado uma única vez por local, município, zona e ano.
+    """
+    if df.empty:
+        return df.copy()
+
+    base = df.copy()
+
+    # Padroniza o nome do local pela chave oficial da seção. Isso evita separar
+    # o mesmo local por pequenas diferenças de grafia entre os arquivos.
+    if 'NR_SECAO' in base.columns:
+        try:
+            mapa_oficial = carregar_locais_tse_rota_rural()[[
+                'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO',
+                'NM_LOCAL_VOTACAO'
+            ]].drop_duplicates().rename(columns={
+                'NM_LOCAL_VOTACAO': 'NM_LOCAL_VOTACAO_TSE'
+            })
+            base = pd.merge(
+                base,
+                mapa_oficial,
+                on=['ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO'],
+                how='left'
+            )
+            base['NM_LOCAL_VOTACAO'] = base[
+                'NM_LOCAL_VOTACAO_TSE'
+            ].fillna(base['NM_LOCAL_VOTACAO'])
+            base = base.drop(columns=['NM_LOCAL_VOTACAO_TSE'])
+        except Exception:
+            pass
+
+    chaves = [
+        'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NM_LOCAL_VOTACAO'
+    ]
+    colunas_ausentes = [coluna for coluna in chaves if coluna not in base.columns]
+    if colunas_ausentes:
+        return base
+
+    agregacoes = {'QT_VOTOS_SAMIR': 'sum'}
+    if 'QT_VOTOS_VALIDOS_SECAO' in base.columns:
+        agregacoes['QT_VOTOS_VALIDOS_SECAO'] = 'max'
+    if 'lat' in base.columns:
+        agregacoes['lat'] = 'median'
+    if 'lon' in base.columns:
+        agregacoes['lon'] = 'median'
+    if 'TIPO_ZONA' in base.columns:
+        agregacoes['TIPO_ZONA'] = 'first'
+
+    consolidado = base.groupby(
+        chaves, as_index=False, dropna=False
+    ).agg(agregacoes)
+
+    # Prioriza o denominador reconstruído para o mesmo cargo da candidatura.
+    # O max() acima permanece como contingência caso as bases auxiliares faltem.
+    validos_oficiais = carregar_validos_oficiais_por_local()
+    if not validos_oficiais.empty:
+        consolidado = pd.merge(
+            consolidado, validos_oficiais, on=chaves, how='left'
+        )
+        if 'QT_VOTOS_VALIDOS_SECAO' in consolidado.columns:
+            consolidado['QT_VOTOS_VALIDOS_SECAO'] = consolidado[
+                'QT_VOTOS_VALIDOS_CARGO'
+            ].fillna(consolidado['QT_VOTOS_VALIDOS_SECAO'])
+        else:
+            consolidado['QT_VOTOS_VALIDOS_SECAO'] = consolidado[
+                'QT_VOTOS_VALIDOS_CARGO'
+            ]
+        consolidado = consolidado.drop(
+            columns=['QT_VOTOS_VALIDOS_CARGO']
+        )
+    return consolidado
 
 @st.cache_data
 def carregar_demografia(df_votos):
@@ -374,9 +507,20 @@ def carregar_demografia(df_votos):
         if not df_votos.empty and not df_demo.empty and 'NR_ZONA' in df_votos.columns and 'NR_SECAO' in df_votos.columns and 'NM_LOCAL_VOTACAO' in df_votos.columns:
             mapa_escolas = df_votos[['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'NM_LOCAL_VOTACAO']].drop_duplicates()
             df_demo = pd.merge(df_demo, mapa_escolas, on=['ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO'], how='inner')
-            votos_escola = df_votos.groupby(['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'], as_index=False).agg({'QT_VOTOS_SAMIR': 'sum', 'QT_VOTOS_VALIDOS_SECAO': 'sum'})
+            votos_escola = consolidar_votos_por_local(df_votos)
             votos_escola['MARKET_SHARE'] = np.where(votos_escola['QT_VOTOS_VALIDOS_SECAO'] > 0, votos_escola['QT_VOTOS_SAMIR'] / votos_escola['QT_VOTOS_VALIDOS_SECAO'], 0)
-            df_demo = pd.merge(df_demo, votos_escola[['ANO_ELEICAO', 'NM_LOCAL_VOTACAO', 'QT_VOTOS_SAMIR', 'MARKET_SHARE']], on=['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'], how='left')
+            chaves_demo = [
+                coluna for coluna in [
+                    'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA',
+                    'NM_LOCAL_VOTACAO'
+                ] if coluna in df_demo.columns and coluna in votos_escola.columns
+            ]
+            df_demo = pd.merge(
+                df_demo,
+                votos_escola[chaves_demo + ['QT_VOTOS_SAMIR', 'MARKET_SHARE']],
+                on=chaves_demo,
+                how='left'
+            )
             df_demo['VOTOS_ESTIMADOS_SAMIR'] = df_demo['QT_ELEITORES_PERFIL'] * df_demo['MARKET_SHARE']
             fator_correcao = df_demo.groupby(['ANO_ELEICAO', 'NM_LOCAL_VOTACAO'])['VOTOS_ESTIMADOS_SAMIR'].transform('sum')
             fator_correcao = np.where(fator_correcao > 0, df_demo['QT_VOTOS_SAMIR'] / fator_correcao, 0)
@@ -476,6 +620,8 @@ zona_selecionada = st.sidebar.selectbox("Selecione o Tipo de Zona:", zonas_dispo
 if zona_selecionada != 'Todas as Zonas':
     dados = dados[dados['TIPO_ZONA'] == zona_selecionada]
 
+st.sidebar.caption("Versão 03/08/2026 • válidos consolidados por local")
+
 st.sidebar.markdown("---")
 mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODOS os locais", value=False)
 limite_slider = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5, disabled=mostrar_todas)
@@ -498,9 +644,19 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     """)
 
     if ano_selecionado == 'Todos os Anos (Série Histórica)':
-        dados_filtrados = dados.copy()
+        dados_filtrados_secoes = dados.copy()
     else:
-        dados_filtrados = dados[dados['ANO_ELEICAO'] == int(ano_selecionado)].copy()
+        dados_filtrados_secoes = dados[
+            dados['ANO_ELEICAO'] == int(ano_selecionado)
+        ].copy()
+
+    dados_filtrados = consolidar_votos_por_local(dados_filtrados_secoes)
+
+    st.caption(
+        "Critério de cálculo: votos do candidato são somados entre as seções; "
+        "votos válidos são contados uma única vez por local de votação, ano, "
+        "município e zona."
+    )
 
     total_votos = dados_filtrados['QT_VOTOS_SAMIR'].sum()
     total_escolas = dados_filtrados['NM_LOCAL_VOTACAO'].nunique()
@@ -1216,12 +1372,38 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
         'ID_LOCAL_ANO', as_index=False
     ).agg(
         QT_VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
-        QT_VOTOS_VALIDOS_SECAO=('QT_VOTOS_VALIDOS_SECAO', 'sum')
+        QT_VOTOS_VALIDOS_SECAO=('QT_VOTOS_VALIDOS_SECAO', 'max')
     )
 
     base_rural = pd.merge(
         locais_analise, votos_por_local, on='ID_LOCAL_ANO', how='left'
     )
+
+    # Substitui o denominador repetido de dados.csv pelos votos válidos do cargo,
+    # reconstruídos a partir da base de concorrência e do mapa oficial de seções.
+    validos_rurais = carregar_validos_oficiais_por_local()
+    if not validos_rurais.empty:
+        validos_rurais = validos_rurais[
+            validos_rurais['ANO_ELEICAO'].isin(anos_rurais_selecionados)
+        ]
+        if municipios_selecionados:
+            validos_rurais = validos_rurais[
+                validos_rurais['NM_MUNICIPIO'].isin(municipios_selecionados)
+            ]
+        base_rural = pd.merge(
+            base_rural,
+            validos_rurais,
+            on=[
+                'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA',
+                'NM_LOCAL_VOTACAO'
+            ],
+            how='left'
+        )
+        base_rural['QT_VOTOS_VALIDOS_SECAO'] = base_rural[
+            'QT_VOTOS_VALIDOS_CARGO'
+        ].fillna(base_rural['QT_VOTOS_VALIDOS_SECAO'])
+        base_rural = base_rural.drop(columns=['QT_VOTOS_VALIDOS_CARGO'])
+
     base_rural['QT_VOTOS_SAMIR'] = base_rural['QT_VOTOS_SAMIR'].fillna(0)
     base_rural['QT_VOTOS_VALIDOS_SECAO'] = base_rural[
         'QT_VOTOS_VALIDOS_SECAO'
@@ -1457,30 +1639,13 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
     locais_hist = locais_tse_rural[
         locais_tse_rural['ANO_ELEICAO'].isin(anos_rurais_selecionados)
     ].copy()
-    votos_hist = carregar_dados()
-    votos_hist = votos_hist[
-        votos_hist['ANO_ELEICAO'].isin(anos_rurais_selecionados)
-    ]
     if col_municipio and municipios_selecionados:
         locais_hist = locais_hist[
             locais_hist['NM_MUNICIPIO'].isin(municipios_selecionados)
         ]
-        votos_hist = votos_hist[
-            votos_hist[col_municipio].isin(municipios_selecionados)
-        ]
 
-    mapa_hist_secao = locais_hist[[
-        'ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO',
-        'ID_LOCAL_ANO', 'CLASSIFICACAO_RURAL'
-    ]].drop_duplicates()
-    votos_hist = pd.merge(
-        votos_hist,
-        mapa_hist_secao,
-        on=['ANO_ELEICAO', 'NM_MUNICIPIO', 'NR_ZONA', 'NR_SECAO'],
-        how='inner'
-    )
-    votos_hist = votos_hist[
-        votos_hist['CLASSIFICACAO_RURAL'] == 'RURAL'
+    votos_hist = base_rural[
+        base_rural['CLASSIFICACAO_RURAL'] == 'RURAL'
     ].groupby('ANO_ELEICAO', as_index=False).agg(
         VOTOS_SAMIR=('QT_VOTOS_SAMIR', 'sum'),
         VOTOS_VALIDOS=('QT_VOTOS_VALIDOS_SECAO', 'sum')
