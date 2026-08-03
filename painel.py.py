@@ -4,6 +4,9 @@ import numpy as np
 import altair as alt
 import zipfile
 import os
+import json
+import re
+import unicodedata
 from datetime import datetime
 import pytz
 import gspread
@@ -406,6 +409,209 @@ def carregar_validos_oficiais_por_local():
         # Mantém o restante do painel disponível se alguma base auxiliar faltar.
         return pd.DataFrame()
 
+
+# ==========================================
+# BASES DO CENÁRIO ELEITORAL 2026
+# ==========================================
+ARQUIVOS_CENARIO_2026 = {
+    'eleitorado': 'eleitorado_2026_ac.csv',
+    'perfil': 'perfil_eleitorado_2026_ac.csv',
+    'perfil_secao': 'perfil_secao_resumo_2026_ac.csv',
+    'demografia_secao': 'perfil_secao_demografico_2026_ac.csv',
+    'municipios': 'resumo_municipal_2026_ac.csv',
+    'metadados': 'metadados_2026.json',
+}
+
+
+def normalizar_chave_texto(valor):
+    """Padroniza nomes apenas para cruzamento técnico entre bases."""
+    texto = '' if pd.isna(valor) else str(valor)
+    texto = unicodedata.normalize('NFKD', texto)
+    texto = texto.encode('ascii', errors='ignore').decode('ascii')
+    texto = re.sub(r'[^A-Za-z0-9]+', ' ', texto.upper())
+    return re.sub(r'\s+', ' ', texto).strip()
+
+
+@st.cache_data
+def carregar_bases_cenario_2026():
+    """Carrega somente as bases tratadas de 2026 quando a rota 7 for aberta."""
+    ausentes = [
+        arquivo for arquivo in ARQUIVOS_CENARIO_2026.values()
+        if not os.path.exists(arquivo)
+    ]
+    if ausentes:
+        raise FileNotFoundError(
+            'Arquivos de 2026 ausentes: ' + ', '.join(ausentes)
+        )
+
+    eleitorado = pd.read_csv(
+        ARQUIVOS_CENARIO_2026['eleitorado'],
+        dtype={'CD_MUNICIPIO': 'string'}
+    )
+    perfil = pd.read_csv(
+        ARQUIVOS_CENARIO_2026['perfil'],
+        dtype={'CD_MUNICIPIO': 'string'}
+    )
+    perfil_secao = pd.read_csv(
+        ARQUIVOS_CENARIO_2026['perfil_secao'],
+        dtype={'CD_MUNICIPIO': 'string'}
+    )
+    demografia_secao = pd.read_csv(
+        ARQUIVOS_CENARIO_2026['demografia_secao'],
+        dtype={'CD_MUNICIPIO': 'string'}
+    )
+    municipios = pd.read_csv(
+        ARQUIVOS_CENARIO_2026['municipios'],
+        dtype={'CD_MUNICIPIO': 'string'}
+    )
+    with open(
+        ARQUIVOS_CENARIO_2026['metadados'], 'r', encoding='utf-8'
+    ) as arquivo_metadados:
+        metadados = json.load(arquivo_metadados)
+
+    return eleitorado, perfil, perfil_secao, demografia_secao, municipios, metadados
+
+
+def construir_matriz_oportunidades_2026(eleitorado_2026, historico):
+    """Cruza o eleitorado atual com 2022, mantendo as eleições separadas.
+
+    Os votos de 2022 são uma referência territorial, e não uma previsão para
+    2026. O cruzamento usa município normalizado, zona e seção.
+    """
+    if eleitorado_2026.empty:
+        return pd.DataFrame(), 0.0
+
+    base_2026 = eleitorado_2026.copy()
+    base_2026['CHAVE_MUNICIPIO'] = base_2026['NM_MUNICIPIO'].apply(
+        normalizar_chave_texto
+    )
+    for coluna in ['NR_ZONA', 'NR_SECAO']:
+        base_2026[coluna] = pd.to_numeric(
+            base_2026[coluna], errors='coerce'
+        ).astype('Int64')
+
+    col_municipio_historico = next(
+        (
+            coluna for coluna in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']
+            if coluna in historico.columns
+        ),
+        None
+    )
+    colunas_historicas = {
+        'ANO_ELEICAO', 'NR_ZONA', 'NR_SECAO', 'QT_VOTOS_SAMIR'
+    }
+    if (
+        col_municipio_historico is None
+        or not colunas_historicas.issubset(historico.columns)
+    ):
+        return pd.DataFrame(), 0.0
+
+    votos_2022 = historico[
+        pd.to_numeric(historico['ANO_ELEICAO'], errors='coerce') == 2022
+    ].copy()
+    if votos_2022.empty:
+        return pd.DataFrame(), 0.0
+
+    votos_2022['CHAVE_MUNICIPIO'] = votos_2022[
+        col_municipio_historico
+    ].apply(normalizar_chave_texto)
+    for coluna in ['NR_ZONA', 'NR_SECAO', 'QT_VOTOS_SAMIR']:
+        votos_2022[coluna] = pd.to_numeric(votos_2022[coluna], errors='coerce')
+    votos_2022 = votos_2022.groupby(
+        ['CHAVE_MUNICIPIO', 'NR_ZONA', 'NR_SECAO'],
+        as_index=False,
+        dropna=False
+    ).agg(VOTOS_REFERENCIA_2022=('QT_VOTOS_SAMIR', 'sum'))
+    votos_2022['SECAO_COM_REFERENCIA_2022'] = True
+
+    secoes = pd.merge(
+        base_2026,
+        votos_2022,
+        on=['CHAVE_MUNICIPIO', 'NR_ZONA', 'NR_SECAO'],
+        how='left',
+        validate='one_to_one'
+    )
+    secoes['SECAO_COM_REFERENCIA_2022'] = secoes[
+        'SECAO_COM_REFERENCIA_2022'
+    ].fillna(False).astype(bool)
+    secoes['VOTOS_REFERENCIA_2022'] = secoes[
+        'VOTOS_REFERENCIA_2022'
+    ].fillna(0)
+
+    matriz = secoes.groupby(
+        [
+            'CD_MUNICIPIO', 'NM_MUNICIPIO', 'NR_ZONA',
+            'NR_LOCAL_VOTACAO', 'NM_LOCAL_VOTACAO', 'NM_BAIRRO',
+            'DS_ENDERECO', 'LATITUDE', 'LONGITUDE', 'TERRITORIO_2026',
+            'ID_LOCAL_2026'
+        ],
+        as_index=False,
+        dropna=False
+    ).agg(
+        ELEITORES_2026=('QT_ELEITOR_SECAO', 'sum'),
+        VOTOS_REFERENCIA_2022=('VOTOS_REFERENCIA_2022', 'sum'),
+        SECOES_2026=('NR_SECAO', 'nunique'),
+        SECOES_COM_REFERENCIA_2022=('SECAO_COM_REFERENCIA_2022', 'sum'),
+        DS_SITU_LOCAL_VOTACAO=(
+            'DS_SITU_LOCAL_VOTACAO',
+            lambda serie: (
+                serie.dropna().iloc[0]
+                if serie.dropna().nunique() <= 1
+                else 'MISTA'
+            )
+        )
+    )
+    matriz['PENETRACAO_REFERENCIA_PCT'] = np.where(
+        matriz['ELEITORES_2026'] > 0,
+        matriz['VOTOS_REFERENCIA_2022'] / matriz['ELEITORES_2026'] * 100,
+        0
+    )
+    matriz['COBERTURA_SECOES_PCT'] = np.where(
+        matriz['SECOES_2026'] > 0,
+        matriz['SECOES_COM_REFERENCIA_2022'] / matriz['SECOES_2026'] * 100,
+        0
+    )
+    cobertura = (
+        secoes['SECAO_COM_REFERENCIA_2022'].mean() * 100
+        if len(secoes) else 0.0
+    )
+    return matriz, float(cobertura)
+
+
+def consolidar_eleitorado_2026_por_local(eleitorado_2026):
+    """Consolida seções em um registro por local sem duplicar eleitores."""
+    if eleitorado_2026.empty:
+        return pd.DataFrame()
+    return eleitorado_2026.groupby(
+        [
+            'CD_MUNICIPIO', 'NM_MUNICIPIO', 'NR_ZONA',
+            'NR_LOCAL_VOTACAO', 'NM_LOCAL_VOTACAO', 'NM_BAIRRO',
+            'DS_ENDERECO', 'LATITUDE', 'LONGITUDE', 'TERRITORIO_2026',
+            'ID_LOCAL_2026'
+        ],
+        as_index=False,
+        dropna=False
+    ).agg(
+        ELEITORES_2026=('QT_ELEITOR_SECAO', 'sum'),
+        SECOES_2026=('NR_SECAO', 'nunique'),
+        DS_SITU_LOCAL_VOTACAO=(
+            'DS_SITU_LOCAL_VOTACAO',
+            lambda serie: (
+                serie.dropna().iloc[0]
+                if serie.dropna().nunique() <= 1
+                else 'MISTA'
+            )
+        )
+    )
+
+
+def inteiro_pt(valor):
+    return f"{int(round(float(valor))):,}".replace(',', '.')
+
+
+def percentual_pt(valor, casas=2):
+    return f"{float(valor):.{casas}f}%".replace('.', ',')
+
 try:
     dados = carregar_dados()
     dados = aplicar_zonas(dados) # Aplica a classificação urbana/rural com precisão
@@ -582,52 +788,103 @@ menu_selecionado = st.sidebar.radio(
         "🗺️ 3. Participação e Não Comparecimento",
         "📋 4. Panorama da Concorrência",
         "🔗 5. Correlação territorial",
-        "🚜 6. Análise Territorial da Zona Rural"
+        "🚜 6. Análise Territorial da Zona Rural",
+        "🗳️ 7. Cenário Eleitoral 2026"
     ]
 )
 st.sidebar.markdown("---")
 
-st.sidebar.header("🎛️ Filtros de Análise")
-anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
-opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_disponiveis]
-ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
+rota_cenario_2026 = menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026"
 
-col_municipio = None
-texto_local = "em Todo o Estado" 
-for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
-    if col in dados.columns:
-        col_municipio = col
-        break
+if rota_cenario_2026:
+    st.sidebar.header("🎛️ Filtros do Cenário 2026")
+    try:
+        (
+            eleitorado_2026,
+            perfil_2026,
+            perfil_secao_2026,
+            demografia_secao_2026,
+            resumo_municipal_2026,
+            metadados_2026,
+        ) = carregar_bases_cenario_2026()
+        erro_bases_2026 = None
+    except Exception as erro:
+        eleitorado_2026 = pd.DataFrame()
+        perfil_2026 = pd.DataFrame()
+        perfil_secao_2026 = pd.DataFrame()
+        demografia_secao_2026 = pd.DataFrame()
+        resumo_municipal_2026 = pd.DataFrame()
+        metadados_2026 = {}
+        erro_bases_2026 = str(erro)
 
-if col_municipio:
-    municipios_disponiveis = sorted(dados[col_municipio].dropna().unique())
-    municipios_selecionados = st.sidebar.multiselect("Filtrar por Município(s):", municipios_disponiveis, default=municipios_disponiveis)
-    dados = dados[dados[col_municipio].isin(municipios_selecionados)]
-    if not municipios_selecionados or len(municipios_selecionados) == len(municipios_disponiveis):
-        texto_local = "em Todo o Estado"
-    elif len(municipios_selecionados) == 1:
-        texto_local = f"em {municipios_selecionados[0].title()}"
-    elif len(municipios_selecionados) == 2:
-        texto_local = f"em {municipios_selecionados[0].title()} e {municipios_selecionados[1].title()}"
-    else:
-        texto_local = "nos Municípios Selecionados"
+    municipios_2026_disponiveis = (
+        sorted(eleitorado_2026['NM_MUNICIPIO'].dropna().unique())
+        if not eleitorado_2026.empty else []
+    )
+    municipios_2026_selecionados = st.sidebar.multiselect(
+        "Município(s):",
+        municipios_2026_disponiveis,
+        default=municipios_2026_disponiveis
+    )
+    territorio_2026_selecionado = st.sidebar.selectbox(
+        "Território:",
+        [
+            "Todos os territórios",
+            "RURAL IDENTIFICADA",
+            "URBANA OU NÃO IDENTIFICADA COMO RURAL",
+            "REVISAR CLASSIFICAÇÃO",
+        ]
+    )
+    situacao_2026_selecionada = st.sidebar.selectbox(
+        "Situação do local:",
+        ["Todos os locais", "ATIVO", "BLOQUEADO"]
+    )
+    st.sidebar.caption(
+        "Base 2026 separada da série histórica. Os filtros desta rota não "
+        "alteram as análises de 2020, 2022 e 2024."
+    )
+else:
+    st.sidebar.header("🎛️ Filtros de Análise")
+    anos_disponiveis = sorted(dados['ANO_ELEICAO'].unique(), reverse=True)
+    opcoes_ano = ['Todos os Anos (Série Histórica)'] + [str(a) for a in anos_disponiveis]
+    ano_selecionado = st.sidebar.selectbox("Selecione o Período / Ano:", opcoes_ano)
 
-st.sidebar.markdown("---")
-st.sidebar.header("🚜 Filtro de Localidade")
-zonas_disponiveis = ['Todas as Zonas', 'URBANA', 'RURAL']
-zona_selecionada = st.sidebar.selectbox("Selecione o Tipo de Zona:", zonas_disponiveis)
+    col_municipio = None
+    texto_local = "em Todo o Estado"
+    for col in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']:
+        if col in dados.columns:
+            col_municipio = col
+            break
 
-if zona_selecionada != 'Todas as Zonas':
-    dados = dados[dados['TIPO_ZONA'] == zona_selecionada]
+    if col_municipio:
+        municipios_disponiveis = sorted(dados[col_municipio].dropna().unique())
+        municipios_selecionados = st.sidebar.multiselect("Filtrar por Município(s):", municipios_disponiveis, default=municipios_disponiveis)
+        dados = dados[dados[col_municipio].isin(municipios_selecionados)]
+        if not municipios_selecionados or len(municipios_selecionados) == len(municipios_disponiveis):
+            texto_local = "em Todo o Estado"
+        elif len(municipios_selecionados) == 1:
+            texto_local = f"em {municipios_selecionados[0].title()}"
+        elif len(municipios_selecionados) == 2:
+            texto_local = f"em {municipios_selecionados[0].title()} e {municipios_selecionados[1].title()}"
+        else:
+            texto_local = "nos Municípios Selecionados"
 
-st.sidebar.caption("Versão 03/08/2026 • válidos consolidados por local")
+    st.sidebar.markdown("---")
+    st.sidebar.header("🚜 Filtro de Localidade")
+    zonas_disponiveis = ['Todas as Zonas', 'URBANA', 'RURAL']
+    zona_selecionada = st.sidebar.selectbox("Selecione o Tipo de Zona:", zonas_disponiveis)
 
-st.sidebar.markdown("---")
-mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODOS os locais", value=False)
-limite_slider = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5, disabled=mostrar_todas)
-limite_ranking = 999999 if mostrar_todas else limite_slider
+    if zona_selecionada != 'Todas as Zonas':
+        dados = dados[dados['TIPO_ZONA'] == zona_selecionada]
 
-label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
+    st.sidebar.caption("Versão 03/08/2026 • válidos consolidados por local")
+
+    st.sidebar.markdown("---")
+    mostrar_todas = st.sidebar.checkbox("👁️ Exibir TODOS os locais", value=False)
+    limite_slider = st.sidebar.slider("Amplitude do Ranking (Exibir Top X Locais):", min_value=10, max_value=100, value=25, step=5, disabled=mostrar_todas)
+    limite_ranking = 999999 if mostrar_todas else limite_slider
+
+    label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
 # ==========================================
 # ROTA 1: DESEMPENHO ELEITORAL POR TERRITÓRIO
@@ -1748,4 +2005,695 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
             data=tabela_revisao.to_csv(index=False).encode('utf-8-sig'),
             file_name=f"locais_rurais_revisar_{periodo_arquivo}.csv",
             mime="text/csv"
+        )
+
+
+# ==========================================
+# ROTA 7: CENÁRIO ELEITORAL 2026
+# ==========================================
+elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
+    st.title("🗳️ Cenário Eleitoral 2026")
+    st.info(
+        "Este módulo apresenta o eleitorado atual e referências territoriais. "
+        "Eleitorado não é voto disponível, e a votação de 2022 não é uma "
+        "previsão: ela é usada somente como referência histórica comparável."
+    )
+
+    if erro_bases_2026:
+        st.error(
+            "Não foi possível abrir as bases independentes de 2026. "
+            f"Detalhe: {erro_bases_2026}"
+        )
+        st.warning(
+            "As abas históricas continuam preservadas. Envie os arquivos de "
+            "2026 para a mesma pasta do painel e recarregue a aplicação."
+        )
+        st.stop()
+
+    if not municipios_2026_selecionados:
+        st.warning("Selecione pelo menos um município no filtro lateral.")
+        st.stop()
+
+    base_municipios_2026 = eleitorado_2026[
+        eleitorado_2026['NM_MUNICIPIO'].isin(
+            municipios_2026_selecionados
+        )
+    ].copy()
+
+    if situacao_2026_selecionada != "Todos os locais":
+        base_municipios_2026 = base_municipios_2026[
+            base_municipios_2026['DS_SITU_LOCAL_VOTACAO']
+            == situacao_2026_selecionada
+        ].copy()
+
+    base_exibida_2026 = base_municipios_2026.copy()
+    if territorio_2026_selecionado != "Todos os territórios":
+        base_exibida_2026 = base_exibida_2026[
+            base_exibida_2026['TERRITORIO_2026']
+            == territorio_2026_selecionado
+        ].copy()
+
+    total_eleitores_2026 = base_exibida_2026['QT_ELEITOR_SECAO'].sum()
+    total_locais_2026 = base_exibida_2026['ID_LOCAL_2026'].nunique()
+    total_secoes_2026 = base_exibida_2026['ID_SECAO_2026'].nunique()
+    total_rural_2026 = base_exibida_2026.loc[
+        base_exibida_2026['RURAL_IDENTIFICADA'], 'QT_ELEITOR_SECAO'
+    ].sum()
+
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Eleitorado no Filtro", inteiro_pt(total_eleitores_2026))
+    k2.metric("Locais de Votação", inteiro_pt(total_locais_2026))
+    k3.metric("Seções Eleitorais", inteiro_pt(total_secoes_2026))
+    k4.metric("Eleitorado Rural Identificado", inteiro_pt(total_rural_2026))
+
+    datas_geracao = metadados_2026.get('generation_dates', {})
+    data_locais = ', '.join(datas_geracao.get('locations', [])) or 'não informada'
+    data_perfil = ', '.join(datas_geracao.get('profile', [])) or 'não informada'
+    st.caption(
+        f"Locais e seções: extração de {data_locais}. "
+        f"Perfil do eleitorado: extração de {data_perfil}. "
+        "As diferenças entre datas são mantidas visíveis na metodologia."
+    )
+
+    aba_visao, aba_rural, aba_oportunidades, aba_perfil, aba_metodologia = st.tabs(
+        [
+            "Visão Geral",
+            "Zona Rural",
+            "Matriz de Oportunidades",
+            "Perfil do Eleitorado",
+            "Metodologia e Qualidade",
+        ]
+    )
+
+    with aba_visao:
+        st.subheader("Distribuição Territorial do Eleitorado")
+        locais_exibidos_2026 = consolidar_eleitorado_2026_por_local(
+            base_exibida_2026
+        )
+
+        if locais_exibidos_2026.empty:
+            st.warning("Não há registros para a combinação de filtros selecionada.")
+        else:
+            mapa_2026 = locais_exibidos_2026[[
+                'LATITUDE', 'LONGITUDE', 'ELEITORES_2026'
+            ]].dropna().rename(
+                columns={'LATITUDE': 'lat', 'LONGITUDE': 'lon'}
+            )
+            mapa_2026['TAMANHO_MAPA'] = np.clip(
+                mapa_2026['ELEITORES_2026'] / 35, 8, 85
+            )
+            try:
+                st.map(
+                    mapa_2026,
+                    latitude='lat',
+                    longitude='lon',
+                    size='TAMANHO_MAPA'
+                )
+            except Exception:
+                st.map(mapa_2026, latitude='lat', longitude='lon')
+            st.caption(
+                "Os pontos utilizam as coordenadas publicadas pelo TSE; o tamanho "
+                "representa o eleitorado alocado no local."
+            )
+
+            distribuicao_municipal = base_exibida_2026.groupby(
+                ['NM_MUNICIPIO', 'TERRITORIO_2026'],
+                as_index=False
+            ).agg(ELEITORES=('QT_ELEITOR_SECAO', 'sum'))
+            nomes_territorio = {
+                'RURAL IDENTIFICADA': 'Rural identificada',
+                'REVISAR CLASSIFICAÇÃO': 'Revisar classificação',
+                'URBANA OU NÃO IDENTIFICADA COMO RURAL': 'Demais territórios',
+            }
+            distribuicao_municipal['TERRITORIO'] = distribuicao_municipal[
+                'TERRITORIO_2026'
+            ].map(nomes_territorio).fillna(
+                distribuicao_municipal['TERRITORIO_2026']
+            )
+            ordem_municipios = (
+                distribuicao_municipal.groupby('NM_MUNICIPIO')['ELEITORES']
+                .sum().sort_values(ascending=False).index.tolist()
+            )
+            grafico_municipios_2026 = alt.Chart(
+                distribuicao_municipal
+            ).mark_bar().encode(
+                x=alt.X('ELEITORES:Q', title='Eleitorado 2026'),
+                y=alt.Y(
+                    'NM_MUNICIPIO:N',
+                    title=None,
+                    sort=ordem_municipios
+                ),
+                color=alt.Color(
+                    'TERRITORIO:N',
+                    title='Território',
+                    scale=alt.Scale(
+                        domain=[
+                            'Rural identificada',
+                            'Revisar classificação',
+                            'Demais territórios'
+                        ],
+                        range=['#28A745', '#F0AD4E', '#2878D0']
+                    )
+                ),
+                tooltip=[
+                    alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
+                    alt.Tooltip('TERRITORIO:N', title='Território'),
+                    alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
+                ]
+            ).properties(
+                height=max(360, len(ordem_municipios) * 27)
+            )
+            st.altair_chart(grafico_municipios_2026, use_container_width=True)
+
+            resumo_dinamico = base_exibida_2026.groupby(
+                'NM_MUNICIPIO', as_index=False
+            ).agg(
+                ELEITORES=('QT_ELEITOR_SECAO', 'sum'),
+                LOCAIS=('ID_LOCAL_2026', 'nunique'),
+                SECOES=('ID_SECAO_2026', 'nunique')
+            )
+            rural_dinamico = base_exibida_2026[
+                base_exibida_2026['RURAL_IDENTIFICADA']
+            ].groupby('NM_MUNICIPIO', as_index=False).agg(
+                ELEITORES_RURAIS=('QT_ELEITOR_SECAO', 'sum')
+            )
+            resumo_dinamico = resumo_dinamico.merge(
+                rural_dinamico, on='NM_MUNICIPIO', how='left'
+            ).fillna({'ELEITORES_RURAIS': 0})
+            resumo_dinamico['PARTICIPACAO_NO_FILTRO_PCT'] = np.where(
+                resumo_dinamico['ELEITORES'] > 0,
+                resumo_dinamico['ELEITORES_RURAIS']
+                / resumo_dinamico['ELEITORES'] * 100,
+                0
+            )
+            resumo_dinamico = resumo_dinamico.sort_values(
+                'ELEITORES', ascending=False
+            ).rename(columns={
+                'NM_MUNICIPIO': 'Município',
+                'ELEITORES': 'Eleitorado no Filtro',
+                'LOCAIS': 'Locais',
+                'SECOES': 'Seções',
+                'ELEITORES_RURAIS': 'Eleitorado Rural Identificado',
+                'PARTICIPACAO_NO_FILTRO_PCT': 'Rural no Filtro (%)'
+            })
+            resumo_dinamico['Rural no Filtro (%)'] = resumo_dinamico[
+                'Rural no Filtro (%)'
+            ].round(2)
+            st.dataframe(resumo_dinamico, use_container_width=True)
+
+    with aba_rural:
+        st.subheader("Análise Territorial da Zona Rural — 2026")
+        st.caption(
+            "Esta aba considera como rural somente o que possui o termo RURAL "
+            "no bairro ou no nome do local publicado pelo TSE. Indícios não "
+            "confirmados aparecem separadamente e não entram no total. O filtro "
+            "de território não altera esta aba; município e situação do local "
+            "continuam sendo respeitados."
+        )
+        base_rural_2026 = base_municipios_2026[
+            base_municipios_2026['RURAL_IDENTIFICADA']
+        ].copy()
+        locais_rurais_2026 = consolidar_eleitorado_2026_por_local(
+            base_rural_2026
+        )
+        eleitorado_contexto = base_municipios_2026['QT_ELEITOR_SECAO'].sum()
+        eleitorado_rural_contexto = base_rural_2026['QT_ELEITOR_SECAO'].sum()
+        participacao_rural_contexto = (
+            eleitorado_rural_contexto / eleitorado_contexto * 100
+            if eleitorado_contexto else 0
+        )
+
+        r1, r2, r3, r4 = st.columns(4)
+        r1.metric("Eleitorado Rural Identificado", inteiro_pt(eleitorado_rural_contexto))
+        r2.metric("Locais Rurais", inteiro_pt(base_rural_2026['ID_LOCAL_2026'].nunique()))
+        r3.metric("Seções Rurais", inteiro_pt(base_rural_2026['ID_SECAO_2026'].nunique()))
+        r4.metric("Participação no Eleitorado", percentual_pt(participacao_rural_contexto))
+
+        todos_municipios = (
+            len(municipios_2026_selecionados)
+            == len(municipios_2026_disponiveis)
+        )
+        if todos_municipios and situacao_2026_selecionada == "Todos os locais":
+            totais_validados = metadados_2026.get('validated_totals', {})
+            rural_oficial = totais_validados.get('official_tre_rural', 0)
+            diferenca_rural = totais_validados.get(
+                'difference_rural_identified_vs_official', 0
+            )
+            st.info(
+                f"Referência do TRE-AC: {inteiro_pt(rural_oficial)} eleitores "
+                f"rurais. Reconstrução nos campos do arquivo: "
+                f"{inteiro_pt(eleitorado_rural_contexto)}. Diferença: "
+                f"{inteiro_pt(abs(diferenca_rural))} "
+                f"({'acima' if diferenca_rural > 0 else 'abaixo'} da referência), "
+                "compatível com os diferentes momentos de extração."
+            )
+
+        if not base_rural_2026.empty:
+            rural_municipal_2026 = base_municipios_2026.groupby(
+                'NM_MUNICIPIO', as_index=False
+            ).agg(ELEITORES_MUNICIPIO=('QT_ELEITOR_SECAO', 'sum'))
+            rural_confirmado_municipal = base_rural_2026.groupby(
+                'NM_MUNICIPIO', as_index=False
+            ).agg(
+                ELEITORES_RURAIS=('QT_ELEITOR_SECAO', 'sum'),
+                LOCAIS_RURAIS=('ID_LOCAL_2026', 'nunique'),
+                SECOES_RURAIS=('ID_SECAO_2026', 'nunique')
+            )
+            rural_municipal_2026 = rural_municipal_2026.merge(
+                rural_confirmado_municipal,
+                on='NM_MUNICIPIO',
+                how='left'
+            ).fillna(0)
+            rural_municipal_2026['PARTICIPACAO_RURAL_PCT'] = np.where(
+                rural_municipal_2026['ELEITORES_MUNICIPIO'] > 0,
+                rural_municipal_2026['ELEITORES_RURAIS']
+                / rural_municipal_2026['ELEITORES_MUNICIPIO'] * 100,
+                0
+            )
+            rural_municipal_2026 = rural_municipal_2026.sort_values(
+                'ELEITORES_RURAIS', ascending=False
+            )
+
+            grafico_rural_2026 = alt.Chart(
+                rural_municipal_2026
+            ).mark_bar(color='#28A745').encode(
+                x=alt.X('ELEITORES_RURAIS:Q', title='Eleitorado rural identificado'),
+                y=alt.Y(
+                    'NM_MUNICIPIO:N', title=None,
+                    sort=rural_municipal_2026['NM_MUNICIPIO'].tolist()
+                ),
+                tooltip=[
+                    alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
+                    alt.Tooltip('ELEITORES_RURAIS:Q', title='Eleitores rurais', format=','),
+                    alt.Tooltip('LOCAIS_RURAIS:Q', title='Locais', format=','),
+                    alt.Tooltip('SECOES_RURAIS:Q', title='Seções', format=','),
+                    alt.Tooltip(
+                        'PARTICIPACAO_RURAL_PCT:Q',
+                        title='Rural no município (%)',
+                        format='.2f'
+                    )
+                ]
+            ).properties(
+                height=max(360, len(rural_municipal_2026) * 27)
+            )
+            st.altair_chart(grafico_rural_2026, use_container_width=True)
+
+            tabela_rural_2026 = rural_municipal_2026.rename(columns={
+                'NM_MUNICIPIO': 'Município',
+                'ELEITORES_MUNICIPIO': 'Eleitorado Municipal',
+                'ELEITORES_RURAIS': 'Eleitorado Rural Identificado',
+                'LOCAIS_RURAIS': 'Locais Rurais',
+                'SECOES_RURAIS': 'Seções Rurais',
+                'PARTICIPACAO_RURAL_PCT': 'Participação Rural (%)'
+            })
+            tabela_rural_2026['Participação Rural (%)'] = tabela_rural_2026[
+                'Participação Rural (%)'
+            ].round(2)
+            st.dataframe(tabela_rural_2026, use_container_width=True)
+
+            st.subheader("Mapa dos Locais Rurais Identificados")
+            mapa_rural_2026 = locais_rurais_2026[[
+                'LATITUDE', 'LONGITUDE', 'ELEITORES_2026'
+            ]].dropna().rename(
+                columns={'LATITUDE': 'lat', 'LONGITUDE': 'lon'}
+            )
+            mapa_rural_2026['TAMANHO_MAPA'] = np.clip(
+                mapa_rural_2026['ELEITORES_2026'] / 20, 9, 90
+            )
+            try:
+                st.map(
+                    mapa_rural_2026,
+                    latitude='lat',
+                    longitude='lon',
+                    size='TAMANHO_MAPA'
+                )
+            except Exception:
+                st.map(mapa_rural_2026, latitude='lat', longitude='lon')
+        else:
+            st.warning("Nenhum local rural identificado para os filtros selecionados.")
+
+        st.markdown("---")
+        st.subheader("Locais com Indícios que Exigem Revisão")
+        st.caption(
+            "Esses registros não são somados ao eleitorado rural confirmado. "
+            "A lista serve para conferência territorial pela equipe."
+        )
+        revisar_2026 = base_municipios_2026[
+            base_municipios_2026['TERRITORIO_2026'] == 'REVISAR CLASSIFICAÇÃO'
+        ].copy()
+        locais_revisar_2026 = consolidar_eleitorado_2026_por_local(revisar_2026)
+        if locais_revisar_2026.empty:
+            st.success("Não há locais pendentes nos filtros selecionados.")
+        else:
+            tabela_revisar_2026 = locais_revisar_2026[[
+                'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
+                'NM_LOCAL_VOTACAO', 'NM_BAIRRO', 'DS_ENDERECO',
+                'ELEITORES_2026', 'SECOES_2026'
+            ]].sort_values('ELEITORES_2026', ascending=False).rename(columns={
+                'NM_MUNICIPIO': 'Município',
+                'NR_ZONA': 'Zona',
+                'NR_LOCAL_VOTACAO': 'Nº Local',
+                'NM_LOCAL_VOTACAO': 'Local de Votação',
+                'NM_BAIRRO': 'Bairro',
+                'DS_ENDERECO': 'Endereço',
+                'ELEITORES_2026': 'Eleitores',
+                'SECOES_2026': 'Seções'
+            })
+            st.dataframe(tabela_revisar_2026, use_container_width=True)
+            st.download_button(
+                "Baixar lista para revisão territorial",
+                data=tabela_revisar_2026.to_csv(index=False).encode('utf-8-sig'),
+                file_name='locais_revisar_classificacao_2026.csv',
+                mime='text/csv'
+            )
+
+    with aba_oportunidades:
+        st.subheader("Matriz Territorial de Oportunidades")
+        st.caption(
+            "A matriz cruza o eleitorado de 2026 com os votos de 2022 por "
+            "município, zona e seção. Samir concorreu a deputado federal em "
+            "2022; portanto, o resultado é referência territorial, não projeção "
+            "para o cargo de deputado estadual."
+        )
+        matriz_2026, cobertura_historica_2026 = construir_matriz_oportunidades_2026(
+            base_exibida_2026,
+            dados
+        )
+        if matriz_2026.empty:
+            st.warning(
+                "Não foi possível construir o cruzamento com 2022. Verifique se "
+                "dados.csv contém município, zona, seção e votos do candidato."
+            )
+        else:
+            o1, o2, o3 = st.columns(3)
+            o1.metric("Cobertura das Seções de 2022", percentual_pt(cobertura_historica_2026))
+            o2.metric("Locais Comparados", inteiro_pt(len(matriz_2026)))
+            o3.metric(
+                "Votos de Referência Mapeados",
+                inteiro_pt(matriz_2026['VOTOS_REFERENCIA_2022'].sum())
+            )
+
+            comparaveis = matriz_2026[
+                matriz_2026['COBERTURA_SECOES_PCT'] > 0
+            ].copy()
+            if comparaveis.empty:
+                st.warning("Nenhuma seção de 2026 encontrou referência correspondente em 2022.")
+            else:
+                mediana_eleitores = comparaveis['ELEITORES_2026'].median()
+                mediana_penetracao = comparaveis[
+                    'PENETRACAO_REFERENCIA_PCT'
+                ].median()
+                condicoes = [
+                    (
+                        comparaveis['ELEITORES_2026'] >= mediana_eleitores
+                    ) & (
+                        comparaveis['PENETRACAO_REFERENCIA_PCT'] < mediana_penetracao
+                    ),
+                    (
+                        comparaveis['ELEITORES_2026'] >= mediana_eleitores
+                    ) & (
+                        comparaveis['PENETRACAO_REFERENCIA_PCT'] >= mediana_penetracao
+                    ),
+                    (
+                        comparaveis['ELEITORES_2026'] < mediana_eleitores
+                    ) & (
+                        comparaveis['PENETRACAO_REFERENCIA_PCT'] < mediana_penetracao
+                    ),
+                ]
+                classificacoes = [
+                    'Alta escala / baixa penetração histórica',
+                    'Alta escala / presença histórica acima da mediana',
+                    'Menor escala / baixa penetração histórica',
+                ]
+                comparaveis['LEITURA_TERRITORIAL'] = np.select(
+                    condicoes,
+                    classificacoes,
+                    default='Menor escala / presença histórica acima da mediana'
+                )
+
+                grafico_oportunidades = alt.Chart(
+                    comparaveis
+                ).mark_circle(size=115, opacity=0.75).encode(
+                    x=alt.X(
+                        'ELEITORES_2026:Q',
+                        title='Eleitorado 2026 no local'
+                    ),
+                    y=alt.Y(
+                        'PENETRACAO_REFERENCIA_PCT:Q',
+                        title='Penetração histórica de referência (%)'
+                    ),
+                    color=alt.Color(
+                        'LEITURA_TERRITORIAL:N',
+                        title='Leitura territorial'
+                    ),
+                    tooltip=[
+                        alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
+                        alt.Tooltip('NM_LOCAL_VOTACAO:N', title='Local'),
+                        alt.Tooltip('TERRITORIO_2026:N', title='Território'),
+                        alt.Tooltip('ELEITORES_2026:Q', title='Eleitores', format=','),
+                        alt.Tooltip(
+                            'VOTOS_REFERENCIA_2022:Q',
+                            title='Votos de referência 2022',
+                            format=','
+                        ),
+                        alt.Tooltip(
+                            'PENETRACAO_REFERENCIA_PCT:Q',
+                            title='Penetração (%)',
+                            format='.2f'
+                        ),
+                        alt.Tooltip(
+                            'COBERTURA_SECOES_PCT:Q',
+                            title='Cobertura das seções (%)',
+                            format='.1f'
+                        )
+                    ]
+                ).properties(height=520).interactive()
+                st.altair_chart(grafico_oportunidades, use_container_width=True)
+                st.caption(
+                    f"Limites descritivos do filtro atual: mediana de "
+                    f"{inteiro_pt(mediana_eleitores)} eleitores por local e "
+                    f"{percentual_pt(mediana_penetracao)} de penetração histórica. "
+                    "Esses limites organizam a leitura; não definem prioridade "
+                    "automática nem resultado garantido."
+                )
+
+                ordem_leitura = {
+                    'Alta escala / baixa penetração histórica': 1,
+                    'Alta escala / presença histórica acima da mediana': 2,
+                    'Menor escala / baixa penetração histórica': 3,
+                    'Menor escala / presença histórica acima da mediana': 4,
+                }
+                comparaveis['ORDEM_LEITURA'] = comparaveis[
+                    'LEITURA_TERRITORIAL'
+                ].map(ordem_leitura)
+                tabela_oportunidades = comparaveis.sort_values(
+                    ['ORDEM_LEITURA', 'ELEITORES_2026'],
+                    ascending=[True, False]
+                )[[
+                    'NM_MUNICIPIO', 'NR_ZONA', 'NR_LOCAL_VOTACAO',
+                    'NM_LOCAL_VOTACAO', 'TERRITORIO_2026', 'ELEITORES_2026',
+                    'SECOES_2026', 'VOTOS_REFERENCIA_2022',
+                    'PENETRACAO_REFERENCIA_PCT', 'COBERTURA_SECOES_PCT',
+                    'LEITURA_TERRITORIAL'
+                ]].rename(columns={
+                    'NM_MUNICIPIO': 'Município',
+                    'NR_ZONA': 'Zona',
+                    'NR_LOCAL_VOTACAO': 'Nº Local',
+                    'NM_LOCAL_VOTACAO': 'Local de Votação',
+                    'TERRITORIO_2026': 'Território',
+                    'ELEITORES_2026': 'Eleitorado 2026',
+                    'SECOES_2026': 'Seções 2026',
+                    'VOTOS_REFERENCIA_2022': 'Votos de Referência 2022',
+                    'PENETRACAO_REFERENCIA_PCT': 'Penetração Histórica (%)',
+                    'COBERTURA_SECOES_PCT': 'Cobertura das Seções (%)',
+                    'LEITURA_TERRITORIAL': 'Leitura Territorial'
+                })
+                tabela_oportunidades['Penetração Histórica (%)'] = (
+                    tabela_oportunidades['Penetração Histórica (%)'].round(2)
+                )
+                tabela_oportunidades['Cobertura das Seções (%)'] = (
+                    tabela_oportunidades['Cobertura das Seções (%)'].round(1)
+                )
+                st.dataframe(tabela_oportunidades, use_container_width=True)
+                st.download_button(
+                    "Baixar matriz territorial 2026",
+                    data=tabela_oportunidades.to_csv(index=False).encode('utf-8-sig'),
+                    file_name='matriz_territorial_2026.csv',
+                    mime='text/csv'
+                )
+
+    with aba_perfil:
+        st.subheader("Perfil Agregado do Eleitorado")
+        st.caption(
+            "Os dados são agregados por seção e servem para planejamento de "
+            "comunicação pública, acessibilidade e logística. Não identificam "
+            "pessoas e não devem ser usados para perfilamento individual."
+        )
+        chaves_selecionadas_2026 = base_exibida_2026[[
+            'CD_MUNICIPIO', 'NR_ZONA', 'NR_SECAO', 'NR_LOCAL_VOTACAO'
+        ]].drop_duplicates()
+        demografia_filtrada_2026 = pd.merge(
+            demografia_secao_2026,
+            chaves_selecionadas_2026,
+            on=['CD_MUNICIPIO', 'NR_ZONA', 'NR_SECAO', 'NR_LOCAL_VOTACAO'],
+            how='inner',
+            validate='many_to_one'
+        )
+
+        if demografia_filtrada_2026.empty:
+            st.warning("Não há perfil demográfico para os filtros selecionados.")
+        else:
+            perfil_genero_2026 = demografia_filtrada_2026[
+                demografia_filtrada_2026['DIMENSAO'] == 'GÊNERO'
+            ].copy()
+            total_perfil_2026 = perfil_genero_2026['QT_ELEITORES'].sum()
+            total_biometria_2026 = perfil_genero_2026[
+                'QT_ELEITORES_BIOMETRIA'
+            ].sum()
+            total_deficiencia_2026 = perfil_genero_2026[
+                'QT_ELEITORES_DEFICIENCIA'
+            ].sum()
+            biometria_pct_2026 = (
+                total_biometria_2026 / total_perfil_2026 * 100
+                if total_perfil_2026 else 0
+            )
+
+            p1, p2, p3 = st.columns(3)
+            p1.metric("Eleitorado com Perfil", inteiro_pt(total_perfil_2026))
+            p2.metric("Biometria Cadastrada", percentual_pt(biometria_pct_2026))
+            p3.metric("Pessoas com Deficiência", inteiro_pt(total_deficiencia_2026))
+
+            genero_agrupado_2026 = perfil_genero_2026.groupby(
+                'CATEGORIA', as_index=False
+            ).agg(ELEITORES=('QT_ELEITORES', 'sum')).sort_values(
+                'ELEITORES', ascending=False
+            )
+            grafico_genero_2026 = alt.Chart(
+                genero_agrupado_2026
+            ).mark_bar().encode(
+                x=alt.X('ELEITORES:Q', title='Eleitores'),
+                y=alt.Y('CATEGORIA:N', title=None, sort='-x'),
+                color=alt.Color('CATEGORIA:N', title='Gênero'),
+                tooltip=[
+                    alt.Tooltip('CATEGORIA:N', title='Gênero'),
+                    alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
+                ]
+            ).properties(height=180)
+            st.altair_chart(grafico_genero_2026, use_container_width=True)
+
+            faixa_agrupada_2026 = demografia_filtrada_2026[
+                demografia_filtrada_2026['DIMENSAO'] == 'FAIXA ETÁRIA'
+            ].groupby('CATEGORIA', as_index=False).agg(
+                ELEITORES=('QT_ELEITORES', 'sum')
+            )
+            ordem_faixa_2026 = [
+                '16 anos', '17 anos', '18 anos', '19 anos', '20 anos',
+                '21 a 24 anos', '25 a 29 anos', '30 a 34 anos',
+                '35 a 39 anos', '40 a 44 anos', '45 a 49 anos',
+                '50 a 54 anos', '55 a 59 anos', '60 a 64 anos',
+                '65 a 69 anos', '70 a 74 anos', '75 a 79 anos',
+                '80 a 84 anos', '85 a 89 anos', '90 a 94 anos',
+                '95 a 99 anos', '100 anos ou mais', 'Inválida'
+            ]
+            grafico_faixa_2026 = alt.Chart(
+                faixa_agrupada_2026
+            ).mark_bar(color='#2878D0').encode(
+                x=alt.X('ELEITORES:Q', title='Eleitores'),
+                y=alt.Y(
+                    'CATEGORIA:N',
+                    title=None,
+                    sort=ordem_faixa_2026
+                ),
+                tooltip=[
+                    alt.Tooltip('CATEGORIA:N', title='Faixa etária'),
+                    alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
+                ]
+            ).properties(height=560)
+            st.subheader("Faixa Etária")
+            st.altair_chart(grafico_faixa_2026, use_container_width=True)
+
+            escolaridade_agrupada_2026 = demografia_filtrada_2026[
+                demografia_filtrada_2026['DIMENSAO'] == 'ESCOLARIDADE'
+            ].groupby('CATEGORIA', as_index=False).agg(
+                ELEITORES=('QT_ELEITORES', 'sum')
+            ).sort_values('ELEITORES', ascending=False)
+            grafico_escolaridade_2026 = alt.Chart(
+                escolaridade_agrupada_2026
+            ).mark_bar(color='#6F42C1').encode(
+                x=alt.X('ELEITORES:Q', title='Eleitores'),
+                y=alt.Y('CATEGORIA:N', title=None, sort='-x'),
+                tooltip=[
+                    alt.Tooltip('CATEGORIA:N', title='Escolaridade'),
+                    alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
+                ]
+            ).properties(height=330)
+            st.subheader("Escolaridade")
+            st.altair_chart(grafico_escolaridade_2026, use_container_width=True)
+
+    with aba_metodologia:
+        st.subheader("Metodologia, Fontes e Limitações")
+        totais_validados = metadados_2026.get('validated_totals', {})
+        tabela_conciliacao = pd.DataFrame([
+            {
+                'Indicador': 'Eleitorado total',
+                'Arquivo analisado': totais_validados.get('electorate_snapshot', 0),
+                'Referência TRE-AC': totais_validados.get('official_tre_electorate', 0),
+                'Diferença': totais_validados.get('difference_snapshot_vs_official', 0),
+            },
+            {
+                'Indicador': 'Eleitorado rural',
+                'Arquivo analisado': totais_validados.get('rural_identified_snapshot', 0),
+                'Referência TRE-AC': totais_validados.get('official_tre_rural', 0),
+                'Diferença': totais_validados.get('difference_rural_identified_vs_official', 0),
+            },
+        ])
+        st.dataframe(tabela_conciliacao, use_container_width=True, hide_index=True)
+        st.caption(
+            "As diferenças não são corrigidas artificialmente. Elas decorrem de "
+            "datas de extração e critérios de disponibilização distintos e "
+            "permanecem documentadas para auditoria."
+        )
+
+        st.markdown("**Critérios utilizados**")
+        st.markdown(
+            "- Cada seção aparece uma única vez na base territorial de 2026.\n"
+            "- O eleitorado do local é a soma das seções desse local.\n"
+            "- Rural identificada: termo `RURAL` no bairro ou no nome do local do TSE.\n"
+            "- Registros apenas indiciários ficam em revisão e não entram no total rural.\n"
+            "- O cruzamento histórico utiliza município, zona e seção.\n"
+            "- 2022 é referência estadual; 2020 e 2024 não são extrapolados para o estado."
+        )
+        st.code(
+            "Penetração histórica de referência (%) = "
+            "Votos de Samir em 2022 / Eleitorado da seção ou local em 2026 × 100",
+            language=None
+        )
+        st.warning(
+            "Mudanças de cargo, seção, local de votação, comparecimento e contexto "
+            "eleitoral impedem tratar essa razão como previsão de votos."
+        )
+
+        cobertura_2026 = metadados_2026.get('coverage', {})
+        q1, q2, q3, q4 = st.columns(4)
+        q1.metric("Municípios", inteiro_pt(cobertura_2026.get('municipalities', 0)))
+        q2.metric("Locais", inteiro_pt(cobertura_2026.get('locations', 0)))
+        q3.metric("Seções", inteiro_pt(cobertura_2026.get('sections', 0)))
+        q4.metric(
+            "Coordenadas Válidas",
+            percentual_pt(cobertura_2026.get('valid_coordinates_pct', 0))
+        )
+
+        fonte_tse = metadados_2026.get('source', {}).get('tse_dataset', '')
+        fonte_tre = metadados_2026.get('source', {}).get('tre_reference', '')
+        st.markdown(
+            f"**Fontes oficiais:** [Portal de Dados Abertos do TSE]({fonte_tse}) "
+            f"e [referência pública do TRE-AC]({fonte_tre})."
+        )
+        st.download_button(
+            "Baixar registro metodológico",
+            data=json.dumps(
+                metadados_2026, ensure_ascii=False, indent=2
+            ).encode('utf-8'),
+            file_name='metadados_cenario_2026.json',
+            mime='application/json'
         )
