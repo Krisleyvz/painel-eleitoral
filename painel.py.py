@@ -15,6 +15,25 @@ from google.oauth2.service_account import Credentials
 # 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Análise Territorial", page_icon="🎯", layout="wide")
 
+
+# ==========================================
+# PADRÃO RESPONSIVO PARA GRÁFICOS E LEGENDAS
+# ==========================================
+def exibir_grafico_altair(grafico):
+    """Exibe gráficos com legendas completas, abaixo da área de plotagem."""
+    grafico_responsivo = grafico.configure_legend(
+        orient="bottom",
+        direction="horizontal",
+        columns=2,
+        labelLimit=0,
+        titleLimit=0,
+        columnPadding=24,
+        rowPadding=8,
+        offset=12,
+        padding=8
+    )
+    st.altair_chart(grafico_responsivo, use_container_width=True)
+
 # ==========================================
 # SISTEMA DE LOGIN E SEGURANÇA
 # ==========================================
@@ -962,7 +981,7 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
         y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
         tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', title='Participação nos válidos (%)', format='.1f')]
     ).properties(height=altura_grafico)
-    st.altair_chart(grafico_barras, use_container_width=True)
+    exibir_grafico_altair(grafico_barras)
 
     if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
         top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Participação nos Válidos (%)']
@@ -998,7 +1017,7 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
             color=alt.Color('ESTRATEGIA:N', title='Faixa de desempenho', scale=alt.Scale(domain=['Alta votação histórica', 'Demais locais'], range=['#25D366', '#A7B0BE'])),
             tooltip=['NM_LOCAL_VOTACAO', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR']
         ).properties(height=450)
-        st.altair_chart(scatter, use_container_width=True)
+        exibir_grafico_altair(scatter)
     else:
         st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente.")
 
@@ -1049,7 +1068,7 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
 
         regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
         regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
-        st.altair_chart(scatter_matriz + regra_x + regra_y, use_container_width=True)
+        exibir_grafico_altair(scatter_matriz + regra_x + regra_y)
 
     st.markdown("---")
 
@@ -1068,7 +1087,7 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
 
         area = curva.mark_area(color='#E83E8C', opacity=0.2)
         linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
-        st.altair_chart(area + curva + linha_80, use_container_width=True)
+        exibir_grafico_altair(area + curva + linha_80)
 
     st.markdown("---")
 
@@ -1160,7 +1179,7 @@ elif menu_selecionado == "👥 2. Composição do Eleitorado":
                 color=alt.Color(field="DS_GENERO", type="nominal", scale=alt.Scale(domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'], range=['#E83E8C', '#1A73E8', '#808080'])),
                 tooltip=['DS_GENERO:N', 'VOTOS_ESTIMADOS_SAMIR:Q', 'Percentual:Q']
             ).properties(height=350)
-            st.altair_chart(grafico_genero, use_container_width=True)
+            exibir_grafico_altair(grafico_genero)
 
         with col_graf2:
             st.subheader("Faixa Etária do Eleitorado")
@@ -1172,7 +1191,7 @@ elif menu_selecionado == "👥 2. Composição do Eleitorado":
                 y=alt.Y('DS_FAIXA_ETARIA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
                 tooltip=['DS_FAIXA_ETARIA:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
             ).properties(height=altura_idade)
-            st.altair_chart(grafico_idade, use_container_width=True)
+            exibir_grafico_altair(grafico_idade)
 
         st.markdown("---")
         st.subheader("Grau de Instrução (Nível de Escolaridade)")
@@ -1185,7 +1204,7 @@ elif menu_selecionado == "👥 2. Composição do Eleitorado":
             y=alt.Y('DS_GRAU_ESCOLARIDADE:N', title=None, sort='-x', axis=alt.Axis(labelLimit=1000)),
             tooltip=['DS_GRAU_ESCOLARIDADE:N', alt.Tooltip('VOTOS_ESTIMADOS_SAMIR:Q', format=',')]
         ).properties(height=altura_escola)
-        st.altair_chart(grafico_escola, use_container_width=True)
+        exibir_grafico_altair(grafico_escola)
 
         st.markdown("---")
 
@@ -1237,7 +1256,7 @@ elif menu_selecionado == "👥 2. Composição do Eleitorado":
                         alt.Tooltip('QT_ELEITORES_PERFIL:Q', title='Total deste Perfil no Local', format=',')
                     ]
                 ).properties(height=max(400, len(radar_df) * 35))
-                st.altair_chart(grafico_radar, use_container_width=True)
+                exibir_grafico_altair(grafico_radar)
 
             # Renderiza o 1º Avatar
             if len(avatar_df) >= 1:
@@ -1320,7 +1339,7 @@ elif menu_selecionado == "🗺️ 3. Participação e Não Comparecimento":
                 alt.Tooltip('QT_APTOS:Q', title='Total de Aptos', format=',')
             ]
         ).properties(height=altura_ador)
-        st.altair_chart(grafico_ador, use_container_width=True)
+        exibir_grafico_altair(grafico_ador)
 
         st.markdown("#### 📋 Detalhamento da Participação")
         tabela_ador = ador_top[['NM_LOCAL_VOTACAO', 'VOTOS_ADORMECIDOS', 'QT_ABSTENCOES', 'QT_VOTOS_BRANCOS', 'QT_VOTOS_NULOS', 'QT_APTOS']]
@@ -1391,7 +1410,7 @@ elif menu_selecionado == "📋 4. Panorama da Concorrência":
                 alt.Tooltip('Share (%):Q', title='Participação (%)', format='.1f')
                 ]
             ).properties(height=altura_adv)
-            st.altair_chart(grafico_adv, use_container_width=True)
+            exibir_grafico_altair(grafico_adv)
 
             st.markdown("#### 📋 Concorrentes no local")
             tabela_adv = adversarios[['NM_VOTAVEL', 'QT_VOTOS', 'Share (%)']]
@@ -1463,7 +1482,7 @@ elif menu_selecionado == "🔗 5. Correlação territorial":
                             alt.Tooltip('Correlação de Pearson (r):Q', title='Correlação de Pearson', format='.2f')
                         ]
                     ).properties(height=altura_corr)
-                    st.altair_chart(grafico_corr, use_container_width=True)
+                    exibir_grafico_altair(grafico_corr)
 
                     corr_samir['Correlação de Pearson (r)'] = corr_samir['Correlação de Pearson (r)'].round(3)
                     st.dataframe(corr_samir, use_container_width=True)
@@ -1864,7 +1883,7 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
                 alt.Tooltip('CLASSIFICACAO_RURAL:N', title='Classificação')
             ]
         ).properties(height=max(450, len(ranking_rural) * 34))
-        st.altair_chart(grafico_rural, use_container_width=True)
+        exibir_grafico_altair(grafico_rural)
 
         colunas_ranking = (
             ['ANO_ELEICAO'] if serie_historica_rural else []
@@ -1953,7 +1972,7 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
                 )
             ]
         ).properties(height=420)
-        st.altair_chart(grafico_evolucao_rural, use_container_width=True)
+        exibir_grafico_altair(grafico_evolucao_rural)
     st.caption(
         "A comparação é descritiva. Mudanças de cargo, seções, eleitorado e contexto "
         "eleitoral podem afetar os resultados entre anos."
@@ -2163,7 +2182,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             ).properties(
                 height=max(360, len(ordem_municipios) * 27)
             )
-            st.altair_chart(grafico_municipios_2026, use_container_width=True)
+            exibir_grafico_altair(grafico_municipios_2026)
 
             resumo_dinamico = base_exibida_2026.groupby(
                 'NM_MUNICIPIO', as_index=False
@@ -2296,7 +2315,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             ).properties(
                 height=max(360, len(rural_municipal_2026) * 27)
             )
-            st.altair_chart(grafico_rural_2026, use_container_width=True)
+            exibir_grafico_altair(grafico_rural_2026)
 
             tabela_rural_2026 = rural_municipal_2026.rename(columns={
                 'NM_MUNICIPIO': 'Município',
@@ -2468,7 +2487,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                         )
                     ]
                 ).properties(height=520).interactive()
-                st.altair_chart(grafico_oportunidades, use_container_width=True)
+                exibir_grafico_altair(grafico_oportunidades)
                 st.caption(
                     f"Limites descritivos do filtro atual: mediana de "
                     f"{inteiro_pt(mediana_eleitores)} eleitores por local e "
@@ -2579,7 +2598,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                     alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
                 ]
             ).properties(height=180)
-            st.altair_chart(grafico_genero_2026, use_container_width=True)
+            exibir_grafico_altair(grafico_genero_2026)
 
             faixa_agrupada_2026 = demografia_filtrada_2026[
                 demografia_filtrada_2026['DIMENSAO'] == 'FAIXA ETÁRIA'
@@ -2610,7 +2629,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 ]
             ).properties(height=560)
             st.subheader("Faixa Etária")
-            st.altair_chart(grafico_faixa_2026, use_container_width=True)
+            exibir_grafico_altair(grafico_faixa_2026)
 
             escolaridade_agrupada_2026 = demografia_filtrada_2026[
                 demografia_filtrada_2026['DIMENSAO'] == 'ESCOLARIDADE'
@@ -2628,7 +2647,7 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 ]
             ).properties(height=330)
             st.subheader("Escolaridade")
-            st.altair_chart(grafico_escolaridade_2026, use_container_width=True)
+            exibir_grafico_altair(grafico_escolaridade_2026)
 
     with aba_metodologia:
         st.subheader("Metodologia, Fontes e Limitações")
