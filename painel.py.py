@@ -11,6 +11,7 @@ from datetime import datetime
 import pytz
 import gspread
 from google.oauth2.service_account import Credentials
+from PIL import Image, ImageChops
 
 # 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Análise Territorial", page_icon="🎯", layout="wide")
@@ -137,15 +138,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# Insere a logo da campanha
-col_logo1, col_logo2, col_logo3 = st.columns([3, 2, 3])
-with col_logo2:
-    try:
-        st.image("IMG_6008.PNG", use_container_width=True)
-    except:
-        st.markdown("<h3 style='text-align: center;'>🎯 Painel Eleitoral</h3>", unsafe_allow_html=True)
-st.markdown("---")
 
 # ==========================================
 # CARREGAMENTO DOS DADOS E INTEGRAÇÃO DE ZONAS
@@ -812,10 +804,43 @@ dados_concorrencia = carregar_concorrencia(dados)
 # ==========================================
 # 3. BARRA LATERAL (MENUS E FILTROS)
 # ==========================================
+
+# A imagem original da marca tem grandes margens pretas. O recorte acontece
+# somente em memória, sem alterar o arquivo usado pelo restante do projeto.
+def carregar_logo_sidebar(caminho):
+    imagem = Image.open(caminho).convert("RGB")
+    fundo_preto = Image.new("RGB", imagem.size, (0, 0, 0))
+    diferenca = ImageChops.difference(imagem, fundo_preto).convert("L")
+    caixa_conteudo = diferenca.point(lambda pixel: 255 if pixel > 18 else 0).getbbox()
+
+    if not caixa_conteudo:
+        return imagem
+
+    esquerda, superior, direita, inferior = caixa_conteudo
+    margem_x = max(24, int((direita - esquerda) * 0.04))
+    margem_y = max(18, int((inferior - superior) * 0.10))
+
+    return imagem.crop((
+        max(0, esquerda - margem_x),
+        max(0, superior - margem_y),
+        min(imagem.width, direita + margem_x),
+        min(imagem.height, inferior + margem_y),
+    ))
+
+
+try:
+    logo_sidebar = carregar_logo_sidebar("IMG_6008.PNG")
+    st.sidebar.image(logo_sidebar, use_container_width=True)
+except Exception:
+    st.sidebar.markdown(
+        "<h3 style='text-align: center;'>SAMIR BESTENE</h3>",
+        unsafe_allow_html=True,
+    )
+
 try:
     st.sidebar.image("IMG_3571.PNG", use_container_width=True)
-except:
-    pass 
+except Exception:
+    pass
 
 st.sidebar.header("🧭 Navegação do Sistema")
 rotas_menu = {
