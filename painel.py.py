@@ -11,7 +11,7 @@ from datetime import datetime
 import pytz
 import gspread
 from google.oauth2.service_account import Credentials
-from PIL import Image, ImageChops
+from PIL import Image
 
 # 1. Configuração da Página
 st.set_page_config(page_title="Painel Executivo | Análise Territorial", page_icon="🎯", layout="wide")
@@ -805,26 +805,34 @@ dados_concorrencia = carregar_concorrencia(dados)
 # 3. BARRA LATERAL (MENUS E FILTROS)
 # ==========================================
 
-# A imagem original da marca tem grandes margens pretas. O recorte acontece
-# somente em memória, sem alterar o arquivo usado pelo restante do projeto.
+# A imagem original da marca tem grandes margens e fundo preto. O tratamento
+# acontece somente em memória: o preto fica transparente e o arquivo original
+# não é alterado.
 def carregar_logo_sidebar(caminho):
-    imagem = Image.open(caminho).convert("RGB")
-    fundo_preto = Image.new("RGB", imagem.size, (0, 0, 0))
-    diferenca = ImageChops.difference(imagem, fundo_preto).convert("L")
-    caixa_conteudo = diferenca.point(lambda pixel: 255 if pixel > 18 else 0).getbbox()
+    imagem = Image.open(caminho).convert("RGBA")
+    luminosidade = imagem.convert("L")
+
+    # A marca é branca sobre preto. Usar a luminosidade como transparência
+    # remove o retângulo preto e preserva as bordas suavizadas das letras.
+    transparencia = luminosidade.point(lambda pixel: 0 if pixel < 12 else pixel)
+    logo_transparente = Image.new("RGBA", imagem.size, (255, 255, 255, 0))
+    logo_transparente.putalpha(transparencia)
+    caixa_conteudo = transparencia.point(
+        lambda pixel: 255 if pixel > 18 else 0
+    ).getbbox()
 
     if not caixa_conteudo:
-        return imagem
+        return logo_transparente
 
     esquerda, superior, direita, inferior = caixa_conteudo
     margem_x = max(24, int((direita - esquerda) * 0.04))
     margem_y = max(18, int((inferior - superior) * 0.10))
 
-    return imagem.crop((
+    return logo_transparente.crop((
         max(0, esquerda - margem_x),
         max(0, superior - margem_y),
-        min(imagem.width, direita + margem_x),
-        min(imagem.height, inferior + margem_y),
+        min(logo_transparente.width, direita + margem_x),
+        min(logo_transparente.height, inferior + margem_y),
     ))
 
 
