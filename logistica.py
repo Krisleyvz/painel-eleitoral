@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import html
+import json
 import math
 import re
 import unicodedata
@@ -13,7 +14,7 @@ import gspread
 import pandas as pd
 import streamlit as st
 from google.oauth2.service_account import Credentials
-from gspread.exceptions import CellNotFound, WorksheetNotFound
+from gspread.exceptions import WorksheetNotFound
 from PIL import Image
 
 
@@ -27,10 +28,11 @@ st.set_page_config(
 )
 
 SPREADSHEET_ID = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
-ABA_RESPOSTAS = "Form_Responses"
+ABA_RESPOSTAS = "Samir Bestene - Apoiadores (Respostas)"
 ABA_CONTROLE = "Controle_Entregas"
-ABA_LOGS = "Logs_Logistica"
+ABA_LOGS_ACESSO = "Logs_Acesso"
 ARQUIVO_LOGO = "IMG_6008.PNG"
+VERSAO_APP = "2026.08.05-CORRECAO-IMPORT"
 FUSO_ACRE = ZoneInfo("America/Rio_Branco")
 
 # Para acrescentar outro motorista, inclua o nome nesta lista.
@@ -84,12 +86,7 @@ COLUNAS_CONTROLE = [
     "USUARIO",
 ]
 
-COLUNAS_LOG = [
-    "DATA_HORA",
-    "USUARIO",
-    "EVENTO",
-    "MOTORISTA",
-]
+CABECALHO_LOGS_ACESSO = ["USUARIO", "DATA", "HORA"]
 
 
 # =========================================================
@@ -510,10 +507,33 @@ def abrir_planilha():
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
     ]
-    credenciais = Credentials.from_service_account_info(
-        dict(st.secrets["gcp_service_account"]),
-        scopes=escopos,
-    )
+    try:
+        if "gcp_json" in st.secrets:
+            valor_gcp = st.secrets["gcp_json"]
+            if not isinstance(valor_gcp, str):
+                raise RuntimeError("O Secret `gcp_json` precisa ser um texto JSON.")
+            informacoes = json.loads(valor_gcp)
+        elif "gcp_service_account" in st.secrets:
+            # Compatibilidade com o formato em seção TOML.
+            informacoes = dict(st.secrets["gcp_service_account"])
+        else:
+            raise RuntimeError(
+                "Não foi encontrado `gcp_json` nem `[gcp_service_account]` nos Secrets."
+            )
+    except json.JSONDecodeError as erro:
+        raise RuntimeError(
+            "O conteúdo de `gcp_json` não é um JSON válido. "
+            "Substitua-o pelo conteúdo integral da nova chave da conta de serviço."
+        ) from erro
+
+    if not isinstance(informacoes, dict):
+        raise RuntimeError("A credencial do Google precisa ser um objeto JSON.")
+
+    chave_privada = informacoes.get("private_key")
+    if isinstance(chave_privada, str) and "\\n" in chave_privada:
+        informacoes["private_key"] = chave_privada.replace("\\n", "\n")
+
+    credenciais = Credentials.from_service_account_info(informacoes, scopes=escopos)
     cliente = gspread.authorize(credenciais)
     return cliente.open_by_key(SPREADSHEET_ID)
 
@@ -565,20 +585,35 @@ def carregar_controle():
     return pd.DataFrame(valores[1:], columns=COLUNAS_CONTROLE)
 
 
-def registrar_log(usuario, evento, motorista=""):
+def registrar_acesso(usuario):
+    """Acrescenta o acesso ao Logs_Acesso sem mudar seu cabeçalho A:C."""
     try:
-        aba = obter_ou_criar_aba(ABA_LOGS, COLUNAS_LOG, linhas=1500)
+        aba = abrir_planilha().worksheet(ABA_LOGS_ACESSO)
+        cabecalho_atual = [
+            normalizar_texto(valor)
+            for valor in aba.row_values(1)[:3]
+        ]
+        if cabecalho_atual != CABECALHO_LOGS_ACESSO:
+            raise RuntimeError(
+                f"A aba `{ABA_LOGS_ACESSO}` deve começar com "
+                "`Usuário`, `Data` e `Hora`, nessa ordem."
+            )
+
+        agora = agora_acre()
+        motorista = MOTORISTA_POR_USUARIO.get(usuario)
+        identificacao = motorista or texto_limpo(usuario)
+        identificacao = f"{identificacao} (Logística)"
         aba.append_row(
             [
-                agora_acre().strftime("%d/%m/%Y %H:%M:%S"),
-                texto_limpo(usuario),
-                texto_limpo(evento),
-                texto_limpo(motorista),
+                identificacao,
+                agora.strftime("%d/%m/%Y"),
+                agora.strftime("%H:%M:%S"),
             ],
             value_input_option="RAW",
         )
     except Exception as erro:
-        print(f"Falha ao registrar log de logística: {erro}")
+        # Uma falha no log não deve bloquear o trabalho do motorista.
+        print(f"Falha ao registrar acesso da logística: {erro}")
 
 
 def salvar_status(row, novo_status, observacao, motorista, usuario):
@@ -603,21 +638,9 @@ def salvar_status(row, novo_status, observacao, motorista, usuario):
         usuario,
     ]
 
-    try:
-        celula = aba.find(id_entrega, in_column=1)
-    except CellNotFound:
-        celula = None
-    if celula:
-        linha = celula.row
-        aba.update(
-            range_name=f"A{linha}:L{linha}",
-            values=[valores],
-            value_input_option="RAW",
-        )
-    else:
-        aba.append_row(valores, value_input_option="RAW")
-
-    registrar_log(usuario, f"STATUS {novo_status} — {id_entrega}", motorista)
+    # O controle é histórico: cada mudança gera uma nova linha. Na leitura,
+    # o aplicativo usa a última linha de cada ID como situação atual.
+    aba.append_row(valores, value_input_option="RAW")
     carregar_controle.clear()
 
 
@@ -667,7 +690,7 @@ def verificar_login():
         if usuario in senhas and hmac.compare_digest(senha, senha_cadastrada):
             st.session_state["autenticado_logistica"] = True
             st.session_state["usuario_logistica"] = usuario
-            registrar_log(usuario, "LOGIN")
+            registrar_acesso(usuario)
             st.rerun()
         else:
             st.error("Usuário ou senha incorretos.")
@@ -675,8 +698,6 @@ def verificar_login():
 
 
 def encerrar_sessao():
-    usuario = st.session_state.get("usuario_logistica", "")
-    registrar_log(usuario, "LOGOUT")
     for chave in [
         "autenticado_logistica",
         "usuario_logistica",
@@ -1295,3 +1316,4 @@ st.caption(
     "Os dados pessoais desta ferramenta devem ser utilizados exclusivamente pela "
     "equipe autorizada para cumprir as solicitações registradas."
 )
+st.caption(f"Versão do aplicativo: {VERSAO_APP}")
