@@ -32,7 +32,7 @@ ABA_RESPOSTAS = "Samir Bestene - Apoiadores (Respostas)"
 ABA_CONTROLE = "Controle_Entregas"
 ABA_LOGS_ACESSO = "Logs_Acesso"
 ARQUIVO_LOGO = "IMG_6008.PNG"
-VERSAO_APP = "2026.08.05-CORRECAO-IMPORT"
+VERSAO_APP = "2026.08.05-LAYOUT-ABAS"
 FUSO_ACRE = ZoneInfo("America/Rio_Branco")
 
 # Para acrescentar outro motorista, inclua o nome nesta lista.
@@ -101,7 +101,7 @@ st.markdown(
 
         [data-testid="stMainBlockContainer"] {
             max-width: 780px;
-            padding-top: 0.8rem;
+            padding-top: 4.25rem !important;
             padding-bottom: 3rem;
         }
 
@@ -191,10 +191,38 @@ st.markdown(
         .cabecalho-operacao span { color: #B8C8D9; }
 
         .stButton > button,
+        [data-testid="stDownloadButton"] button,
         [data-testid="stLinkButton"] a {
             min-height: 44px;
             border-radius: 9px !important;
             font-weight: 700 !important;
+        }
+
+        .stButton > button,
+        [data-testid="stDownloadButton"] button {
+            background: #1769C2 !important;
+            border: 1px solid #4B8ED6 !important;
+            color: #FFFFFF !important;
+        }
+
+        .stButton > button p,
+        .stButton > button span,
+        [data-testid="stDownloadButton"] button p,
+        [data-testid="stDownloadButton"] button span {
+            color: #FFFFFF !important;
+        }
+
+        .stButton > button:hover,
+        [data-testid="stDownloadButton"] button:hover {
+            background: #2080E5 !important;
+            border-color: #7DB4EE !important;
+        }
+
+        .stButton > button:disabled,
+        [data-testid="stDownloadButton"] button:disabled {
+            background: #334E68 !important;
+            border-color: #526B82 !important;
+            opacity: 0.72;
         }
 
         .botao-link-acao {
@@ -236,7 +264,7 @@ st.markdown(
             [data-testid="stMainBlockContainer"] {
                 padding-left: 0.75rem;
                 padding-right: 0.75rem;
-                padding-top: 0.35rem;
+                padding-top: 4rem !important;
             }
 
             h1 { font-size: 1.65rem !important; }
@@ -563,9 +591,42 @@ def obter_ou_criar_aba(nome, cabecalho, linhas=3000):
     return aba
 
 
+def normalizar_titulo_aba(titulo):
+    titulo = normalizar_texto(titulo)
+    return re.sub(r"[^A-Z0-9]+", " ", titulo).strip()
+
+
+def localizar_aba_respostas():
+    """Localiza a aba mesmo com variações de espaços, hífen ou nome antigo."""
+    planilha = abrir_planilha()
+    abas = planilha.worksheets()
+    por_titulo = {normalizar_titulo_aba(aba.title): aba for aba in abas}
+
+    candidatos = [
+        ABA_RESPOSTAS,
+        "Samir Bestene – Apoiadores (Respostas)",
+        "Form_Responses",
+        "Form Responses",
+    ]
+    for candidato in candidatos:
+        encontrada = por_titulo.get(normalizar_titulo_aba(candidato))
+        if encontrada:
+            return encontrada
+
+    for titulo_normalizado, aba in por_titulo.items():
+        if "APOIADORES" in titulo_normalizado and "RESPOSTAS" in titulo_normalizado:
+            return aba
+
+    titulos = ", ".join(aba.title for aba in abas) or "nenhuma aba visível"
+    raise RuntimeError(
+        "A aba de respostas não foi encontrada. "
+        f"Abas visíveis para a conta de serviço: {titulos}."
+    )
+
+
 @st.cache_data(ttl=120, show_spinner=False)
 def carregar_respostas():
-    aba = abrir_planilha().worksheet(ABA_RESPOSTAS)
+    aba = localizar_aba_respostas()
     valores = aba.get_all_values()
     if len(valores) < 2:
         return pd.DataFrame()
@@ -914,6 +975,37 @@ def criar_manifesto(df):
     return manifesto.to_csv(index=False).encode("utf-8-sig")
 
 
+def diagnosticar_erro_operacao(erro):
+    tipo = type(erro).__name__
+    detalhe = texto_limpo(erro)
+    busca = normalizar_texto(f"{tipo} {detalhe}")
+
+    if "SPREADSHEETNOTFOUND" in busca or "PERMISSION DENIED" in busca or "403" in busca:
+        return (
+            "A conta de serviço não conseguiu acessar ou editar a planilha.",
+            "Compartilhe a planilha com o `client_email` da nova chave como Editor.",
+        )
+    if "ABA DE RESPOSTAS NAO FOI ENCONTRADA" in busca:
+        return (
+            "A planilha abriu, mas a aba de respostas não foi localizada.",
+            "Abra os detalhes técnicos: a lista de abas visíveis mostrará o nome reconhecido.",
+        )
+    if "CABECALHO FOI ALTERADO" in busca:
+        return (
+            "A aba Controle_Entregas existe com um cabeçalho diferente do esperado.",
+            "Não apague a aba. Abra os detalhes técnicos e confira qual cabeçalho precisa ser restaurado.",
+        )
+    if "GCP_JSON" in busca or "CREDENCIAL" in busca or "PRIVATE KEY" in busca:
+        return (
+            "A credencial salva nos Secrets não pôde ser interpretada.",
+            "Gere novamente o TOML com o conversor offline e substitua o conteúdo dos Secrets.",
+        )
+    return (
+        "Não foi possível concluir a leitura da operação de logística.",
+        "Abra os detalhes técnicos abaixo e informe somente o nome e a mensagem do erro; não envie credenciais.",
+    )
+
+
 # =========================================================
 # APLICAÇÃO
 # =========================================================
@@ -926,6 +1018,7 @@ usuario_logado = st.session_state.get("usuario_logistica", "")
 motorista_padrao = MOTORISTA_POR_USUARIO.get(usuario_logado)
 
 st.markdown("## 📦 Operação de Entrega de Materiais")
+st.caption(f"Versão do aplicativo: {VERSAO_APP}")
 
 if motorista_padrao:
     motorista = motorista_padrao
@@ -965,12 +1058,11 @@ try:
             controle,
         )
 except Exception as erro:
-    st.error(
-        "Não foi possível abrir a operação de logística. Confira os Secrets, "
-        "o compartilhamento da planilha e os nomes das abas."
-    )
+    mensagem_erro, orientacao_erro = diagnosticar_erro_operacao(erro)
+    st.error(mensagem_erro)
+    st.warning(orientacao_erro)
     with st.expander("Detalhes técnicos"):
-        st.code(str(erro))
+        st.code(f"{type(erro).__name__}: {erro}")
     st.stop()
 
 if colunas_faltantes:
@@ -1316,4 +1408,3 @@ st.caption(
     "Os dados pessoais desta ferramenta devem ser utilizados exclusivamente pela "
     "equipe autorizada para cumprir as solicitações registradas."
 )
-st.caption(f"Versão do aplicativo: {VERSAO_APP}")
