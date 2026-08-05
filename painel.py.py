@@ -20,9 +20,16 @@ st.set_page_config(page_title="Painel Executivo | Análise Territorial", page_ic
 # ==========================================
 # PADRÃO RESPONSIVO PARA GRÁFICOS E LEGENDAS
 # ==========================================
-def exibir_grafico_altair(grafico):
-    """Exibe gráficos com legendas completas, abaixo da área de plotagem."""
-    grafico_responsivo = grafico.configure_legend(
+def exibir_acao_pratica(texto):
+    """Traduz a leitura do dado em uma orientação operacional curta."""
+    st.info(f"🎯 **Ação prática indicada:** {texto}")
+
+
+def exibir_grafico_altair(grafico, acao_pratica=None):
+    """Exibe gráficos sem cortar rótulos e, quando informado, orienta a ação."""
+    grafico_responsivo = grafico.configure_axis(
+        labelLimit=0
+    ).configure_legend(
         orient="bottom",
         direction="horizontal",
         columns=2,
@@ -34,6 +41,8 @@ def exibir_grafico_altair(grafico):
         padding=8
     )
     st.altair_chart(grafico_responsivo, use_container_width=True)
+    if acao_pratica:
+        exibir_acao_pratica(acao_pratica)
 
 
 def exibir_metodologia_modulo(arquivos, metodo, limitacoes):
@@ -852,13 +861,12 @@ except Exception:
 
 st.sidebar.header("🧭 Navegação do Sistema")
 rotas_menu = {
-    "📊 1. Desempenho Territorial": "📊 1. Desempenho Eleitoral por Território",
-    "👥 2. Perfil do Eleitorado": "👥 2. Composição do Eleitorado",
-    "🗺️ 3. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
-    "📋 4. Concorrência": "📋 4. Panorama da Concorrência",
-    "🔗 5. Correlação Territorial": "🔗 5. Correlação territorial",
-    "🚜 6. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
-    "🗳️ 7. Cenário Eleitoral 2026": "🗳️ 7. Cenário Eleitoral 2026",
+    "📊 1. Território e Eleitorado": "📊 1. Desempenho Eleitoral por Território",
+    "🗺️ 2. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
+    "📋 3. Concorrência": "📋 4. Panorama da Concorrência",
+    "🔗 4. Correlação Territorial": "🔗 5. Correlação territorial",
+    "🚜 5. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
+    "🗳️ 6. Cenário 2026": "🗳️ 7. Cenário Eleitoral 2026",
 }
 opcao_menu = st.sidebar.radio(
     "Selecione o Painel Desejado:",
@@ -963,14 +971,15 @@ else:
 # ROTA 1: DESEMPENHO ELEITORAL POR TERRITÓRIO
 # ==========================================
 if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
-    st.title(f"📊 Desempenho Eleitoral por Território - {label_periodo}")
+    st.title(f"📊 Território e Eleitorado - {label_periodo}")
 
     st.info("""
     **Como interpretar este módulo**
 
-    Os gráficos descrevem a distribuição histórica dos votos por local de votação.
-    Comparações entre anos devem considerar possíveis mudanças de cargo, eleitorado
-    e contexto da eleição.
+    Este painel reúne desempenho histórico e perfil agregado do eleitorado para
+    responder duas perguntas complementares: **onde há presença eleitoral** e
+    **como é composto o território**. Comparações entre anos devem considerar
+    mudanças de cargo, eleitorado e contexto da eleição.
     """)
 
     if ano_selecionado == 'Todos os Anos (Série Histórica)':
@@ -994,18 +1003,24 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     col1, col2 = st.columns(2)
     col1.metric(label=f"Total de Votos ({label_periodo})", value=f"{total_votos:,}".replace(",", "."))
     col2.metric(label="Locais de Votação Mapeados", value=total_escolas)
+    exibir_acao_pratica(
+        "Use o total como referência de escala e os locais mapeados como cobertura; "
+        "a prioridade deve nascer do cruzamento entre volume, participação, perfil e logística."
+    )
 
     texto_top = "Todos os Locais" if mostrar_todas else f"Top {limite_ranking}"
     (
         aba_desempenho_visao,
         aba_desempenho_evolucao,
         aba_desempenho_territorio,
+        aba_desempenho_perfil,
         aba_desempenho_metas,
         aba_desempenho_metodologia,
     ) = st.tabs([
         "Visão Geral",
         "Evolução Histórica",
         "Leitura Territorial",
+        "Perfil do Eleitorado",
         "Metas de Referência",
         "Metodologia",
     ])
@@ -1021,6 +1036,10 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     
         if not dados_mapa.empty:
             st.map(dados_mapa, latitude='lat', longitude='lon')
+            exibir_acao_pratica(
+                "Use o mapa para organizar rotas de presença, agrupando locais "
+                "próximos na mesma agenda e conferindo os endereços antes da visita."
+            )
         else:
             st.info("Nenhum dado geográfico disponível para os filtros selecionados.")
     
@@ -1048,7 +1067,11 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
             y=alt.Y('NM_LOCAL_VOTACAO:N', sort='-x', title=None, axis=alt.Axis(labelLimit=1000, labelOverlap=False)),
             tooltip=['NM_LOCAL_VOTACAO:N', 'QT_VOTOS_SAMIR:Q', alt.Tooltip('MARKET_SHARE:Q', title='Participação nos válidos (%)', format='.1f')]
         ).properties(height=altura_grafico)
-        exibir_grafico_altair(grafico_barras)
+        exibir_grafico_altair(
+            grafico_barras,
+            "Proteja os locais de maior votação histórica com presença recorrente "
+            "e identifique, entre os locais grandes, onde a participação ainda é baixa."
+        )
     
         if 'QT_VOTOS_VALIDOS_SECAO' in top_escolas.columns:
             top_escolas.columns = ['Local de Votação', 'Votos Obtidos', 'Votos Válidos Totais', 'Participação nos Válidos (%)']
@@ -1064,6 +1087,10 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
             if ano_recente in tabela_comparativa.columns:
                 tabela_comparativa = tabela_comparativa.sort_values(by=ano_recente, ascending=False).head(limite_ranking)
             st.dataframe(tabela_comparativa, use_container_width=True)
+            exibir_acao_pratica(
+                "Separe os locais em crescimento, estabilidade e retração; investigue "
+                "com lideranças locais o que mudou antes de definir prioridade."
+            )
         else:
             st.info("ℹ️ A base de dados atual possui apenas um ano eleitoral registrado.")
     
@@ -1082,7 +1109,12 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
                 color=alt.Color('ESTRATEGIA:N', title='Faixa de desempenho', scale=alt.Scale(domain=['Alta votação histórica', 'Demais locais'], range=['#25D366', '#A7B0BE'])),
                 tooltip=['NM_LOCAL_VOTACAO', 'VOTOS_EM_DISPUTA', 'QT_VOTOS_SAMIR']
             ).properties(height=450)
-            exibir_grafico_altair(scatter)
+            exibir_grafico_altair(
+                scatter,
+                "Nos locais com grande volume de votos válidos e baixa presença "
+                "histórica, faça primeiro escuta e reconhecimento de lideranças; "
+                "nos redutos, concentre mobilização e retenção."
+            )
         else:
             st.warning("A coluna 'QT_VOTOS_VALIDOS_SECAO' não está presente.")
     
@@ -1133,7 +1165,12 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     
             regra_x = alt.Chart(pd.DataFrame({'x': [media_tamanho]})).mark_rule(strokeDash=[5, 5], color='gray').encode(x='x:Q')
             regra_y = alt.Chart(pd.DataFrame({'y': [media_votos]})).mark_rule(strokeDash=[5, 5], color='gray').encode(y='y:Q')
-            exibir_grafico_altair(scatter_matriz + regra_x + regra_y)
+            exibir_grafico_altair(
+                scatter_matriz + regra_x + regra_y,
+                "Transforme os quadrantes em quatro agendas: defender bases fortes, "
+                "expandir em locais grandes de baixa penetração, manter presença nos "
+                "locais menores fortes e monitorar os demais."
+            )
     
     with aba_desempenho_evolucao:
         st.subheader("📈 Concentração dos Votos Históricos por Local")
@@ -1151,8 +1188,346 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     
             area = curva.mark_area(color='#E83E8C', opacity=0.2)
             linha_80 = alt.Chart(pd.DataFrame({'y': [80]})).mark_rule(strokeDash=[5, 5], color='red', strokeWidth=2).encode(y='y:Q')
-            exibir_grafico_altair(area + curva + linha_80)
+            exibir_grafico_altair(
+                area + curva + linha_80,
+                "Calcule quantos locais concentram cerca de 80% do histórico e "
+                "garanta cobertura mínima neles, sem abandonar a expansão territorial."
+            )
     
+    with aba_desempenho_perfil:
+        st.subheader("👥 Perfil estimado do eleitorado")
+        st.info("""
+        Esta seção combina a composição agregada do eleitorado do TSE com a
+        participação histórica do candidato em cada local. Os resultados são
+        estimativas proporcionais: não identificam pessoas e não comprovam o
+        perfil de quem votou no candidato.
+        """)
+
+        if dados_demo.empty:
+            st.error(
+                "⚠️ A base `base_demografica_ac.zip` não foi encontrada. "
+                "As demais análises territoriais continuam funcionando."
+            )
+        else:
+            df_demo_macro = dados_demo.copy()
+            if ano_selecionado != 'Todos os Anos (Série Histórica)':
+                df_demo_macro = df_demo_macro[
+                    df_demo_macro['ANO_ELEICAO'] == int(ano_selecionado)
+                ]
+            if col_municipio and municipios_selecionados:
+                if 'NM_MUNICIPIO_x' in df_demo_macro.columns:
+                    df_demo_macro = df_demo_macro[
+                        df_demo_macro['NM_MUNICIPIO_x'].isin(municipios_selecionados) |
+                        df_demo_macro['NM_MUNICIPIO_y'].isin(municipios_selecionados)
+                    ]
+                elif 'NM_MUNICIPIO' in df_demo_macro.columns:
+                    df_demo_macro = df_demo_macro[
+                        df_demo_macro['NM_MUNICIPIO'].isin(municipios_selecionados)
+                    ]
+
+            df_demo_filtrado = df_demo_macro.copy()
+            escolas_tse = ["Visão Macro (Todas as Selecionadas)"] + sorted(
+                df_demo_filtrado['NM_LOCAL_VOTACAO'].dropna().unique().tolist()
+            )
+            escola_alvo_perfil = st.selectbox(
+                "Aprofundar a análise em um local de votação:",
+                escolas_tse,
+                key="perfil_local_integrado"
+            )
+
+            if escola_alvo_perfil != "Visão Macro (Todas as Selecionadas)":
+                df_demo_filtrado = df_demo_filtrado[
+                    df_demo_filtrado['NM_LOCAL_VOTACAO'] == escola_alvo_perfil
+                ]
+                st.markdown(f"**Local analisado:** {escola_alvo_perfil}")
+            else:
+                st.markdown(f"**Recorte analisado:** {texto_local}")
+
+            total_votos_estimados = df_demo_filtrado[
+                'VOTOS_ESTIMADOS_SAMIR'
+            ].sum()
+            st.metric(
+                "Votos históricos distribuídos proporcionalmente no perfil",
+                f"{int(total_votos_estimados):,}".replace(',', '.')
+            )
+            exibir_acao_pratica(
+                "Use o perfil dominante para adaptar linguagem, exemplos e canais "
+                "de comunicação no território selecionado; valide a hipótese em "
+                "reuniões e escutas antes de ampliar a ação."
+            )
+
+            (
+                aba_perfil_geral_integrado,
+                aba_perfil_escolaridade_integrado,
+                aba_perfil_territorial_integrado,
+                aba_perfil_metodologia_integrado,
+            ) = st.tabs([
+                "Perfil Geral",
+                "Escolaridade",
+                "Perfis Territoriais",
+                "Metodologia",
+            ])
+
+            with aba_perfil_geral_integrado:
+                col_graf1, col_graf2 = st.columns(2)
+                with col_graf1:
+                    st.subheader("Distribuição por gênero")
+                    df_genero = df_demo_filtrado.groupby(
+                        'DS_GENERO', as_index=False
+                    )['VOTOS_ESTIMADOS_SAMIR'].sum()
+                    df_genero['VOTOS_ESTIMADOS_SAMIR'] = df_genero[
+                        'VOTOS_ESTIMADOS_SAMIR'
+                    ].astype(int)
+                    df_genero['Percentual'] = np.where(
+                        total_votos_estimados > 0,
+                        df_genero['VOTOS_ESTIMADOS_SAMIR'] /
+                        total_votos_estimados * 100,
+                        0
+                    )
+                    grafico_genero = alt.Chart(df_genero).mark_arc(
+                        innerRadius=65
+                    ).encode(
+                        theta=alt.Theta(
+                            field="VOTOS_ESTIMADOS_SAMIR",
+                            type="quantitative"
+                        ),
+                        color=alt.Color(
+                            field="DS_GENERO",
+                            type="nominal",
+                            title="Gênero",
+                            scale=alt.Scale(
+                                domain=['FEMININO', 'MASCULINO', 'NÃO INFORMADO'],
+                                range=['#E83E8C', '#1A73E8', '#808080']
+                            )
+                        ),
+                        tooltip=[
+                            alt.Tooltip('DS_GENERO:N', title='Gênero'),
+                            alt.Tooltip(
+                                'VOTOS_ESTIMADOS_SAMIR:Q',
+                                title='Estimativa proporcional',
+                                format=','
+                            ),
+                            alt.Tooltip(
+                                'Percentual:Q',
+                                title='Participação (%)',
+                                format='.1f'
+                            )
+                        ]
+                    ).properties(height=350)
+                    exibir_grafico_altair(
+                        grafico_genero,
+                        "Planeje abordagens inclusivas e compare a presença dos "
+                        "grupos com a composição real do território, sem presumir "
+                        "preferência eleitoral individual."
+                    )
+
+                with col_graf2:
+                    st.subheader("Faixa etária do eleitorado")
+                    df_idade = df_demo_filtrado.groupby(
+                        'DS_FAIXA_ETARIA', as_index=False
+                    )['VOTOS_ESTIMADOS_SAMIR'].sum()
+                    df_idade['VOTOS_ESTIMADOS_SAMIR'] = df_idade[
+                        'VOTOS_ESTIMADOS_SAMIR'
+                    ].astype(int)
+                    altura_idade = max(350, len(df_idade) * 28)
+                    grafico_idade = alt.Chart(df_idade).mark_bar(
+                        color="#0A1C2E"
+                    ).encode(
+                        x=alt.X(
+                            'VOTOS_ESTIMADOS_SAMIR:Q',
+                            title='Estimativa proporcional',
+                            axis=alt.Axis(format='d')
+                        ),
+                        y=alt.Y(
+                            'DS_FAIXA_ETARIA:N',
+                            title=None,
+                            sort='-x',
+                            axis=alt.Axis(labelLimit=0)
+                        ),
+                        tooltip=[
+                            alt.Tooltip('DS_FAIXA_ETARIA:N', title='Faixa etária'),
+                            alt.Tooltip(
+                                'VOTOS_ESTIMADOS_SAMIR:Q',
+                                title='Estimativa proporcional',
+                                format=','
+                            )
+                        ]
+                    ).properties(height=altura_idade)
+                    exibir_grafico_altair(
+                        grafico_idade,
+                        "Priorize formatos compatíveis com as faixas mais presentes: "
+                        "escuta presencial e serviços para públicos maduros; esporte, "
+                        "trabalho e conteúdo digital quando houver maior presença jovem."
+                    )
+
+            with aba_perfil_escolaridade_integrado:
+                st.subheader("Grau de instrução")
+                df_escola = df_demo_filtrado.groupby(
+                    'DS_GRAU_ESCOLARIDADE', as_index=False
+                )['VOTOS_ESTIMADOS_SAMIR'].sum()
+                df_escola['VOTOS_ESTIMADOS_SAMIR'] = df_escola[
+                    'VOTOS_ESTIMADOS_SAMIR'
+                ].astype(int)
+                altura_escola = max(350, len(df_escola) * 28)
+                grafico_escola = alt.Chart(df_escola).mark_bar(
+                    color="#1A73E8"
+                ).encode(
+                    x=alt.X(
+                        'VOTOS_ESTIMADOS_SAMIR:Q',
+                        title='Estimativa proporcional',
+                        axis=alt.Axis(format='d')
+                    ),
+                    y=alt.Y(
+                        'DS_GRAU_ESCOLARIDADE:N',
+                        title=None,
+                        sort='-x',
+                        axis=alt.Axis(labelLimit=0)
+                    ),
+                    tooltip=[
+                        alt.Tooltip(
+                            'DS_GRAU_ESCOLARIDADE:N',
+                            title='Escolaridade'
+                        ),
+                        alt.Tooltip(
+                            'VOTOS_ESTIMADOS_SAMIR:Q',
+                            title='Estimativa proporcional',
+                            format=','
+                        )
+                    ]
+                ).properties(height=altura_escola)
+                exibir_grafico_altair(
+                    grafico_escola,
+                    "Ajuste a complexidade dos materiais: mensagens diretas, exemplos "
+                    "concretos e recursos visuais devem acompanhar documentos mais "
+                    "detalhados, sem estigmatizar nenhum grupo."
+                )
+
+            with aba_perfil_territorial_integrado:
+                st.subheader("📍 Hipóteses por perfil demográfico")
+                st.info("""
+                A comparação usa os dois perfis de maior estimativa proporcional.
+                Ela descreve onde esses grupos estão mais presentes, mas não mede
+                intenção de voto nem garante conversão.
+                """)
+
+                avatar_df = df_demo_macro.groupby(
+                    ['DS_GENERO', 'DS_FAIXA_ETARIA']
+                )['VOTOS_ESTIMADOS_SAMIR'].sum().reset_index()
+                if not avatar_df.empty:
+                    avatar_df = avatar_df.sort_values(
+                        by='VOTOS_ESTIMADOS_SAMIR', ascending=False
+                    )
+
+                    def renderizar_perfil_territorial(
+                        posicao_label, top_avatar_row, cor_barra
+                    ):
+                        avatar_genero = top_avatar_row['DS_GENERO']
+                        avatar_idade = top_avatar_row['DS_FAIXA_ETARIA']
+                        st.success(
+                            f"**{posicao_label} perfil estimado de maior volume:** "
+                            f"**{avatar_genero}**, faixa **{avatar_idade}**."
+                        )
+                        df_alvo_perfil = df_demo_macro[
+                            (df_demo_macro['DS_GENERO'] == avatar_genero) &
+                            (df_demo_macro['DS_FAIXA_ETARIA'] == avatar_idade)
+                        ].copy()
+                        df_alvo_perfil['DIFERENCA_PERFIL_ESTIMATIVA'] = (
+                            df_alvo_perfil['QT_ELEITORES_PERFIL'] -
+                            df_alvo_perfil['VOTOS_ESTIMADOS_SAMIR']
+                        ).clip(lower=0)
+                        radar_df = df_alvo_perfil.groupby(
+                            'NM_LOCAL_VOTACAO', as_index=False
+                        ).agg(
+                            QT_ELEITORES_PERFIL=('QT_ELEITORES_PERFIL', 'sum'),
+                            VOTOS_ESTIMADOS_SAMIR=(
+                                'VOTOS_ESTIMADOS_SAMIR', 'sum'
+                            ),
+                            DIFERENCA_PERFIL_ESTIMATIVA=(
+                                'DIFERENCA_PERFIL_ESTIMATIVA', 'sum'
+                            )
+                        ).sort_values(
+                            by='DIFERENCA_PERFIL_ESTIMATIVA', ascending=False
+                        ).head(limite_ranking)
+
+                        grafico_radar = alt.Chart(radar_df).mark_bar(
+                            color=cor_barra
+                        ).encode(
+                            x=alt.X(
+                                'DIFERENCA_PERFIL_ESTIMATIVA:Q',
+                                title='Diferença entre perfil e estimativa',
+                                axis=alt.Axis(format='d')
+                            ),
+                            y=alt.Y(
+                                'NM_LOCAL_VOTACAO:N',
+                                sort='-x',
+                                title=None,
+                                axis=alt.Axis(
+                                    labelLimit=0,
+                                    labelOverlap=False
+                                )
+                            ),
+                            tooltip=[
+                                alt.Tooltip(
+                                    'NM_LOCAL_VOTACAO:N',
+                                    title='Local de Votação'
+                                ),
+                                alt.Tooltip(
+                                    'DIFERENCA_PERFIL_ESTIMATIVA:Q',
+                                    title='Diferença estimada',
+                                    format=','
+                                ),
+                                alt.Tooltip(
+                                    'QT_ELEITORES_PERFIL:Q',
+                                    title='Total do perfil no local',
+                                    format=','
+                                )
+                            ]
+                        ).properties(height=max(400, len(radar_df) * 35))
+                        exibir_grafico_altair(
+                            grafico_radar,
+                            "Selecione os primeiros locais para uma rodada de escuta "
+                            "com esse público e registre problemas, lideranças e temas; "
+                            "só depois transforme a hipótese em agenda de campanha."
+                        )
+
+                        tabela_radar = radar_df.copy()
+                        tabela_radar.columns = [
+                            'Local de Votação',
+                            f'Eleitorado do perfil {avatar_genero.title()} — {avatar_idade}',
+                            'Estimativa proporcional',
+                            'Diferença entre perfil e estimativa'
+                        ]
+                        st.dataframe(tabela_radar, use_container_width=True)
+
+                    if len(avatar_df) >= 1:
+                        renderizar_perfil_territorial(
+                            "1º", avatar_df.iloc[0], "#FF8C00"
+                        )
+                    if len(avatar_df) >= 2:
+                        st.markdown("---")
+                        renderizar_perfil_territorial(
+                            "2º", avatar_df.iloc[1], "#1A73E8"
+                        )
+                else:
+                    st.warning(
+                        "Não há dados demográficos suficientes para a seleção atual."
+                    )
+
+            with aba_perfil_metodologia_integrado:
+                exibir_metodologia_modulo(
+                    ["base_demografica_ac.zip", "dados.csv"],
+                    (
+                        "A composição agregada do eleitorado é cruzada com a "
+                        "participação histórica do candidato em cada local. As "
+                        "estimativas são proporcionais e corrigidas para manter o "
+                        "total observado."
+                    ),
+                    (
+                        "O resultado descreve grupos agregados. Não identifica "
+                        "pessoas, não comprova quem votou e não mede intenção de voto."
+                    ),
+                )
+
     with aba_desempenho_metas:
         st.subheader("🏁 Meta proporcional de referência")
     
@@ -1188,6 +1563,11 @@ if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     
                 st.markdown(f"#### 📋 Distribuição Matemática de Metas ({texto_top})")
                 st.dataframe(tabela_final_metas, use_container_width=True)
+                exibir_acao_pratica(
+                    "Use a meta somente como referência para dimensionar equipes e "
+                    "acompanhar execução; ajuste-a com capacidade local, alianças e "
+                    "evidências de campo."
+                )
         else:
             st.warning("A coluna de Votos Válidos não está disponível para calcular a proporção da meta.")
 
@@ -1413,6 +1793,11 @@ elif menu_selecionado == "🗺️ 3. Participação e Não Comparecimento":
         col1.metric("Abstenções, brancos e nulos", f"{int(total_adormecidos):,}".replace(',', '.'))
         col2.metric("Percentual sobre Eleitores Aptos", f"{taxa_adormecidos:.1f}%")
         col3.metric("Abstenções", f"{int(ador_escola['QT_ABSTENCOES'].sum()):,}".replace(',', '.'))
+        exibir_acao_pratica(
+            "Trate esses números como sinal de dificuldade de participação, não "
+            "como votos disponíveis. Priorize escuta sobre acesso, informação, "
+            "transporte e confiança política."
+        )
 
         aba_participacao_visao, aba_participacao_ranking, aba_participacao_metodologia = st.tabs([
             "Visão Geral",
@@ -1425,6 +1810,10 @@ elif menu_selecionado == "🗺️ 3. Participação e Não Comparecimento":
             mapa_ador = ador_escola.dropna(subset=['lat', 'lon'])
             if not mapa_ador.empty:
                 st.map(mapa_ador, latitude='lat', longitude='lon')
+                exibir_acao_pratica(
+                    "Agrupe os pontos com maior não comparecimento em rotas de "
+                    "diagnóstico e confirme em campo quais barreiras são realmente locais."
+                )
             else:
                 st.info("Dados de localização não disponíveis para este filtro.")
 
@@ -1446,7 +1835,11 @@ elif menu_selecionado == "🗺️ 3. Participação e Não Comparecimento":
                     alt.Tooltip('QT_APTOS:Q', title='Total de Aptos', format=',')
                 ]
             ).properties(height=altura_ador)
-            exibir_grafico_altair(grafico_ador)
+            exibir_grafico_altair(
+                grafico_ador,
+                "Comece pelos locais com grande volume e alta taxa relativa, cruzando "
+                "o ranking com eleitorado, distância e capacidade de mobilização."
+            )
     
             st.markdown("#### 📋 Detalhamento da Participação")
             tabela_ador = ador_top[['NM_LOCAL_VOTACAO', 'VOTOS_ADORMECIDOS', 'QT_ABSTENCOES', 'QT_VOTOS_BRANCOS', 'QT_VOTOS_NULOS', 'QT_APTOS']]
@@ -1515,6 +1908,10 @@ elif menu_selecionado == "📋 4. Panorama da Concorrência":
             col1, col2 = st.columns(2)
             col1.metric("Candidatura Mais Votada", top_1['NM_VOTAVEL'])
             col2.metric("Participação", f"{top_1['Share (%)']:.1f}%")
+            exibir_acao_pratica(
+                "Mapeie quem organiza a votação das candidaturas mais presentes no "
+                "local e avalie temas, alianças e barreiras; não presuma transferência de votos."
+            )
 
             aba_concorrencia_distribuicao, aba_concorrencia_tabela, aba_concorrencia_metodologia = st.tabs([
                 "Distribuição",
@@ -1535,7 +1932,11 @@ elif menu_selecionado == "📋 4. Panorama da Concorrência":
                     alt.Tooltip('Share (%):Q', title='Participação (%)', format='.1f')
                     ]
                 ).properties(height=altura_adv)
-                exibir_grafico_altair(grafico_adv)
+                exibir_grafico_altair(
+                    grafico_adv,
+                    "Em locais concentrados, prepare diferenciação clara; em locais "
+                    "fragmentados, busque presença comunitária e alianças diversas."
+                )
 
             with aba_concorrencia_tabela:
                 st.subheader("Concorrentes no Local")
@@ -1629,7 +2030,12 @@ elif menu_selecionado == "🔗 5. Correlação territorial":
                                 alt.Tooltip('Correlação de Pearson (r):Q', title='Correlação de Pearson', format='.2f')
                             ]
                         ).properties(height=altura_corr)
-                        exibir_grafico_altair(grafico_corr)
+                        exibir_grafico_altair(
+                            grafico_corr,
+                            "Use correlações apenas para formular hipóteses de "
+                            "sobreposição territorial e orientar reuniões exploratórias; "
+                            "valide qualquer parceria com evidências políticas e de campo."
+                        )
 
                     with aba_correlacao_tabela:
                         corr_samir['Correlação de Pearson (r)'] = corr_samir['Correlação de Pearson (r)'].round(3)
@@ -1899,6 +2305,11 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
         "votos válidos' é uma medida histórica e não significa que esses votos "
         "estejam automaticamente disponíveis."
     )
+    exibir_acao_pratica(
+        "Defina a prioridade rural combinando quatro fatores: eleitorado, votação "
+        "histórica, participação nos válidos e viabilidade logística. Evite decidir "
+        "somente pelo maior número absoluto."
+    )
 
     if incluir_revisao:
         st.warning(
@@ -1938,6 +2349,10 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
             mapa_rural = base_rural.dropna(subset=['lat', 'lon'])
         if not mapa_rural.empty:
             st.map(mapa_rural, latitude='lat', longitude='lon')
+            exibir_acao_pratica(
+                "Monte circuitos de visita por proximidade, confirme acesso e tempo "
+                "de deslocamento com lideranças locais e registre responsável por cada rota."
+            )
         else:
             st.info("Não há coordenadas válidas para os filtros selecionados.")
     
@@ -2010,6 +2425,10 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
             resumo_municipal[colunas_resumo],
             use_container_width=True
         )
+        exibir_acao_pratica(
+            "Compare tamanho rural e presença histórica por município para distribuir "
+            "dias de agenda, equipe, transporte e busca de lideranças."
+        )
 
     with aba_rural_locais:
         titulo_ranking = (
@@ -2047,7 +2466,17 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
                 color="#28A745"
             ).encode(
                 x=alt.X(f'{coluna_ranking}:Q', title=criterio_rural),
-                y=alt.Y('LOCAL_EXIBICAO:N', title=None, sort='-x'),
+                y=alt.Y(
+                    'LOCAL_EXIBICAO:N',
+                    title=None,
+                    sort='-x',
+                    axis=alt.Axis(
+                        labelLimit=0,
+                        labelOverlap=False,
+                        labelFontSize=11,
+                        labelPadding=8
+                    )
+                ),
                 tooltip=[
                     alt.Tooltip('ANO_ELEICAO:O', title='Ano'),
                     alt.Tooltip('NM_MUNICIPIO:N', title='Município'),
@@ -2059,7 +2488,12 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
                     alt.Tooltip('CLASSIFICACAO_RURAL:N', title='Classificação')
                 ]
             ).properties(height=max(450, len(ranking_rural) * 34))
-            exibir_grafico_altair(grafico_rural)
+            exibir_grafico_altair(
+                grafico_rural,
+                "Use o critério selecionado para formar uma lista operacional: "
+                "responsável local, data de visita, tema de escuta, custo de acesso "
+                "e retorno esperado para cada escola."
+            )
     
             colunas_ranking = (
                 ['ANO_ELEICAO'] if serie_historica_rural else []
@@ -2148,7 +2582,12 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
                     )
                 ]
             ).properties(height=420)
-            exibir_grafico_altair(grafico_evolucao_rural)
+            exibir_grafico_altair(
+                grafico_evolucao_rural,
+                "Investigue aumentos e quedas por contexto eleitoral, cargo, mudança "
+                "de local e presença de lideranças; use a tendência como pergunta, "
+                "não como previsão automática."
+            )
         st.caption(
             "A comparação é descritiva. Mudanças de cargo, seções, eleitorado e contexto "
             "eleitoral podem afetar os resultados entre anos."
@@ -2172,6 +2611,10 @@ elif menu_selecionado == "🚜 6. Análise Territorial da Zona Rural":
         q3.metric(
             "Registros sem Coordenada" if serie_historica_rural else "Locais sem Coordenada",
             int(locais_resumo[['lat', 'lon']].isna().any(axis=1).sum())
+        )
+        exibir_acao_pratica(
+            "Resolva primeiro os registros de maior eleitorado que estejam pendentes "
+            "ou sem coordenada; documente a fonte de cada correção para manter a defesa metodológica."
         )
     
         if not locais_revisar.empty:
@@ -2281,6 +2724,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
     k2.metric("Locais de Votação", inteiro_pt(total_locais_2026))
     k3.metric("Seções Eleitorais", inteiro_pt(total_secoes_2026))
     k4.metric("Eleitorado Rural Identificado", inteiro_pt(total_rural_2026))
+    exibir_acao_pratica(
+        "Use estes totais para dimensionar cobertura e equipe no recorte escolhido; "
+        "não converta eleitorado cadastrado diretamente em meta de votos."
+    )
 
     datas_geracao = metadados_2026.get('generation_dates', {})
     data_locais = ', '.join(datas_geracao.get('locations', [])) or 'não informada'
@@ -2331,6 +2778,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 "Os pontos utilizam as coordenadas publicadas pelo TSE; o tamanho "
                 "representa o eleitorado alocado no local."
             )
+            exibir_acao_pratica(
+                "Agrupe locais próximos em rotas e priorize os maiores pontos que "
+                "também tenham liderança identificada e acesso operacional viável."
+            )
 
             distribuicao_municipal = base_exibida_2026.groupby(
                 ['NM_MUNICIPIO', 'TERRITORIO_2026'],
@@ -2379,7 +2830,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             ).properties(
                 height=max(360, len(ordem_municipios) * 27)
             )
-            exibir_grafico_altair(grafico_municipios_2026)
+            exibir_grafico_altair(
+                grafico_municipios_2026,
+                "Distribua presença estadual proporcionalmente ao eleitorado e ao "
+                "tipo de território, reservando estratégia própria para áreas rurais."
+            )
 
             resumo_dinamico = base_exibida_2026.groupby(
                 'NM_MUNICIPIO', as_index=False
@@ -2416,6 +2871,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 'Rural no Filtro (%)'
             ].round(2)
             st.dataframe(resumo_dinamico, use_container_width=True)
+            exibir_acao_pratica(
+                "Converta o resumo municipal em calendário: município, dias de agenda, "
+                "responsável territorial, meta de reuniões e custo logístico."
+            )
 
     with aba_rural:
         st.subheader("Análise Territorial da Zona Rural — 2026")
@@ -2444,6 +2903,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
         r2.metric("Locais Rurais", inteiro_pt(base_rural_2026['ID_LOCAL_2026'].nunique()))
         r3.metric("Seções Rurais", inteiro_pt(base_rural_2026['ID_SECAO_2026'].nunique()))
         r4.metric("Participação no Eleitorado", percentual_pt(participacao_rural_contexto))
+        exibir_acao_pratica(
+            "Dimensione uma frente rural específica com rotas, transporte, tempo de "
+            "deslocamento, lideranças e temas locais, sem confundir eleitorado com apoio."
+        )
 
         todos_municipios = (
             len(municipios_2026_selecionados)
@@ -2512,7 +2975,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             ).properties(
                 height=max(360, len(rural_municipal_2026) * 27)
             )
-            exibir_grafico_altair(grafico_rural_2026)
+            exibir_grafico_altair(
+                grafico_rural_2026,
+                "Ordene os municípios por eleitorado rural, mas valide a prioridade "
+                "com distância, custo, presença de equipe e capacidade de mobilização."
+            )
 
             tabela_rural_2026 = rural_municipal_2026.rename(columns={
                 'NM_MUNICIPIO': 'Município',
@@ -2545,6 +3012,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 )
             except Exception:
                 st.map(mapa_rural_2026, latitude='lat', longitude='lon')
+            exibir_acao_pratica(
+                "Use os agrupamentos do mapa para criar circuitos rurais completos, "
+                "evitando viagens isoladas para apenas um local."
+            )
         else:
             st.warning("Nenhum local rural identificado para os filtros selecionados.")
 
@@ -2576,6 +3047,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 'SECOES_2026': 'Seções'
             })
             st.dataframe(tabela_revisar_2026, use_container_width=True)
+            exibir_acao_pratica(
+                "Revise primeiro os locais com mais eleitores; confirme bairro, acesso "
+                "e condição rural com fonte documentada antes de incluí-los nas metas."
+            )
             st.download_button(
                 "Baixar lista para revisão territorial",
                 data=tabela_revisar_2026.to_csv(index=False).encode('utf-8-sig'),
@@ -2607,6 +3082,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             o3.metric(
                 "Votos de Referência Mapeados",
                 inteiro_pt(matriz_2026['VOTOS_REFERENCIA_2022'].sum())
+            )
+            exibir_acao_pratica(
+                "Se a cobertura histórica estiver baixa, trate a matriz como parcial; "
+                "use-a para selecionar territórios de investigação, não para projetar resultado."
             )
 
             comparaveis = matriz_2026[
@@ -2684,7 +3163,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                         )
                     ]
                 ).properties(height=520).interactive()
-                exibir_grafico_altair(grafico_oportunidades)
+                exibir_grafico_altair(
+                    grafico_oportunidades,
+                    "Priorize para escuta os locais de alta escala e baixa penetração; "
+                    "nos de alta presença histórica, organize retenção, lideranças e mobilização."
+                )
                 st.caption(
                     f"Limites descritivos do filtro atual: mediana de "
                     f"{inteiro_pt(mediana_eleitores)} eleitores por local e "
@@ -2778,6 +3261,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
             p1.metric("Eleitorado com Perfil", inteiro_pt(total_perfil_2026))
             p2.metric("Biometria Cadastrada", percentual_pt(biometria_pct_2026))
             p3.metric("Pessoas com Deficiência", inteiro_pt(total_deficiencia_2026))
+            exibir_acao_pratica(
+                "Planeje comunicação pública acessível e eventos com condições de "
+                "participação, considerando o perfil agregado sem identificar indivíduos."
+            )
 
             genero_agrupado_2026 = perfil_genero_2026.groupby(
                 'CATEGORIA', as_index=False
@@ -2795,7 +3282,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                     alt.Tooltip('ELEITORES:Q', title='Eleitores', format=',')
                 ]
             ).properties(height=180)
-            exibir_grafico_altair(grafico_genero_2026)
+            exibir_grafico_altair(
+                grafico_genero_2026,
+                "Equilibre porta-vozes, temas e formatos para representar a composição "
+                "do eleitorado, sem pressupor preferência por gênero."
+            )
 
             faixa_agrupada_2026 = demografia_filtrada_2026[
                 demografia_filtrada_2026['DIMENSAO'] == 'FAIXA ETÁRIA'
@@ -2826,7 +3317,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 ]
             ).properties(height=560)
             st.subheader("Faixa Etária")
-            exibir_grafico_altair(grafico_faixa_2026)
+            exibir_grafico_altair(
+                grafico_faixa_2026,
+                "Ajuste canais, horários e temas às faixas mais numerosas e mantenha "
+                "ações específicas para juventude, trabalhadores e pessoas idosas."
+            )
 
             escolaridade_agrupada_2026 = demografia_filtrada_2026[
                 demografia_filtrada_2026['DIMENSAO'] == 'ESCOLARIDADE'
@@ -2844,7 +3339,11 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
                 ]
             ).properties(height=330)
             st.subheader("Escolaridade")
-            exibir_grafico_altair(grafico_escolaridade_2026)
+            exibir_grafico_altair(
+                grafico_escolaridade_2026,
+                "Produza materiais em camadas: resumo simples, propostas objetivas e "
+                "documento detalhado para quem deseja aprofundamento."
+            )
 
     with aba_metodologia:
         st.subheader("Metodologia, Fontes e Limitações")
@@ -2897,6 +3396,10 @@ elif menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026":
         q4.metric(
             "Coordenadas Válidas",
             percentual_pt(cobertura_2026.get('valid_coordinates_pct', 0))
+        )
+        exibir_acao_pratica(
+            "Antes de defender uma conclusão, confira cobertura, data da extração e "
+            "diferenças registradas; decisões críticas devem usar somente recortes auditáveis."
         )
 
         fonte_tse = metadados_2026.get('source', {}).get('tse_dataset', '')
