@@ -32,7 +32,7 @@ ABA_RESPOSTAS = "Samir Bestene - Apoiadores (Respostas)"
 ABA_CONTROLE = "Controle_Entregas"
 ABA_LOGS_ACESSO = "Logs_Acesso"
 ARQUIVO_LOGO = "IMG_6008.PNG"
-VERSAO_APP = "2026.08.05-LAYOUT-ABAS"
+VERSAO_APP = "2026.08.05-INPUT-RESPONSIVO"
 FUSO_ACRE = ZoneInfo("America/Rio_Branco")
 
 # Para acrescentar outro motorista, inclua o nome nesta lista.
@@ -114,14 +114,45 @@ st.markdown(
         }
 
         div[data-baseweb="select"] > div,
-        div[data-baseweb="input"] > div,
         textarea {
             background-color: #152B45 !important;
             color: #FFFFFF !important;
             border-color: #315A82 !important;
         }
 
+        [data-testid="stTextInput"] div[data-baseweb="input"],
+        [data-testid="stTextInput"] div[data-baseweb="input"] > div,
+        [data-testid="stTextInput"] input {
+            background-color: #F5F7FA !important;
+        }
+
         [data-testid="stTextInput"] input,
+        [data-testid="stTextInput"] input:focus {
+            color: #0A1C2E !important;
+            caret-color: #0A1C2E !important;
+            -webkit-text-fill-color: #0A1C2E !important;
+        }
+
+        [data-testid="stTextInput"] input::placeholder {
+            color: #66788A !important;
+            -webkit-text-fill-color: #66788A !important;
+            opacity: 1 !important;
+        }
+
+        [data-testid="stTextInput"] input:-webkit-autofill,
+        [data-testid="stTextInput"] input:-webkit-autofill:hover,
+        [data-testid="stTextInput"] input:-webkit-autofill:focus {
+            -webkit-text-fill-color: #0A1C2E !important;
+            -webkit-box-shadow: 0 0 0 1000px #F5F7FA inset !important;
+            caret-color: #0A1C2E !important;
+        }
+
+        [data-testid="stTextInput"] button,
+        [data-testid="stTextInput"] svg {
+            color: #0A1C2E !important;
+            fill: #0A1C2E !important;
+        }
+
         [data-testid="stTextArea"] textarea,
         [data-testid="stNumberInput"] input {
             color: #FFFFFF !important;
