@@ -979,7 +979,7 @@ with aba1:
                 bc1, bc2 = st.columns(2)
                 with bc1:
                     if tel_num:
-                        texto_aniver = urllib.parse.quote(f"Olá {nome.split()[0]}! Em nome do Vereador Samir Bestene e de toda a nossa equipe, desejo um feliz aniversário! Que sua vida seja repleta de alegrias, muita saúde e sucesso. 🎉 Gostaríamos muito de preparar uma homenagem para você nas redes sociais do Samir. Você tem alguma objeção? Se estiver tudo bem, nos mande aqui uma foto sua que você mais gosta para montarmos a arte! É uma honra ter você caminhando ao nosso lado. A luta continua 🚀")
+                        texto_aniver = urllib.parse.quote(f"Olá {nome.split()[0]}! Feliz aniversário! 🎉 Pode nos enviar uma foto sua? O vereador Samir Bestene gostaria de fazer uma homenagem especial para você.")
                         st.markdown(f"<a href='https://api.whatsapp.com/send?phone=55{tel_num}&text={texto_aniver}' target='_blank' style='display: block; text-align: center; background-color: #25D366; color: white; padding: 6px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: bold;'>💬 Mandar Parabéns</a>", unsafe_allow_html=True)
                     else: st.markdown("<div class='btn-disabled'>S/ Número</div>", unsafe_allow_html=True)
                 with bc2:
