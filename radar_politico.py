@@ -310,7 +310,28 @@ def credenciais_sheets(service_account: dict[str, Any] | None = None) -> Credent
         raw = os.getenv("GCP_SERVICE_ACCOUNT_JSON", "").strip()
         if not raw:
             raise RuntimeError("Defina GCP_SERVICE_ACCOUNT_JSON no ambiente/Secrets.")
-        service_account = json.loads(raw)
+
+        # O Secret pode conter:
+        # 1) o JSON completo da conta de serviço; ou
+        # 2) o bloco TOML [gcp_service_account] usado pelo Streamlit.
+        try:
+            service_account = json.loads(raw)
+        except json.JSONDecodeError:
+            try:
+                import tomllib
+                toml_data = tomllib.loads(raw)
+                service_account = toml_data.get("gcp_service_account", toml_data)
+            except Exception as erro_toml:
+                raise RuntimeError(
+                    "GCP_SERVICE_ACCOUNT_JSON não é um JSON nem um bloco TOML válido "
+                    "de [gcp_service_account]."
+                ) from erro_toml
+
+        if not isinstance(service_account, dict):
+            raise RuntimeError(
+                "GCP_SERVICE_ACCOUNT_JSON precisa conter a conta de serviço completa, "
+                "e não apenas número de projeto, ID ou outro valor isolado."
+            )
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive",
