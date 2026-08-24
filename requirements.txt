@@ -9,3 +9,4 @@ streamlit-folium
 pytz
 openpyxl
 Pillow
+requests>=2.32.0
