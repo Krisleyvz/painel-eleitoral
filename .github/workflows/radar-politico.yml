@@ -1,0 +1,41 @@
+name: Radar Politico 2026
+
+on:
+  schedule:
+    - cron: "2-57/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-politico-2026
+  cancel-in-progress: false
+
+jobs:
+  monitorar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependências do radar
+        run: pip install -r requirements_radar.txt
+
+      - name: Executar radar político
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GEMINI_MODEL: gemini-3.7-flash
+          RADAR_WORKSHEET: Radar_Politico
+          RADAR_CONFIG: config_radar.json
+        run: python radar_politico.py
