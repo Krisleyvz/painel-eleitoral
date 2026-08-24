@@ -18,7 +18,7 @@ import re
 import time
 import zipfile
 from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from typing import Any, Iterable
 from urllib.parse import quote_plus
@@ -38,6 +38,18 @@ GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={q}&hl=pt-BR&gl=BR&ceid=
 GDELT_DOC_API = "https://api.gdeltproject.org/api/v2/doc/doc"
 TSE_PESQELE_ZIP = "https://cdn.tse.jus.br/estatistica/sead/odsele/pesquisa_eleitoral/pesquisa_eleitoral_2026.zip"
 TSE_DATASET_URL = "https://dadosabertos.tse.jus.br/dataset/pesquisas-eleitorais-2026"
+TSE_RESOURCE_ID = "769a663e-12c5-489e-a9c8-04633c2d57a3"
+TSE_RESOURCE_API = "https://dadosabertos.tse.jus.br/api/3/action/resource_show?id={resource_id}"
+
+RSS_LOCAIS_PADRAO = {
+    "ac24horas": "https://ac24horas.com/feed/",
+    "ContilNet Notícias": "https://contilnetnoticias.com.br/feed/",
+    "A Gazeta do Acre": "https://agazetadoacre.com/feed/",
+    "Notícias da Hora": "https://noticiasdahora.com.br/feed/",
+    "Portal Acre": "https://portalacre.com.br/feed/",
+    "Acre Agora": "https://acreagora.com/feed/",
+    "O Alto Acre": "https://oaltoacre.com/feed/",
+}
 
 HEADERS = [
     "ID", "COLETADO_EM", "PUBLICADO_EM", "FONTE", "TIPO_FONTE", "TITULO",
@@ -72,6 +84,12 @@ DEFAULT_CONFIG = {
     ],
     "max_news_per_run": 80,
     "max_ai_items_per_run": 30,
+    "news_window_hours": 72,
+    "google_news_when": "3d",
+    "google_news_every_minutes": 30,
+    "gdelt_every_minutes": 60,
+    "tse_every_minutes": 60,
+    "rss_local_feeds": RSS_LOCAIS_PADRAO,
 }
 
 
@@ -119,14 +137,44 @@ def carregar_config(path: str = CONFIG_PATH) -> dict[str, Any]:
     return cfg
 
 
-def http_get(url: str, *, params: dict[str, Any] | None = None, timeout: int = 25) -> requests.Response:
+def http_get(
+    url: str,
+    *,
+    params: dict[str, Any] | None = None,
+    timeout: int = 25,
+    retries: int = 2,
+    extra_headers: dict[str, str] | None = None,
+) -> requests.Response:
     headers = {
-        "User-Agent": "RadarPoliticoSamir/1.0 (+monitoramento-publico-eleitoral)",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/151.0.0.0 Safari/537.36"
+        ),
         "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.7",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                  "application/rss+xml;q=0.9,application/json;q=0.9,*/*;q=0.8",
+        "Cache-Control": "no-cache",
     }
-    r = requests.get(url, params=params, headers=headers, timeout=timeout)
-    r.raise_for_status()
-    return r
+    if extra_headers:
+        headers.update(extra_headers)
+
+    ultimo_erro: Exception | None = None
+    for tentativa in range(max(1, retries + 1)):
+        try:
+            r = requests.get(url, params=params, headers=headers, timeout=timeout)
+            if r.status_code in {429, 500, 502, 503, 504} and tentativa < retries:
+                espera = 2 + tentativa * 3
+                time.sleep(espera)
+                continue
+            r.raise_for_status()
+            return r
+        except Exception as exc:
+            ultimo_erro = exc
+            if tentativa >= retries:
+                raise
+            time.sleep(2 + tentativa * 3)
+    raise RuntimeError(f"Falha ao acessar {url}: {ultimo_erro}")
 
 
 def parse_pubdate(texto: str) -> str:
@@ -162,31 +210,156 @@ def dentro_da_janela(valor: str, horas: int) -> bool:
         return True
 
 
-def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
+def limpar_html(texto: str) -> str:
+    texto = normalizar_texto(texto)
+    texto = re.sub(r"<script.*?</script>", " ", texto, flags=re.I | re.S)
+    texto = re.sub(r"<style.*?</style>", " ", texto, flags=re.I | re.S)
+    texto = re.sub(r"<[^>]+>", " ", texto)
+    texto = (
+        texto.replace("&nbsp;", " ")
+        .replace("&amp;", "&")
+        .replace("&quot;", '"')
+        .replace("&#039;", "'")
+    )
+    return normalizar_texto(texto)
+
+
+def rodada_due(intervalo_minutos: int) -> bool:
+    """Executa fontes mais pesadas apenas em uma das rodadas do intervalo."""
+    if intervalo_minutos <= 5:
+        return True
+    minuto = datetime.now(timezone.utc).minute
+    return (minuto % intervalo_minutos) < 5
+
+
+def item_politicamente_relevante(texto: str, cfg: dict[str, Any]) -> bool:
+    base = normalizar_texto(texto).lower()
+    if not base:
+        return False
+
+    termos_diretos = [
+        "samir bestene", "samir",
+        "eleição", "eleicoes", "eleições", "eleitoral",
+        "candidato", "candidata", "candidatura", "campanha",
+        "deputado", "deputada", "senador", "senadora",
+        "governador", "governadora", "prefeito", "prefeita",
+        "vereador", "vereadora", "aleac", "assembleia legislativa",
+        "tse", "tre-ac", "tre acre", "pesquisa eleitoral",
+        "partido", "federação", "federacao", "aliança", "alianca",
+        "convenção", "convencao", "apoio político", "apoio politico",
+        "mandato", "chapa", "pré-candidato", "pre-candidato",
+    ]
+    termos_diretos.extend(
+        normalizar_texto(nome).lower()
+        for nome in cfg.get("adversaries", [])
+        if normalizar_texto(nome)
+    )
+    return any(t in base for t in termos_diretos)
+
+
+def coletar_rss_locais(cfg: dict[str, Any]) -> list[Item]:
+    """Camada primária: RSS direto de veículos locais, consultado a cada rodada."""
     itens: list[Item] = []
-    consultas = list(cfg.get("queries", []))
-    # Busca local por domínio melhora recall de veículos do Acre sem depender de RSS próprio.
-    for dominio in cfg.get("local_domains", []):
-        consultas.append(f'"Samir Bestene" site:{dominio}')
-        consultas.append(f'eleição Acre 2026 site:{dominio}')
-        consultas.append(f'pesquisa eleitoral Acre site:{dominio}')
+    vistos: set[str] = set()
+    janela_horas = int(cfg.get("news_window_hours", 72))
+    feeds = cfg.get("rss_local_feeds") or RSS_LOCAIS_PADRAO
+
+    if isinstance(feeds, list):
+        feeds = {url: url for url in feeds}
+
+    for nome_fonte, url_feed in dict(feeds).items():
+        try:
+            xml = http_get(str(url_feed), timeout=20, retries=1).text
+            root = ET.fromstring(xml)
+
+            nodes = root.findall(".//item")
+            # Fallback Atom
+            if not nodes:
+                nodes = root.findall(".//{http://www.w3.org/2005/Atom}entry")
+
+            for node in nodes[:40]:
+                def achar(tag_rss: str, tag_atom: str | None = None) -> str:
+                    valor = node.findtext(tag_rss)
+                    if valor:
+                        return valor
+                    if tag_atom:
+                        return node.findtext(f"{{http://www.w3.org/2005/Atom}}{tag_atom}") or ""
+                    return ""
+
+                titulo = normalizar_texto(achar("title", "title"))
+                descricao = limpar_html(
+                    achar("description", "summary")
+                    or achar("{http://purl.org/rss/1.0/modules/content/}encoded")
+                )
+                publicado = parse_pubdate(
+                    normalizar_texto(
+                        achar("pubDate", "updated")
+                        or achar("{http://purl.org/dc/elements/1.1/}date")
+                    )
+                )
+
+                link = normalizar_texto(achar("link"))
+                if not link:
+                    atom_link = node.find("{http://www.w3.org/2005/Atom}link")
+                    if atom_link is not None:
+                        link = normalizar_texto(atom_link.attrib.get("href"))
+
+                if not titulo or not link:
+                    continue
+                if not dentro_da_janela(publicado, janela_horas):
+                    continue
+                if not item_politicamente_relevante(f"{titulo} {descricao}", cfg):
+                    continue
+
+                iid = make_id("RSS_LOCAL", link, titulo)
+                if iid in vistos:
+                    continue
+                vistos.add(iid)
+                itens.append(Item(
+                    id=iid,
+                    coletado_em=agora_iso(),
+                    publicado_em=publicado,
+                    fonte=normalizar_texto(nome_fonte),
+                    tipo_fonte="RSS_LOCAL",
+                    titulo=titulo,
+                    url=link,
+                    conteudo_bruto=descricao[:6000],
+                ))
+        except Exception as exc:
+            print(f"[rss-local] {nome_fonte}: {exc}")
+    return itens
+
+
+def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
+    """Fallback amplo. Não é a camada primária porque pode bloquear IPs de nuvem."""
+    itens: list[Item] = []
+    consultas_base = [
+        '"Samir Bestene"',
+        '"Samir Bestene" Acre',
+        'eleição Acre 2026',
+        'pesquisa eleitoral Acre 2026',
+        'política Acre 2026',
+    ]
+    for nome in cfg.get("adversaries", [])[:5]:
+        consultas_base.append(f'"{nome}" Acre')
 
     vistos: set[str] = set()
     janela_horas = int(cfg.get("news_window_hours", 72))
     operador_when = str(cfg.get("google_news_when", "3d")).strip()
-    for consulta in consultas:
+
+    for consulta in consultas_base[:8]:
         try:
             consulta_efetiva = consulta
             if operador_when and "when:" not in consulta_efetiva.lower():
                 consulta_efetiva = f"{consulta_efetiva} when:{operador_when}"
             url = GOOGLE_NEWS_RSS.format(q=quote_plus(consulta_efetiva))
-            xml = http_get(url).text
+            xml = http_get(url, timeout=20, retries=0).text
             root = ET.fromstring(xml)
             for node in root.findall(".//item"):
                 titulo = normalizar_texto(node.findtext("title"))
                 link = normalizar_texto(node.findtext("link"))
                 fonte = normalizar_texto(node.findtext("source")) or "Google Notícias"
-                descricao = normalizar_texto(node.findtext("description"))
+                descricao = limpar_html(node.findtext("description") or "")
                 publicado = parse_pubdate(normalizar_texto(node.findtext("pubDate")))
                 if not titulo or not link:
                     continue
@@ -201,21 +374,18 @@ def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
                     fonte=fonte, tipo_fonte="GOOGLE_NEWS", titulo=titulo,
                     url=link, conteudo_bruto=f"Consulta: {consulta_efetiva}. {descricao}"[:6000]
                 ))
+            time.sleep(0.7)
         except Exception as exc:
             print(f"[google-news] {consulta!r}: {exc}")
     return itens
 
 
 def coletar_gdelt(cfg: dict[str, Any]) -> list[Item]:
+    """Rede secundária, consultada com baixa frequência para evitar 429."""
     itens: list[Item] = []
     vistos: set[str] = set()
-    # Mantém consultas GDELT mais compactas para evitar ruído excessivo.
-    consultas = [
-        '"Samir Bestene"',
-        'Acre election 2026',
-        'Acre pesquisa eleitoral',
-    ]
-    for nome in cfg.get("adversaries", [])[:10]:
+    consultas = ['"Samir Bestene"', 'Acre election 2026']
+    for nome in cfg.get("adversaries", [])[:3]:
         consultas.append(f'"{nome}" Acre')
 
     for consulta in consultas:
@@ -223,12 +393,12 @@ def coletar_gdelt(cfg: dict[str, Any]) -> list[Item]:
             params = {
                 "query": consulta,
                 "mode": "artlist",
-                "maxrecords": 75,
+                "maxrecords": 25,
                 "format": "json",
                 "sort": "datedesc",
                 "timespan": "24h",
             }
-            data = http_get(GDELT_DOC_API, params=params).json()
+            data = http_get(GDELT_DOC_API, params=params, timeout=25, retries=0).json()
             for art in data.get("articles", []) or []:
                 titulo = normalizar_texto(art.get("title"))
                 link = normalizar_texto(art.get("url"))
@@ -243,8 +413,13 @@ def coletar_gdelt(cfg: dict[str, Any]) -> list[Item]:
                 itens.append(Item(
                     id=iid, coletado_em=agora_iso(), publicado_em=publicado,
                     fonte=fonte, tipo_fonte="GDELT", titulo=titulo, url=link,
-                    conteudo_bruto=f"Consulta GDELT: {consulta}. Idioma: {art.get('language','')}. País-fonte: {art.get('sourcecountry','')}."[:6000]
+                    conteudo_bruto=(
+                        f"Consulta GDELT: {consulta}. "
+                        f"Idioma: {art.get('language','')}. "
+                        f"País-fonte: {art.get('sourcecountry','')}."
+                    )[:6000]
                 ))
+            time.sleep(2.0)
         except Exception as exc:
             print(f"[gdelt] {consulta!r}: {exc}")
     return itens
@@ -279,7 +454,28 @@ def coletar_tse_pesqele() -> list[Item]:
     """
     itens: list[Item] = []
     try:
-        raw_zip = http_get(TSE_PESQELE_ZIP, timeout=60).content
+        url_recurso = TSE_PESQELE_ZIP
+        try:
+            meta = http_get(
+                TSE_RESOURCE_API.format(resource_id=TSE_RESOURCE_ID),
+                timeout=25,
+                retries=1,
+                extra_headers={"Referer": TSE_DATASET_URL},
+            ).json()
+            if meta.get("success") and isinstance(meta.get("result"), dict):
+                url_recurso = normalizar_texto(meta["result"].get("url")) or url_recurso
+        except Exception as exc:
+            print(f"[tse-pesqele] metadados CKAN indisponíveis: {exc}")
+
+        raw_zip = http_get(
+            url_recurso,
+            timeout=60,
+            retries=1,
+            extra_headers={
+                "Referer": TSE_DATASET_URL,
+                "Accept": "application/zip,application/octet-stream,*/*;q=0.8",
+            },
+        ).content
         with zipfile.ZipFile(io.BytesIO(raw_zip)) as z:
             csvs = [n for n in z.namelist() if n.lower().endswith(".csv")]
             # O arquivo principal costuma conter "pesquisa" e não "contrat"/"pagant".
@@ -464,7 +660,10 @@ ITENS:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"responseMimeType": "application/json"},
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "thinkingConfig": {"thinkingLevel": "low"},
+        },
     }
     headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
     r = requests.post(url, headers=headers, json=body, timeout=90)
@@ -534,9 +733,21 @@ def executar_radar(
     existentes = ids_existentes(ws)
 
     coletados: list[Item] = []
-    coletados.extend(coletar_google_news(cfg))
-    coletados.extend(coletar_gdelt(cfg))
-    coletados.extend(coletar_tse_pesqele())
+
+    # 1) Camada rápida e principal: feeds diretos dos portais acreanos em toda rodada.
+    coletados.extend(coletar_rss_locais(cfg))
+
+    # 2) Redes de descoberta mais amplas, porém mais sujeitas a bloqueio/rate limit.
+    if rodada_due(int(cfg.get("google_news_every_minutes", 30))):
+        coletados.extend(coletar_google_news(cfg))
+
+    if rodada_due(int(cfg.get("gdelt_every_minutes", 60))):
+        coletados.extend(coletar_gdelt(cfg))
+
+    # 3) PesqEle: fonte oficial, atualização diária. Uma consulta por hora é suficiente.
+    if rodada_due(int(cfg.get("tse_every_minutes", 60))):
+        coletados.extend(coletar_tse_pesqele())
+
     coletados = deduplicar_local(coletados)
 
     novos = [i for i in coletados if i.id not in existentes]
