@@ -145,6 +145,45 @@ st.markdown("""
         font-size: 0.92rem !important;
         line-height: 1.25rem !important;
     }
+    .cc-hero {
+        background: linear-gradient(115deg, #0A1C2E 0%, #123D63 100%);
+        border-radius: 16px;
+        padding: 24px 28px;
+        margin: 4px 0 20px 0;
+        color: #FFFFFF;
+        box-shadow: 0 6px 20px rgba(10, 28, 46, 0.12);
+    }
+    .cc-hero h2 { margin: 0 0 8px 0; color: #FFFFFF; }
+    .cc-hero p { margin: 0; color: #EAF2F8; font-size: 1.04rem; }
+    .cc-kicker {
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #B8D7F0;
+        margin-bottom: 6px;
+    }
+    .cc-card {
+        border: 1px solid #DCE7F2;
+        border-radius: 14px;
+        padding: 16px 18px;
+        min-height: 150px;
+        background: #FFFFFF;
+        box-shadow: 0 3px 12px rgba(10, 28, 46, 0.06);
+    }
+    .cc-card h4 { margin: 0 0 8px 0; color: #0A1C2E; }
+    .cc-card .cc-numero { font-size: 1.65rem; font-weight: 800; color: #0A1C2E; }
+    .cc-card p { margin: 6px 0 0 0; color: #425466; line-height: 1.35; }
+    .cc-tag {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 9px;
+        background: #EAF3FB;
+        color: #0B5EA8;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -921,6 +960,60 @@ dados_demo = carregar_demografia(dados)
 dados_adormecidos = carregar_adormecidos(dados)
 dados_concorrencia = carregar_concorrencia(dados)
 
+
+# ==========================================
+# RADAR POLÍTICO — LEITURA DA BASE AUTOMÁTICA
+# ==========================================
+PLANILHA_RADAR_ID = "1pZw4r8rAVMUnI7O73vEHk5Aj6uJUjDEsUegAWIrQFxE"
+ABA_RADAR_POLITICO = "Radar_Politico"
+
+
+@st.cache_data(ttl=60)
+def carregar_radar_politico():
+    """Lê a aba gerada pelo coletor sem derrubar o restante do painel."""
+    try:
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets',
+            'https://www.googleapis.com/auth/drive'
+        ]
+        credenciais = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"], scopes=scopes
+        )
+        cliente = gspread.authorize(credenciais)
+        aba = cliente.open_by_key(PLANILHA_RADAR_ID).worksheet(ABA_RADAR_POLITICO)
+        registros = aba.get_all_records()
+        if not registros:
+            return pd.DataFrame()
+        radar = pd.DataFrame(registros)
+        for coluna in ['COLETADO_EM', 'PUBLICADO_EM']:
+            if coluna in radar.columns:
+                radar[coluna] = pd.to_datetime(radar[coluna], errors='coerce', utc=True)
+        return radar
+    except Exception as erro:
+        vazio = pd.DataFrame()
+        vazio.attrs['erro_carregamento'] = f"{type(erro).__name__}: {erro}"
+        return vazio
+
+
+def radar_bool(serie):
+    """Converte booleanos vindos do Google Sheets para uma máscara confiável."""
+    if serie is None:
+        return pd.Series(dtype=bool)
+    if getattr(serie, 'dtype', None) == bool:
+        return serie.fillna(False)
+    return serie.astype(str).str.strip().str.upper().isin(['TRUE', 'VERDADEIRO', '1', 'SIM', 'YES'])
+
+
+def filtrar_radar_periodo(radar, periodo):
+    if radar.empty or 'COLETADO_EM' not in radar.columns or periodo == 'Todo o histórico':
+        return radar.copy()
+    horas = {'Últimas 24 horas': 24, 'Últimos 7 dias': 24 * 7, 'Últimos 30 dias': 24 * 30}.get(periodo)
+    if not horas:
+        return radar.copy()
+    agora_utc = pd.Timestamp.now(tz='UTC')
+    limite = agora_utc - pd.Timedelta(hours=horas)
+    return radar[radar['COLETADO_EM'].notna() & (radar['COLETADO_EM'] >= limite)].copy()
+
 # ==========================================
 # 3. BARRA LATERAL (MENUS E FILTROS)
 # ==========================================
@@ -972,12 +1065,14 @@ except Exception:
 
 st.sidebar.header("🧭 Navegação do Sistema")
 rotas_menu = {
-    "📊 1. Território e Eleitorado": "📊 1. Desempenho Eleitoral por Território",
-    "🗺️ 2. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
-    "📋 3. Concorrência": "📋 4. Panorama da Concorrência",
-    "🔗 4. Correlação Territorial": "🔗 5. Correlação territorial",
-    "🚜 5. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
-    "🗳️ 6. Cenário 2026": "🗳️ 7. Cenário Eleitoral 2026",
+    "🎯 1. Central de Comando 2026": "🎯 Central de Comando 2026",
+    "🛰️ 2. Inteligência Política": "🛰️ Inteligência Política",
+    "📊 3. Território e Eleitorado": "📊 1. Desempenho Eleitoral por Território",
+    "🗺️ 4. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
+    "📋 5. Concorrência": "📋 4. Panorama da Concorrência",
+    "🔗 6. Correlação Territorial": "🔗 5. Correlação territorial",
+    "🚜 7. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
+    "🗳️ 8. Cenário 2026": "🗳️ 7. Cenário Eleitoral 2026",
 }
 opcao_menu = st.sidebar.radio(
     "Selecione o Painel Desejado:",
@@ -986,9 +1081,69 @@ opcao_menu = st.sidebar.radio(
 menu_selecionado = rotas_menu[opcao_menu]
 st.sidebar.markdown("---")
 
+rota_central_comando = menu_selecionado == "🎯 Central de Comando 2026"
+rota_inteligencia_politica = menu_selecionado == "🛰️ Inteligência Política"
 rota_cenario_2026 = menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026"
 
-if rota_cenario_2026:
+if rota_central_comando:
+    st.sidebar.header("🎛️ Recorte Executivo")
+    try:
+        (
+            eleitorado_2026,
+            perfil_2026,
+            perfil_secao_2026,
+            demografia_secao_2026,
+            resumo_municipal_2026,
+            metadados_2026,
+        ) = carregar_bases_cenario_2026()
+        erro_bases_2026 = None
+    except Exception as erro:
+        eleitorado_2026 = pd.DataFrame()
+        perfil_2026 = pd.DataFrame()
+        perfil_secao_2026 = pd.DataFrame()
+        demografia_secao_2026 = pd.DataFrame()
+        resumo_municipal_2026 = pd.DataFrame()
+        metadados_2026 = {}
+        erro_bases_2026 = str(erro)
+
+    municipios_central_disponiveis = (
+        sorted(eleitorado_2026['NM_MUNICIPIO'].dropna().unique())
+        if not eleitorado_2026.empty else []
+    )
+    municipio_central = st.sidebar.selectbox(
+        "Município:",
+        ["Todo o Acre"] + municipios_central_disponiveis
+    )
+    modo_reuniao = st.sidebar.checkbox(
+        "📺 Modo reunião",
+        value=False,
+        help=(
+            "Mantém somente a leitura executiva, prioridades e listas curtas, "
+            "reduzindo explicações técnicas na tela."
+        )
+    )
+    st.sidebar.caption(
+        "A Central cruza o eleitorado atual de 2026 com referências históricas "
+        "já existentes no painel."
+    )
+
+elif rota_inteligencia_politica:
+    st.sidebar.header("🛰️ Filtros do Radar")
+    periodo_radar = st.sidebar.selectbox(
+        "Período:",
+        ["Últimas 24 horas", "Últimos 7 dias", "Últimos 30 dias", "Todo o histórico"]
+    )
+    nivel_radar = st.sidebar.multiselect(
+        "Nível de atenção:",
+        ["CRITICO", "IMPORTANTE", "ACOMPANHAR", "INFORMATIVO"],
+        default=["CRITICO", "IMPORTANTE", "ACOMPANHAR", "INFORMATIVO"]
+    )
+    apenas_samir_radar = st.sidebar.checkbox("Somente menções diretas a Samir", value=False)
+    st.sidebar.caption(
+        "O radar usa somente fontes públicas. A IA não recebe bases internas da campanha."
+    )
+
+elif rota_cenario_2026:
     st.sidebar.header("🎛️ Filtros do Cenário 2026")
     try:
         (
@@ -1070,7 +1225,7 @@ else:
         dados = dados[dados['TIPO_ZONA'] == zona_selecionada]
 
     st.sidebar.caption(
-        "Versão 08/08/2026 • filtros territoriais consistentes"
+        "Versão 24/08/2026 • Central de Comando + Radar Político"
     )
 
     st.sidebar.markdown("---")
@@ -1081,9 +1236,670 @@ else:
     label_periodo = "Série Histórica Acumulada" if ano_selecionado == 'Todos os Anos (Série Histórica)' else f"Ano de {ano_selecionado}"
 
 # ==========================================
+# CENTRAL DE COMANDO 2026 — VISÃO EXECUTIVA
+# ==========================================
+if menu_selecionado == "🎯 Central de Comando 2026":
+    st.title("🎯 Central de Comando 2026")
+
+    escopo_central = (
+        "Todo o Acre"
+        if municipio_central == "Todo o Acre"
+        else municipio_central.title()
+    )
+    st.markdown(
+        f"""
+        <div class="cc-hero">
+            <div class="cc-kicker">Leitura executiva • {escopo_central}</div>
+            <h2>O que exige atenção da coordenação agora</h2>
+            <p>Campanha sem leitura territorial reage. Com inteligência territorial, escolhe onde agir.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # A Central usa a base histórica completa carregada no início do aplicativo.
+    # O filtro executivo é aplicado localmente para não alterar nenhuma das demais rotas.
+    historico_central = dados.copy()
+    col_municipio_central = next(
+        (
+            coluna for coluna in ['NM_MUNICIPIO', 'MUNICIPIO', 'Cidade', 'cidade']
+            if coluna in historico_central.columns
+        ),
+        None
+    )
+    if municipio_central != "Todo o Acre" and col_municipio_central:
+        historico_central = historico_central[
+            historico_central[col_municipio_central] == municipio_central
+        ].copy()
+
+    if erro_bases_2026:
+        eleitorado_central = pd.DataFrame()
+        st.warning(
+            "A Central abriu com a série histórica, mas as bases independentes de "
+            f"2026 não puderam ser carregadas. Detalhe: {erro_bases_2026}"
+        )
+    else:
+        eleitorado_central = eleitorado_2026.copy()
+        if municipio_central != "Todo o Acre":
+            eleitorado_central = eleitorado_central[
+                eleitorado_central['NM_MUNICIPIO'] == municipio_central
+            ].copy()
+
+    # Indicadores executivos básicos.
+    total_votos_historicos_central = pd.to_numeric(
+        historico_central.get('QT_VOTOS_SAMIR', pd.Series(dtype=float)),
+        errors='coerce'
+    ).fillna(0).sum()
+
+    chaves_local_historico = [
+        coluna for coluna in [
+            col_municipio_central, 'NR_ZONA', 'NM_LOCAL_VOTACAO'
+        ] if coluna and coluna in historico_central.columns
+    ]
+    total_locais_historicos_central = (
+        historico_central[chaves_local_historico].drop_duplicates().shape[0]
+        if chaves_local_historico else 0
+    )
+
+    total_eleitores_central = (
+        pd.to_numeric(eleitorado_central['QT_ELEITOR_SECAO'], errors='coerce')
+        .fillna(0).sum()
+        if not eleitorado_central.empty else 0
+    )
+    total_locais_2026_central = (
+        eleitorado_central['ID_LOCAL_2026'].nunique()
+        if not eleitorado_central.empty and 'ID_LOCAL_2026' in eleitorado_central
+        else 0
+    )
+    total_secoes_2026_central = (
+        eleitorado_central['ID_SECAO_2026'].nunique()
+        if not eleitorado_central.empty and 'ID_SECAO_2026' in eleitorado_central
+        else 0
+    )
+
+    matriz_central = pd.DataFrame()
+    cobertura_central = 0.0
+    comparaveis_central = pd.DataFrame()
+    oportunidades_central = pd.DataFrame()
+    consolidar_central = pd.DataFrame()
+    mediana_eleitores_central = 0.0
+    mediana_penetracao_central = 0.0
+
+    if not eleitorado_central.empty:
+        matriz_central, cobertura_central = construir_matriz_oportunidades_2026(
+            eleitorado_central,
+            historico_central
+        )
+        if not matriz_central.empty:
+            comparaveis_central = matriz_central[
+                matriz_central['COBERTURA_SECOES_PCT'] > 0
+            ].copy()
+
+        if not comparaveis_central.empty:
+            mediana_eleitores_central = comparaveis_central[
+                'ELEITORES_2026'
+            ].median()
+            mediana_penetracao_central = comparaveis_central[
+                'PENETRACAO_REFERENCIA_PCT'
+            ].median()
+
+            alta_escala = (
+                comparaveis_central['ELEITORES_2026']
+                >= mediana_eleitores_central
+            )
+            baixa_penetracao = (
+                comparaveis_central['PENETRACAO_REFERENCIA_PCT']
+                < mediana_penetracao_central
+            )
+            comparaveis_central['LEITURA_EXECUTIVA'] = np.select(
+                [
+                    alta_escala & baixa_penetracao,
+                    alta_escala & ~baixa_penetracao,
+                    ~alta_escala & baixa_penetracao,
+                ],
+                [
+                    'INVESTIGAR EXPANSÃO',
+                    'CONSOLIDAR PRESENÇA',
+                    'MONITORAR / ESCUTAR',
+                ],
+                default='PRESENÇA LOCAL / MONITORAR'
+            )
+
+            oportunidades_central = comparaveis_central[
+                comparaveis_central['LEITURA_EXECUTIVA']
+                == 'INVESTIGAR EXPANSÃO'
+            ].sort_values(
+                ['ELEITORES_2026', 'PENETRACAO_REFERENCIA_PCT'],
+                ascending=[False, True]
+            )
+            consolidar_central = comparaveis_central[
+                comparaveis_central['LEITURA_EXECUTIVA']
+                == 'CONSOLIDAR PRESENÇA'
+            ].sort_values(
+                ['ELEITORES_2026', 'VOTOS_REFERENCIA_2022'],
+                ascending=[False, False]
+            )
+
+    k1, k2, k3, k4 = st.columns(4)
+    k1.metric("Eleitorado 2026", inteiro_pt(total_eleitores_central))
+    k2.metric("Locais em 2026", inteiro_pt(total_locais_2026_central))
+    k3.metric(
+        "Votos históricos registrados",
+        inteiro_pt(total_votos_historicos_central),
+        help="Soma dos registros disponíveis de 2020, 2022 e 2024 no recorte."
+    )
+    k4.metric(
+        "Cobertura da referência 2022",
+        percentual_pt(cobertura_central, 1) if not matriz_central.empty else "—",
+        help="Percentual das seções de 2026 que encontrou referência territorial em 2022."
+    )
+    st.caption(
+        f"Recorte executivo: {escopo_central}. "
+        f"{inteiro_pt(total_secoes_2026_central)} seções atuais e "
+        f"{inteiro_pt(total_locais_historicos_central)} locais históricos únicos identificados."
+    )
+
+    # Radar político das últimas 24h. Falhas do coletor não derrubam a Central.
+    radar_central = filtrar_radar_periodo(carregar_radar_politico(), "Últimas 24 horas")
+    if not radar_central.empty:
+        nivel_central = radar_central.get('NIVEL_ATENCAO', pd.Series(index=radar_central.index, dtype=str)).astype(str).str.upper()
+        samir_central = radar_bool(radar_central.get('SAMIR_DIRETO', pd.Series(index=radar_central.index, dtype=str)))
+        pesquisa_central = radar_bool(radar_central.get('PESQUISA_ELEITORAL', pd.Series(index=radar_central.index, dtype=str)))
+        rc1, rc2, rc3, rc4 = st.columns(4)
+        rc1.metric("Radar político • 24h", inteiro_pt(len(radar_central)))
+        rc2.metric("Alertas relevantes", inteiro_pt(nivel_central.isin(['CRITICO', 'IMPORTANTE']).sum()))
+        rc3.metric("Menções diretas a Samir", inteiro_pt(samir_central.sum()))
+        rc4.metric("Pesquisas detectadas", inteiro_pt(pesquisa_central.sum()))
+        top_radar_central = radar_central.assign(_ORDEM=nivel_central.map({'CRITICO': 1, 'IMPORTANTE': 2, 'ACOMPANHAR': 3, 'INFORMATIVO': 4}).fillna(5)).sort_values(['_ORDEM', 'COLETADO_EM'], ascending=[True, False]).head(1)
+        if not top_radar_central.empty:
+            alerta = top_radar_central.iloc[0]
+            st.info(
+                f"🛰️ **Radar:** {alerta.get('NIVEL_ATENCAO', 'INFORMATIVO')} — "
+                f"{alerta.get('RESUMO') or alerta.get('TITULO', 'Nova ocorrência pública detectada.')}"
+            )
+    else:
+        erro_radar_central = carregar_radar_politico().attrs.get('erro_carregamento')
+        if erro_radar_central and not modo_reuniao:
+            st.caption("🛰️ Radar político ainda sem base disponível. A Central territorial continua funcionando normalmente.")
+
+    # Concentração histórica por local físico, sem misturar o mesmo local apenas por ano.
+    concentracao_top5 = 0.0
+    top_historico_central = pd.DataFrame()
+    if not historico_central.empty and 'NM_LOCAL_VOTACAO' in historico_central:
+        chaves_presenca = [
+            coluna for coluna in [
+                col_municipio_central, 'NR_ZONA', 'NM_LOCAL_VOTACAO'
+            ] if coluna and coluna in historico_central.columns
+        ]
+        top_historico_central = historico_central.groupby(
+            chaves_presenca,
+            as_index=False,
+            dropna=False
+        ).agg(VOTOS_HISTORICOS=('QT_VOTOS_SAMIR', 'sum')).sort_values(
+            'VOTOS_HISTORICOS', ascending=False
+        )
+        total_presenca = top_historico_central['VOTOS_HISTORICOS'].sum()
+        if total_presenca > 0:
+            concentracao_top5 = (
+                top_historico_central.head(5)['VOTOS_HISTORICOS'].sum()
+                / total_presenca * 100
+            )
+
+    revisar_eleitores = 0
+    revisar_locais = 0
+    if not eleitorado_central.empty and 'TERRITORIO_2026' in eleitorado_central:
+        revisar_base = eleitorado_central[
+            eleitorado_central['TERRITORIO_2026'] == 'REVISAR CLASSIFICAÇÃO'
+        ]
+        revisar_eleitores = pd.to_numeric(
+            revisar_base['QT_ELEITOR_SECAO'], errors='coerce'
+        ).fillna(0).sum()
+        revisar_locais = revisar_base['ID_LOCAL_2026'].nunique()
+
+    st.subheader("🧭 Leitura Executiva")
+    if comparaveis_central.empty:
+        st.info(
+            "Ainda não há volume comparável suficiente entre o eleitorado de 2026 "
+            "e a referência de 2022 neste recorte. A Central preserva os indicadores "
+            "disponíveis sem fabricar prioridade automática."
+        )
+    else:
+        leitura_partes = [
+            f"O recorte reúne **{inteiro_pt(total_eleitores_central)} eleitores** "
+            f"em **{inteiro_pt(total_locais_2026_central)} locais de votação**.",
+            f"Entre **{inteiro_pt(len(comparaveis_central))} locais comparáveis**, "
+            f"**{inteiro_pt(len(oportunidades_central))}** combinam alta escala com "
+            "presença histórica abaixo da mediana e merecem investigação de campo.",
+            f"Outros **{inteiro_pt(len(consolidar_central))}** combinam alta escala "
+            "com presença histórica acima da mediana e merecem proteção e consolidação.",
+        ]
+        if concentracao_top5 > 0:
+            leitura_partes.append(
+                f"Os cinco locais de maior volume concentram "
+                f"**{percentual_pt(concentracao_top5, 1)}** da presença histórica registrada."
+            )
+        st.info(" ".join(leitura_partes))
+
+    st.subheader("⚡ O que merece atenção agora")
+    alerta1, alerta2, alerta3 = st.columns(3)
+
+    with alerta1:
+        top_op = oportunidades_central.head(1)
+        if not top_op.empty:
+            linha = top_op.iloc[0]
+            st.markdown(
+                f"""
+                <div class="cc-card">
+                    <div class="cc-tag">INVESTIGAR EXPANSÃO</div>
+                    <h4>{linha['NM_LOCAL_VOTACAO']}</h4>
+                    <div class="cc-numero">{inteiro_pt(linha['ELEITORES_2026'])}</div>
+                    <p>eleitores em {str(linha['NM_MUNICIPIO']).title()}. Presença histórica de referência: {percentual_pt(linha['PENETRACAO_REFERENCIA_PCT'], 2)}.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                """
+                <div class="cc-card">
+                    <div class="cc-tag">EXPANSÃO</div>
+                    <h4>Nenhum alerta automático</h4>
+                    <p>O recorte atual não gerou local de alta escala abaixo da mediana de presença histórica.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with alerta2:
+        top_cons = consolidar_central.head(1)
+        if not top_cons.empty:
+            linha = top_cons.iloc[0]
+            st.markdown(
+                f"""
+                <div class="cc-card">
+                    <div class="cc-tag">CONSOLIDAR PRESENÇA</div>
+                    <h4>{linha['NM_LOCAL_VOTACAO']}</h4>
+                    <div class="cc-numero">{inteiro_pt(linha['VOTOS_REFERENCIA_2022'])}</div>
+                    <p>votos de referência em 2022, com {inteiro_pt(linha['ELEITORES_2026'])} eleitores atualmente.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                """
+                <div class="cc-card">
+                    <div class="cc-tag">CONSOLIDAÇÃO</div>
+                    <h4>Nenhum destaque automático</h4>
+                    <p>Não há local de alta escala acima da mediana histórica no recorte comparável atual.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    with alerta3:
+        if revisar_locais > 0:
+            st.markdown(
+                f"""
+                <div class="cc-card">
+                    <div class="cc-tag">QUALIDADE TERRITORIAL</div>
+                    <h4>{inteiro_pt(revisar_locais)} locais exigem revisão</h4>
+                    <div class="cc-numero">{inteiro_pt(revisar_eleitores)}</div>
+                    <p>eleitores estão em locais cuja classificação territorial ainda precisa de conferência.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        else:
+            st.markdown(
+                f"""
+                <div class="cc-card">
+                    <div class="cc-tag">CONCENTRAÇÃO HISTÓRICA</div>
+                    <h4>Top 5 locais</h4>
+                    <div class="cc-numero">{percentual_pt(concentracao_top5, 1) if concentracao_top5 else '—'}</div>
+                    <p>da presença histórica registrada no recorte está concentrada nos cinco primeiros locais.</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+    st.markdown("---")
+    st.subheader("📍 Prioridades territoriais do recorte")
+
+    aba_investigar, aba_consolidar, aba_historico = st.tabs([
+        "🚀 Investigar expansão",
+        "🛡️ Consolidar presença",
+        "📚 Presença histórica",
+    ])
+
+    with aba_investigar:
+        if oportunidades_central.empty:
+            st.info("Nenhum local foi classificado automaticamente nesta faixa.")
+        else:
+            tabela_investigar = oportunidades_central.head(10)[[
+                'NM_MUNICIPIO', 'NM_LOCAL_VOTACAO', 'ELEITORES_2026',
+                'VOTOS_REFERENCIA_2022', 'PENETRACAO_REFERENCIA_PCT',
+                'COBERTURA_SECOES_PCT'
+            ]].copy().rename(columns={
+                'NM_MUNICIPIO': 'Município',
+                'NM_LOCAL_VOTACAO': 'Local de Votação',
+                'ELEITORES_2026': 'Eleitorado 2026',
+                'VOTOS_REFERENCIA_2022': 'Votos de Referência 2022',
+                'PENETRACAO_REFERENCIA_PCT': 'Presença Histórica (%)',
+                'COBERTURA_SECOES_PCT': 'Cobertura das Seções (%)',
+            })
+            tabela_investigar['Presença Histórica (%)'] = tabela_investigar[
+                'Presença Histórica (%)'
+            ].round(2)
+            tabela_investigar['Cobertura das Seções (%)'] = tabela_investigar[
+                'Cobertura das Seções (%)'
+            ].round(1)
+            st.dataframe(tabela_investigar, use_container_width=True, hide_index=True)
+            exibir_acao_pratica(
+                "Valide os primeiros locais com presença de campo: liderança, agenda, "
+                "acesso, capacidade operacional e problemas locais antes de definir investimento."
+            )
+
+    with aba_consolidar:
+        if consolidar_central.empty:
+            st.info("Nenhum local foi classificado automaticamente nesta faixa.")
+        else:
+            tabela_consolidar = consolidar_central.head(10)[[
+                'NM_MUNICIPIO', 'NM_LOCAL_VOTACAO', 'ELEITORES_2026',
+                'VOTOS_REFERENCIA_2022', 'PENETRACAO_REFERENCIA_PCT',
+                'COBERTURA_SECOES_PCT'
+            ]].copy().rename(columns={
+                'NM_MUNICIPIO': 'Município',
+                'NM_LOCAL_VOTACAO': 'Local de Votação',
+                'ELEITORES_2026': 'Eleitorado 2026',
+                'VOTOS_REFERENCIA_2022': 'Votos de Referência 2022',
+                'PENETRACAO_REFERENCIA_PCT': 'Presença Histórica (%)',
+                'COBERTURA_SECOES_PCT': 'Cobertura das Seções (%)',
+            })
+            tabela_consolidar['Presença Histórica (%)'] = tabela_consolidar[
+                'Presença Histórica (%)'
+            ].round(2)
+            tabela_consolidar['Cobertura das Seções (%)'] = tabela_consolidar[
+                'Cobertura das Seções (%)'
+            ].round(1)
+            st.dataframe(tabela_consolidar, use_container_width=True, hide_index=True)
+            exibir_acao_pratica(
+                "Confirme se a presença política atual acompanha o histórico: liderança ativa, "
+                "agenda recente, equipe responsável e capacidade de mobilização."
+            )
+
+    with aba_historico:
+        if top_historico_central.empty:
+            st.info("Não há série histórica suficiente para listar presença acumulada.")
+        else:
+            tabela_historico = top_historico_central.head(10).copy()
+            nomes_historico = {}
+            if col_municipio_central and col_municipio_central in tabela_historico.columns:
+                nomes_historico[col_municipio_central] = 'Município'
+            if 'NR_ZONA' in tabela_historico.columns:
+                nomes_historico['NR_ZONA'] = 'Zona'
+            if 'NM_LOCAL_VOTACAO' in tabela_historico.columns:
+                nomes_historico['NM_LOCAL_VOTACAO'] = 'Local de Votação'
+            nomes_historico['VOTOS_HISTORICOS'] = 'Votos Históricos Registrados'
+            tabela_historico = tabela_historico.rename(columns=nomes_historico)
+            st.dataframe(tabela_historico, use_container_width=True, hide_index=True)
+            st.caption(
+                "A soma histórica reúne eleições e cargos distintos. Ela mede presença "
+                "registrada no território e não deve ser lida como projeção de 2026."
+            )
+
+    if not modo_reuniao:
+        st.markdown("---")
+        st.subheader("🔎 Por que o sistema mostrou isso?")
+        with st.expander("Entenda as regras da Central de Comando"):
+            if comparaveis_central.empty:
+                st.write(
+                    "Não houve locais comparáveis suficientes para calcular as medianas "
+                    "do recorte. Nenhuma prioridade territorial automática foi criada."
+                )
+            else:
+                st.markdown(
+                    f"- **Alta escala:** eleitorado do local igual ou superior à mediana "
+                    f"do recorte (**{inteiro_pt(mediana_eleitores_central)} eleitores**).\n"
+                    f"- **Presença histórica abaixo da mediana:** referência de 2022 abaixo "
+                    f"de **{percentual_pt(mediana_penetracao_central, 2)}**.\n"
+                    "- **Investigar expansão:** combina alta escala e presença histórica abaixo da mediana.\n"
+                    "- **Consolidar presença:** combina alta escala e presença histórica igual ou acima da mediana.\n"
+                    f"- **Cobertura da referência de 2022:** {percentual_pt(cobertura_central, 1)} das seções do recorte encontraram correspondência histórica."
+                )
+            st.warning(
+                "A Central organiza prioridades para decisão humana. A referência de 2022 "
+                "não é previsão de votos para 2026 e não substitui escuta, liderança local, "
+                "capacidade logística ou contexto político."
+            )
+
+        st.subheader("🧩 Próxima camada da Central")
+        st.info(
+            "A versão atual usa somente as bases já existentes neste painel. A próxima "
+            "etapa é incorporar indicadores operacionais agregados do Rua | Gestão, "
+            "Central de Materiais e Logística, para que a coordenação acompanhe presença, "
+            "execução e pendências no mesmo lugar."
+        )
+
+# ==========================================
+# INTELIGÊNCIA POLÍTICA — RADAR AUTOMÁTICO
+# ==========================================
+elif menu_selecionado == "🛰️ Inteligência Política":
+    st.title("🛰️ Inteligência Política")
+    st.markdown(
+        """
+        <div class="cc-hero">
+            <div class="cc-kicker">Radar público • política do Acre • 2026</div>
+            <h2>O que mudou no ambiente político</h2>
+            <p>Notícias, pesquisas registradas, menções a Samir e sinais que merecem atenção da coordenação.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    col_atualizar, col_status = st.columns([1, 3])
+    with col_atualizar:
+        varredura_manual = st.button(
+            "🔄 Varredura agora",
+            use_container_width=True,
+            help="Executa o mesmo coletor do agendamento automático e atualiza a base."
+        )
+    with col_status:
+        st.caption(
+            "O agendamento automático é a vigilância principal. Este botão funciona como contingência "
+            "quando a coordenação quiser forçar uma busca imediata."
+        )
+
+    if varredura_manual:
+        if 'gemini_api_key' not in st.secrets:
+            st.error(
+                "A chave `gemini_api_key` ainda não foi adicionada aos Secrets do Streamlit. "
+                "A rota pode ler o radar, mas a varredura manual com IA ainda não está habilitada."
+            )
+        else:
+            with st.spinner("Coletando fontes públicas e classificando novidades..."):
+                try:
+                    from radar_politico import executar_radar
+                    resultado_varredura = executar_radar(
+                        service_account=st.secrets["gcp_service_account"],
+                        sheet_id=PLANILHA_RADAR_ID,
+                        gemini_api_key=st.secrets["gemini_api_key"],
+                    )
+                    carregar_radar_politico.clear()
+                    st.success(
+                        f"Varredura concluída: {resultado_varredura.get('novos', 0)} novidade(s), "
+                        f"{resultado_varredura.get('criticos', 0)} crítica(s) e "
+                        f"{resultado_varredura.get('importantes', 0)} importante(s)."
+                    )
+                    st.rerun()
+                except Exception as erro:
+                    st.error(f"A varredura manual não pôde ser concluída: {erro}")
+
+    radar_total = carregar_radar_politico()
+    erro_radar = radar_total.attrs.get('erro_carregamento')
+    if radar_total.empty:
+        st.warning(
+            "O Radar ainda não possui registros disponíveis. Assim que o coletor automático "
+            "rodar pela primeira vez, as ocorrências aparecerão aqui."
+        )
+        if erro_radar:
+            with st.expander("Detalhe técnico"):
+                st.code(erro_radar)
+        st.info(
+            "A aba do Google Sheets é criada automaticamente pelo coletor. Não é necessário "
+            "montar colunas manualmente."
+        )
+    else:
+        radar = filtrar_radar_periodo(radar_total, periodo_radar)
+        if 'NIVEL_ATENCAO' in radar.columns and nivel_radar:
+            radar = radar[
+                radar['NIVEL_ATENCAO'].astype(str).str.upper().isin(nivel_radar)
+            ].copy()
+        if apenas_samir_radar and 'SAMIR_DIRETO' in radar.columns:
+            radar = radar[radar_bool(radar['SAMIR_DIRETO'])].copy()
+
+        if radar.empty:
+            st.info("Nenhuma ocorrência corresponde aos filtros selecionados.")
+        else:
+            nivel = radar.get('NIVEL_ATENCAO', pd.Series(index=radar.index, dtype=str)).astype(str).str.upper()
+            samir_direto = radar_bool(radar.get('SAMIR_DIRETO', pd.Series(index=radar.index, dtype=str)))
+            pesquisas = radar_bool(radar.get('PESQUISA_ELEITORAL', pd.Series(index=radar.index, dtype=str)))
+            relevantes = nivel.isin(['CRITICO', 'IMPORTANTE'])
+
+            r1, r2, r3, r4 = st.columns(4)
+            r1.metric("Ocorrências no recorte", inteiro_pt(len(radar)))
+            r2.metric("Alertas relevantes", inteiro_pt(relevantes.sum()))
+            r3.metric("Menções diretas a Samir", inteiro_pt(samir_direto.sum()))
+            r4.metric("Pesquisas detectadas", inteiro_pt(pesquisas.sum()))
+
+            ordem_nivel = {'CRITICO': 1, 'IMPORTANTE': 2, 'ACOMPANHAR': 3, 'INFORMATIVO': 4}
+            radar['_ORDEM_ATENCAO'] = nivel.map(ordem_nivel).fillna(5)
+            radar = radar.sort_values(
+                ['_ORDEM_ATENCAO', 'COLETADO_EM'], ascending=[True, False]
+            )
+
+            st.subheader("🚨 O que merece atenção agora")
+            destaques = radar[radar['NIVEL_ATENCAO'].astype(str).str.upper().isin(
+                ['CRITICO', 'IMPORTANTE', 'ACOMPANHAR']
+            )].head(8)
+            if destaques.empty:
+                st.success("Nenhum alerta acima de nível informativo neste recorte.")
+            else:
+                for _, item in destaques.iterrows():
+                    nivel_item = str(item.get('NIVEL_ATENCAO', 'INFORMATIVO')).upper()
+                    icone = {'CRITICO': '🔴', 'IMPORTANTE': '🟠', 'ACOMPANHAR': '🟡'}.get(nivel_item, '⚪')
+                    titulo = str(item.get('TITULO', '')).strip()
+                    resumo = str(item.get('RESUMO', '')).strip()
+                    por_que = str(item.get('POR_QUE_IMPORTA', '')).strip()
+                    fonte = str(item.get('FONTE', '')).strip()
+                    url = str(item.get('URL', '')).strip()
+                    st.markdown(f"### {icone} {nivel_item} — {titulo}")
+                    if resumo:
+                        st.write(resumo)
+                    if por_que:
+                        st.caption(f"Por que importa: {por_que}")
+                    st.caption(f"Fonte: {fonte or 'não informada'}")
+                    if url.startswith('http'):
+                        st.markdown(f"[Abrir fonte original]({url})")
+                    st.markdown("---")
+
+            aba_radar, aba_samir, aba_pesquisas, aba_temas, aba_fontes = st.tabs([
+                "Radar completo", "Samir", "Pesquisas", "Temas", "Fontes e método"
+            ])
+
+            with aba_radar:
+                colunas = [
+                    c for c in [
+                        'COLETADO_EM', 'NIVEL_ATENCAO', 'FONTE', 'TITULO', 'ATOR_PRINCIPAL',
+                        'TEMA', 'TIPO_OCORRENCIA', 'TOM_COBERTURA', 'FATO_ALEGACAO', 'URL'
+                    ] if c in radar.columns
+                ]
+                tabela = radar[colunas].copy()
+                if 'COLETADO_EM' in tabela.columns:
+                    tabela['COLETADO_EM'] = tabela['COLETADO_EM'].dt.tz_convert('America/Rio_Branco').dt.strftime('%d/%m/%Y %H:%M')
+                    tabela = tabela.rename(columns={'COLETADO_EM': 'Detectado em'})
+                tabela = tabela.rename(columns={
+                    'NIVEL_ATENCAO': 'Atenção', 'FONTE': 'Fonte', 'TITULO': 'Título',
+                    'ATOR_PRINCIPAL': 'Ator principal', 'TEMA': 'Tema',
+                    'TIPO_OCORRENCIA': 'Tipo', 'TOM_COBERTURA': 'Tom da cobertura',
+                    'FATO_ALEGACAO': 'Natureza', 'URL': 'Link'
+                })
+                st.dataframe(tabela, use_container_width=True, hide_index=True)
+
+            with aba_samir:
+                base_samir = radar[samir_direto].copy()
+                if base_samir.empty:
+                    st.info("Nenhuma menção direta a Samir no recorte atual.")
+                else:
+                    st.metric("Menções diretas", inteiro_pt(len(base_samir)))
+                    if 'TOM_COBERTURA' in base_samir.columns:
+                        tom = base_samir.groupby('TOM_COBERTURA', as_index=False).size().rename(columns={'size': 'OCORRENCIAS'})
+                        grafico_tom = alt.Chart(tom).mark_bar().encode(
+                            x=alt.X('OCORRENCIAS:Q', title='Ocorrências'),
+                            y=alt.Y('TOM_COBERTURA:N', title=None, sort='-x'),
+                            tooltip=['TOM_COBERTURA:N', 'OCORRENCIAS:Q']
+                        ).properties(height=max(220, len(tom) * 45))
+                        st.altair_chart(grafico_tom, use_container_width=True)
+                    st.caption(
+                        "Tom da cobertura não é rejeição eleitoral. Rejeição, aprovação e intenção "
+                        "de voto só devem ser tratadas como tais quando uma pesquisa efetivamente as medir."
+                    )
+
+            with aba_pesquisas:
+                base_pesquisas = radar[pesquisas].copy()
+                if base_pesquisas.empty:
+                    st.info("Nenhuma pesquisa eleitoral foi detectada no recorte atual.")
+                else:
+                    st.warning(
+                        "Registro no PesqEle comprova a existência do registro, não valida resultado, "
+                        "qualidade metodológica ou interpretação divulgada."
+                    )
+                    cols_p = [c for c in ['PUBLICADO_EM', 'FONTE', 'TITULO', 'RESUMO', 'URL'] if c in base_pesquisas.columns]
+                    tp = base_pesquisas[cols_p].copy()
+                    if 'PUBLICADO_EM' in tp.columns:
+                        tp['PUBLICADO_EM'] = tp['PUBLICADO_EM'].astype(str)
+                    st.dataframe(tp, use_container_width=True, hide_index=True)
+
+            with aba_temas:
+                if 'TEMA' not in radar.columns:
+                    st.info("Ainda não há classificação temática disponível.")
+                else:
+                    temas = radar.assign(TEMA=radar['TEMA'].replace('', 'Não classificado')).groupby('TEMA', as_index=False).size().rename(columns={'size': 'OCORRENCIAS'}).sort_values('OCORRENCIAS', ascending=False).head(15)
+                    grafico_temas = alt.Chart(temas).mark_bar().encode(
+                        x=alt.X('OCORRENCIAS:Q', title='Ocorrências'),
+                        y=alt.Y('TEMA:N', title=None, sort='-x', axis=alt.Axis(labelLimit=0)),
+                        tooltip=['TEMA:N', 'OCORRENCIAS:Q']
+                    ).properties(height=max(300, len(temas) * 32))
+                    st.altair_chart(grafico_temas, use_container_width=True)
+                    st.caption(
+                        "Volume de notícias não mede opinião pública. Esta visão serve para perceber "
+                        "quais assuntos estão ocupando mais espaço no ambiente informacional monitorado."
+                    )
+
+            with aba_fontes:
+                st.markdown(
+                    "**Malhas de captura da versão 1:** Google Notícias por RSS de busca, GDELT e "
+                    "o arquivo oficial de Pesquisas Eleitorais 2026 do TSE/PesqEle."
+                )
+                st.markdown(
+                    "**IA analista:** Gemini 3.6 Flash. A IA recebe somente título, fonte, URL e "
+                    "trechos de conteúdo público coletado. Bases internas de apoiadores, logística, "
+                    "materiais e estratégia não são enviadas ao modelo."
+                )
+                st.markdown(
+                    "**Escala de atenção:** CRITICO → IMPORTANTE → ACOMPANHAR → INFORMATIVO. "
+                    "A classificação é uma triagem para revisão humana, não uma decisão automática."
+                )
+                st.warning(
+                    "O radar reduz o tempo entre publicação e leitura, mas nenhuma fonte externa garante "
+                    "indexação instantânea. Por isso a arquitetura usa malhas redundantes e uma varredura "
+                    "manual de contingência."
+                )
+
+# ==========================================
 # ROTA 1: DESEMPENHO ELEITORAL POR TERRITÓRIO
 # ==========================================
-if menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
+elif menu_selecionado == "📊 1. Desempenho Eleitoral por Território":
     st.title(f"📊 Território e Eleitorado - {label_periodo}")
 
     st.info("""

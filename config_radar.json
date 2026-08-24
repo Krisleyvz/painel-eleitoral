@@ -1,0 +1,38 @@
+{
+  "queries": [
+    "\"Samir Bestene\"",
+    "\"Samir Bestene\" Acre",
+    "\"Samir Bestene\" eleição 2026",
+    "eleição Acre 2026 deputado estadual",
+    "pesquisa eleitoral Acre 2026",
+    "PesqEle Acre 2026",
+    "política Acre eleições 2026",
+    "Assembleia Legislativa Acre eleições 2026"
+  ],
+  "local_domains": [
+    "ac24horas.com",
+    "contilnetnoticias.com.br",
+    "agazetadoacre.com",
+    "noticiasdahora.com.br",
+    "acreagora.com"
+  ],
+  "adversaries": [],
+  "topics": [
+    "saúde",
+    "segurança",
+    "emprego",
+    "educação",
+    "infraestrutura",
+    "zona rural",
+    "funcionalismo",
+    "transporte",
+    "custo de vida",
+    "aliança",
+    "apoio",
+    "pesquisa eleitoral",
+    "rejeição",
+    "aprovação"
+  ],
+  "max_news_per_run": 80,
+  "max_ai_items_per_run": 30
+}
