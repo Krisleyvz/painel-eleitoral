@@ -350,10 +350,18 @@ def abrir_aba_radar(service_account: dict[str, Any] | None = None, sheet_id: str
     if not valores:
         ws.append_row(HEADERS, value_input_option="RAW")
     elif valores[0] != HEADERS:
-        # Não sobrescreve uma aba existente com estrutura inesperada.
-        raise RuntimeError(
-            f"A aba {RADAR_WORKSHEET} já existe, mas o cabeçalho não corresponde ao Radar v1."
-        )
+        # Se a aba não possui registros de dados (apenas uma primeira linha
+        # vazia, parcial ou um cabeçalho de teste), ela pode ser inicializada
+        # com segurança. Se houver linhas de dados, preserva tudo e interrompe.
+        if len(valores) <= 1:
+            ws.clear()
+            ws.append_row(HEADERS, value_input_option="RAW")
+        else:
+            cabecalho_atual = " | ".join(str(v) for v in valores[0][:8])
+            raise RuntimeError(
+                f"A aba {RADAR_WORKSHEET} possui dados e um cabeçalho incompatível. "
+                f"Início do cabeçalho atual: {cabecalho_atual}"
+            )
     return ws
 
 
