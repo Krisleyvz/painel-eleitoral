@@ -138,6 +138,30 @@ def parse_pubdate(texto: str) -> str:
         return normalizar_texto(texto)
 
 
+def timestamp_publicacao(valor: str) -> float:
+    """Converte datas ISO em timestamp; datas inválidas ficam no fim da fila."""
+    if not valor:
+        return 0.0
+    try:
+        normalizado = valor.replace("Z", "+00:00")
+        return datetime.fromisoformat(normalizado).timestamp()
+    except Exception:
+        return 0.0
+
+
+def dentro_da_janela(valor: str, horas: int) -> bool:
+    """Mantém notícias recentes; datas não interpretáveis são preservadas."""
+    if not valor:
+        return True
+    try:
+        dt = datetime.fromisoformat(valor.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt >= datetime.now(timezone.utc) - timedelta(hours=horas)
+    except Exception:
+        return True
+
+
 def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
     itens: list[Item] = []
     consultas = list(cfg.get("queries", []))
@@ -148,9 +172,14 @@ def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
         consultas.append(f'pesquisa eleitoral Acre site:{dominio}')
 
     vistos: set[str] = set()
+    janela_horas = int(cfg.get("news_window_hours", 72))
+    operador_when = str(cfg.get("google_news_when", "3d")).strip()
     for consulta in consultas:
         try:
-            url = GOOGLE_NEWS_RSS.format(q=quote_plus(consulta))
+            consulta_efetiva = consulta
+            if operador_when and "when:" not in consulta_efetiva.lower():
+                consulta_efetiva = f"{consulta_efetiva} when:{operador_when}"
+            url = GOOGLE_NEWS_RSS.format(q=quote_plus(consulta_efetiva))
             xml = http_get(url).text
             root = ET.fromstring(xml)
             for node in root.findall(".//item"):
@@ -161,6 +190,8 @@ def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
                 publicado = parse_pubdate(normalizar_texto(node.findtext("pubDate")))
                 if not titulo or not link:
                     continue
+                if not dentro_da_janela(publicado, janela_horas):
+                    continue
                 iid = make_id("GOOGLE_NEWS", link, titulo)
                 if iid in vistos:
                     continue
@@ -168,7 +199,7 @@ def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
                 itens.append(Item(
                     id=iid, coletado_em=agora_iso(), publicado_em=publicado,
                     fonte=fonte, tipo_fonte="GOOGLE_NEWS", titulo=titulo,
-                    url=link, conteudo_bruto=f"Consulta: {consulta}. {descricao}"[:6000]
+                    url=link, conteudo_bruto=f"Consulta: {consulta_efetiva}. {descricao}"[:6000]
                 ))
         except Exception as exc:
             print(f"[google-news] {consulta!r}: {exc}")
@@ -421,7 +452,7 @@ Regras:
 - tom_cobertura: FAVORAVEL, NEUTRO_INFORMATIVO, CRITICO ou INDETERMINADO.
 - fato_alegacao: FATO_REPORTADO, ALEGACAO, OPINIAO, RUMOR_NAO_CONFIRMADO ou INDETERMINADO.
 - pesquisa_eleitoral e samir_direto: booleanos.
-- CRITICO exige relação direta com Samir ou fato eleitoral de alto impacto e sinais concretos de relevância; seja conservador.
+- CRITICO é reservado a situação que possa exigir resposta da coordenação em poucas horas: crise reputacional relevante, ataque com propagação concreta, decisão judicial/eleitoral de alto impacto, pesquisa confiável com mudança material, fato grave diretamente ligado a Samir ou rearranjo político excepcional. Uma agenda, declaração, apoio comum, convenção rotineira ou matéria favorável NÃO é CRITICO; nesses casos use IMPORTANTE ou ACOMPANHAR.
 - Pesquisa registrada no TSE é um registro oficial de existência, não valida resultado nem metodologia.
 - Resumo em até 320 caracteres e por_que_importa em até 320 caracteres.
 - Se o item for pouco relevante ao Acre/eleição, use INFORMATIVO.
@@ -507,12 +538,20 @@ def executar_radar(
     coletados.extend(coletar_gdelt(cfg))
     coletados.extend(coletar_tse_pesqele())
     coletados = deduplicar_local(coletados)
-    max_news = int(cfg.get("max_news_per_run", 80))
-    coletados = coletados[:max_news]
 
     novos = [i for i in coletados if i.id not in existentes]
-    # Prioriza TSE e menções diretas a Samir para a cota de IA.
-    novos.sort(key=lambda i: (i.tipo_fonte != "TSE_PESQELE", "SAMIR" not in i.titulo.upper(), i.publicado_em or ""))
+    # Prioridade: registros oficiais do TSE, menções diretas a Samir e, dentro
+    # de cada grupo, as publicações mais recentes primeiro.
+    novos.sort(
+        key=lambda i: (
+            i.tipo_fonte != "TSE_PESQELE",
+            "SAMIR" not in i.titulo.upper(),
+            -timestamp_publicacao(i.publicado_em),
+        )
+    )
+    max_news = int(cfg.get("max_news_per_run", 80))
+    novos = novos[:max_news]
+
     max_ai = int(cfg.get("max_ai_items_per_run", 30))
     analisar = novos[:max_ai]
 
@@ -525,17 +564,23 @@ def executar_radar(
         except Exception as exc:
             print(f"[gemini] lote falhou: {exc}")
 
-    linhas = [linha_sheet(i, analises.get(i.id)) for i in novos]
+    # Só grava itens que receberam análise de IA. Assim, qualquer item que falhe
+    # hoje permanece "novo" e será tentado novamente na próxima rodada, em vez de
+    # ficar para sempre como INDETERMINADO.
+    processados = [i for i in analisar if i.id in analises]
+    linhas = [linha_sheet(i, analises[i.id]) for i in processados]
     if linhas:
         ws.append_rows(linhas, value_input_option="RAW")
 
-    criticos = sum(1 for i in novos if analises.get(i.id, {}).get("nivel_atencao") == "CRITICO")
-    importantes = sum(1 for i in novos if analises.get(i.id, {}).get("nivel_atencao") == "IMPORTANTE")
+    criticos = sum(1 for i in processados if analises.get(i.id, {}).get("nivel_atencao") == "CRITICO")
+    importantes = sum(1 for i in processados if analises.get(i.id, {}).get("nivel_atencao") == "IMPORTANTE")
     resultado = {
         "ok": True,
         "coletados": len(coletados),
         "novos": len(novos),
         "analisados_ia": len(analisar),
+        "gravados": len(processados),
+        "pendentes_ia": len(analisar) - len(processados),
         "criticos": criticos,
         "importantes": importantes,
         "duracao_s": round(time.time() - inicio, 1),
