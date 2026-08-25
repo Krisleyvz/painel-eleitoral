@@ -38,11 +38,14 @@ jobs:
           TRENDS_WORKSHEET: Trends_Runtime
           TRENDS_TERM: Samir Bestene
           TRENDS_OUTPUT: trends_runtime.json
+          TRENDS_DIAG_DIR: trends_diag
         run: python trends_browser_collector.py
 
       - name: Guardar resultado para validação
         uses: actions/upload-artifact@v4
         with:
           name: trends-runtime
-          path: trends_runtime.json
+          path: |
+            trends_runtime.json
+            trends_diag/
           retention-days: 1
