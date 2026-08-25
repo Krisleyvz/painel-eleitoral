@@ -1,0 +1,56 @@
+name: Central Runtime 2026
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: central-runtime-2026
+  cancel-in-progress: true
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install pandas numpy gspread google-auth
+
+      - name: Gerar dados atuais da Central
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          RADAR_WORKSHEET: Radar_Politico
+          HISTORICO_PATH: dados.csv
+          ELEITORADO_2026_PATH: eleitorado_2026_ac.csv
+          PERFIL_PATH: perfil_eleitorado_2026_ac.csv
+          RESUMO_MUNICIPAL_PATH: resumo_municipal_2026_ac.csv
+          RADAR_OUTPUT: radar_runtime.json
+          PERFIL_OUTPUT: perfil_territorial_2026.json
+        run: python central_runtime_snapshot.py
+
+      - name: Empacotar runtime
+        run: |
+          mkdir -p central-runtime
+          cp radar_runtime.json central-runtime/
+          cp perfil_territorial_2026.json central-runtime/
+
+      - name: Guardar runtime como artefato privado
+        uses: actions/upload-artifact@v4
+        with:
+          name: central-runtime
+          path: central-runtime/
+          retention-days: 1
