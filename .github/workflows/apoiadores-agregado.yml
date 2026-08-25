@@ -1,0 +1,39 @@
+name: Gerar snapshot agregado de apoiadores
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install gspread google-auth
+
+      - name: Gerar snapshot privado
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          SUPPORTER_MIN_CELL: "10"
+          SUPPORTER_SNAPSHOT_OUTPUT: apoiadores_agregado.json
+        run: python build_supporter_snapshot.py
+
+      - name: Disponibilizar resultado como artefato privado
+        uses: actions/upload-artifact@v4
+        with:
+          name: apoiadores-agregado
+          path: apoiadores_agregado.json
+          retention-days: 1
