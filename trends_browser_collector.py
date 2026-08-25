@@ -233,7 +233,42 @@ def find_download_control(widget):
     return None
 
 
-def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | None, str]:
+
+def parse_series_from_rendered_page(page) -> list[dict]:
+    """
+    Fallback seguro: lê a série já renderizada na própria página.
+    Não chama endpoints internos e não contorna proteção.
+    """
+    try:
+        text = page.locator("body").inner_text(timeout=4000)
+    except Exception:
+        return []
+
+    m = re.search(
+        r"Interesse ao longo do[\s\u00a0]+tempo.*?x[\s\t]+y1\s*(.*?)(?:Interesse(?:s)? por|Assuntos relacionados|Pesquisas relacionadas|$)",
+        text,
+        re.I | re.S,
+    )
+    if not m:
+        return []
+
+    points = []
+    for raw in m.group(1).splitlines():
+        line = raw.replace("\u202a", "").replace("\u202c", "").replace("\u00a0", " ").strip()
+        mm = re.match(
+            r"(.+?\b(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\.\s+de\s+\d{4})\s+(\d+(?:[.,]\d+)?)$",
+            line,
+            re.I,
+        )
+        if mm:
+            points.append({
+                "data": mm.group(1).strip(),
+                "indice": round(float(mm.group(2).replace(",", ".")), 2),
+            })
+    return points
+
+
+def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | None, str, list[dict]]:
     attempts = [
         ("90d", "today%203-m"),
         ("12m", "today%2012-m"),
@@ -259,10 +294,13 @@ def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | Non
         blocked = detect_block(page)
         if blocked:
             save_diagnostic(page, scope_id, f"{label}_bloqueado")
-            return None, "AUTOMAÇÃO BLOQUEADA PELO GOOGLE; nenhuma tentativa de contorno foi feita.", label
+            return None, "AUTOMAÇÃO BLOQUEADA PELO GOOGLE; nenhuma tentativa de contorno foi feita.", label, []
 
         widget = find_interest_widget(page)
         if widget is None:
+            rendered_points = parse_series_from_rendered_page(page)
+            if rendered_points:
+                return None, None, label, rendered_points
             save_diagnostic(page, scope_id, f"{label}_sem_grafico")
             last_error = (
                 f"Gráfico de interesse não encontrado no recorte {label}; "
@@ -284,7 +322,7 @@ def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | Non
             if not path:
                 last_error = f"Download {label} não disponibilizou arquivo local."
                 continue
-            return Path(path).read_bytes(), None, label
+            return Path(path).read_bytes(), None, label, []
         except PlaywrightTimeoutError:
             save_diagnostic(page, scope_id, f"{label}_timeout")
             last_error = f"O Trends não iniciou o download CSV no recorte {label}."
@@ -292,7 +330,7 @@ def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | Non
             save_diagnostic(page, scope_id, f"{label}_erro")
             last_error = f"Falha ao exportar CSV em {label}: {type(e).__name__}"
 
-    return None, last_error or "Coleta indisponível.", "12m"
+    return None, last_error or "Coleta indisponível.", "12m", []
 
 def parse_value(v: str) -> float | None:
     s = str(v or "").strip()
@@ -366,26 +404,36 @@ def pct_change(current: list[float], previous: list[float]) -> float | None:
     return round((a / b - 1) * 100, 1)
 
 
-def summarize(points: list[dict]) -> dict:
+def summarize(points: list[dict], recorte: str) -> dict:
     vals = [float(x["indice"]) for x in points]
     if not vals:
         return {}
 
-    last30 = points[-30:]
-    peak = max(last30, key=lambda x: x["indice"]) if last30 else max(points, key=lambda x: x["indice"])
-    last7_vals = vals[-7:]
-    prev7_vals = vals[-14:-7]
-    last30_vals = vals[-30:]
-    prev30_vals = vals[-60:-30]
+    if recorte == "12m":
+        short_n, long_n = 4, 12
+        short_label, long_label = "4 semanas", "12 semanas"
+    else:
+        short_n, long_n = 7, 30
+        short_label, long_label = "7 dias", "30 dias"
+
+    recent_for_peak = points[-long_n:]
+    peak = max(recent_for_peak, key=lambda x: x["indice"]) if recent_for_peak else max(points, key=lambda x: x["indice"])
+
+    short_now = vals[-short_n:]
+    short_prev = vals[-2 * short_n:-short_n]
+    long_now = vals[-long_n:]
+    long_prev = vals[-2 * long_n:-long_n]
 
     return {
         "indice_atual": round(vals[-1], 1),
-        "media_7d": avg(last7_vals),
-        "media_30d": avg(last30_vals),
-        "var_7d_pct": pct_change(last7_vals, prev7_vals),
-        "var_30d_pct": pct_change(last30_vals, prev30_vals),
-        "pico_30d": round(float(peak["indice"]), 1),
-        "data_pico_30d": peak["data"],
+        "media_curta": avg(short_now),
+        "media_longa": avg(long_now),
+        "variacao_curta_pct": pct_change(short_now, short_prev),
+        "variacao_longa_pct": pct_change(long_now, long_prev),
+        "rotulo_curta": short_label,
+        "rotulo_longa": long_label,
+        "pico_recente": round(float(peak["indice"]), 1),
+        "data_pico_recente": peak["data"],
     }
 
 
@@ -396,7 +444,7 @@ def collect_scope(browser, scope: dict) -> dict:
         viewport={"width": 1440, "height": 1100},
     )
     try:
-        blob, error, recorte = download_csv(page, scope["geo"], scope["id"])
+        blob, error, recorte, rendered_points = download_csv(page, scope["geo"], scope["id"])
         if error:
             return {
                 "escopo_id": scope["id"],
@@ -408,7 +456,7 @@ def collect_scope(browser, scope: dict) -> dict:
                 "pontos": [],
             }
 
-        points = parse_trends_csv(blob)
+        points = rendered_points if rendered_points else parse_trends_csv(blob)
         if not points:
             return {
                 "escopo_id": scope["id"],
@@ -420,14 +468,20 @@ def collect_scope(browser, scope: dict) -> dict:
                 "pontos": [],
             }
 
+        nonzero = sum(1 for p in points if float(p.get("indice", 0)) > 0)
+        sparse = nonzero <= 2
         return {
             "escopo_id": scope["id"],
             "escopo": scope["label"],
             "geo": scope["geo"],
-            "status": "OK",
-            "mensagem": "Coleta concluída pela exportação CSV da interface pública do Google Trends.",
+            "status": "OK_SPARSO" if sparse else "OK",
+            "mensagem": (
+                "Série obtida, mas com volume muito baixo; interpretar apenas como sinal relativo."
+                if sparse else
+                "Coleta concluída pela interface pública do Google Trends."
+            ),
             "recorte_usado": recorte,
-            **summarize(points),
+            **summarize(points, recorte),
             "pontos": points[-90:],
         }
     finally:
