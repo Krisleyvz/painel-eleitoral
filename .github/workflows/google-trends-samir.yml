@@ -1,0 +1,48 @@
+name: Google Trends Samir
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "41 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: google-trends-samir
+  cancel-in-progress: true
+
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: |
+          pip install playwright gspread google-auth
+          python -m playwright install --with-deps chromium
+
+      - name: Coletar Google Trends
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          TRENDS_WORKSHEET: Trends_Runtime
+          TRENDS_TERM: Samir Bestene
+          TRENDS_OUTPUT: trends_runtime.json
+        run: python trends_browser_collector.py
+
+      - name: Guardar resultado para validação
+        uses: actions/upload-artifact@v4
+        with:
+          name: trends-runtime
+          path: trends_runtime.json
+          retention-days: 1
