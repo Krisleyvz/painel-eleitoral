@@ -40,6 +40,7 @@ TERM = os.getenv("TRENDS_TERM", "Samir Bestene").strip()
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "").strip()
 TRENDS_SHEET = os.getenv("TRENDS_WORKSHEET", "Trends_Runtime").strip()
 OUTPUT = Path(os.getenv("TRENDS_OUTPUT", "trends_runtime.json"))
+DIAG_DIR = Path(os.getenv("TRENDS_DIAG_DIR", "trends_diag"))
 ACRE_TZ = timezone(timedelta(hours=-5))
 
 SCOPES = [
@@ -89,10 +90,10 @@ def google_client():
     return gspread.authorize(creds)
 
 
-def trends_url(geo: str) -> str:
+def trends_url(geo: str, date_code: str = "today%203-m") -> str:
     return (
         "https://trends.google.com/trends/explore"
-        f"?date=today%203-m&geo={quote(geo)}&q={quote(TERM)}&hl=pt-BR"
+        f"?date={date_code}&geo={quote(geo)}&q={quote(TERM)}&hl=pt-BR"
     )
 
 
@@ -112,6 +113,41 @@ def maybe_accept_consent(page):
                 return
         except Exception:
             pass
+
+
+
+def maybe_use_classic_explore(page):
+    patterns = [
+        re.compile(r"Remain on Classic Explore", re.I),
+        re.compile(r"Permanecer no Explore clássico", re.I),
+        re.compile(r"Continuar no Explore clássico", re.I),
+        re.compile(r"Explore clássico", re.I),
+    ]
+    for pat in patterns:
+        for role in ("button", "link"):
+            try:
+                loc = page.get_by_role(role, name=pat).first
+                if loc.is_visible(timeout=1200):
+                    loc.click(timeout=3500)
+                    page.wait_for_timeout(2500)
+                    return True
+            except Exception:
+                pass
+    return False
+
+
+def save_diagnostic(page, scope_id: str, label: str):
+    DIAG_DIR.mkdir(parents=True, exist_ok=True)
+    safe = re.sub(r"[^A-Za-z0-9_-]+", "_", f"{scope_id}_{label}")
+    try:
+        page.screenshot(path=str(DIAG_DIR / f"{safe}.png"), full_page=True)
+    except Exception:
+        pass
+    try:
+        body = page.locator("body").inner_text(timeout=2500)
+        (DIAG_DIR / f"{safe}.txt").write_text(body[:30000], encoding="utf-8")
+    except Exception:
+        pass
 
 
 def detect_block(page) -> str | None:
@@ -197,37 +233,66 @@ def find_download_control(widget):
     return None
 
 
-def download_csv(page, geo: str) -> tuple[bytes | None, str | None]:
-    page.goto(trends_url(geo), wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(6000)
-    maybe_accept_consent(page)
-    page.wait_for_timeout(3500)
+def download_csv(page, geo: str, scope_id: str) -> tuple[bytes | None, str | None, str]:
+    attempts = [
+        ("90d", "today%203-m"),
+        ("12m", "today%2012-m"),
+    ]
 
-    blocked = detect_block(page)
-    if blocked:
-        return None, "AUTOMAÇÃO BLOQUEADA PELO GOOGLE; nenhuma tentativa de contorno foi feita."
+    last_error = None
+    for label, date_code in attempts:
+        page.goto(trends_url(geo, date_code), wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_timeout(4500)
+        maybe_accept_consent(page)
+        maybe_use_classic_explore(page)
+        page.wait_for_timeout(4500)
 
-    widget = find_interest_widget(page)
-    if widget is None:
-        return None, "Gráfico de interesse não encontrado; pode haver volume insuficiente ou mudança na interface."
+        # Após escolher Classic Explore, recarrega a URL completa para garantir
+        # que termo, período e geografia foram realmente aplicados.
+        if "explore" not in page.url.lower() or TERM.lower().replace(" ", "") not in page.url.lower().replace("%20", "").replace("+", "").replace(" ", ""):
+            try:
+                page.goto(trends_url(geo, date_code), wait_until="domcontentloaded", timeout=60000)
+                page.wait_for_timeout(5000)
+            except Exception:
+                pass
 
-    control = find_download_control(widget)
-    if control is None:
-        return None, "Botão de exportação CSV não encontrado; a interface do Trends pode ter mudado."
+        blocked = detect_block(page)
+        if blocked:
+            save_diagnostic(page, scope_id, f"{label}_bloqueado")
+            return None, "AUTOMAÇÃO BLOQUEADA PELO GOOGLE; nenhuma tentativa de contorno foi feita.", label
 
-    try:
-        with page.expect_download(timeout=15000) as info:
-            control.click(timeout=6000)
-        download = info.value
-        path = download.path()
-        if not path:
-            return None, "Download não disponibilizou arquivo local."
-        return Path(path).read_bytes(), None
-    except PlaywrightTimeoutError:
-        return None, "O Trends não iniciou o download CSV dentro do tempo esperado."
-    except Exception as e:
-        return None, f"Falha ao exportar CSV: {type(e).__name__}"
+        widget = find_interest_widget(page)
+        if widget is None:
+            save_diagnostic(page, scope_id, f"{label}_sem_grafico")
+            last_error = (
+                f"Gráfico de interesse não encontrado no recorte {label}; "
+                "pode haver volume insuficiente ou mudança na interface."
+            )
+            continue
 
+        control = find_download_control(widget)
+        if control is None:
+            save_diagnostic(page, scope_id, f"{label}_sem_download")
+            last_error = f"Botão de exportação CSV não encontrado no recorte {label}."
+            continue
+
+        try:
+            with page.expect_download(timeout=18000) as info:
+                control.click(timeout=7000)
+            download = info.value
+            path = download.path()
+            if not path:
+                last_error = f"Download {label} não disponibilizou arquivo local."
+                continue
+            return Path(path).read_bytes(), None, label
+        except PlaywrightTimeoutError:
+            save_diagnostic(page, scope_id, f"{label}_timeout")
+            last_error = f"O Trends não iniciou o download CSV no recorte {label}."
+        except Exception as e:
+            save_diagnostic(page, scope_id, f"{label}_erro")
+            last_error = f"Falha ao exportar CSV em {label}: {type(e).__name__}"
+
+    return None, last_error or "Coleta indisponível.", "12m"
 
 def parse_value(v: str) -> float | None:
     s = str(v or "").strip()
@@ -331,7 +396,7 @@ def collect_scope(browser, scope: dict) -> dict:
         viewport={"width": 1440, "height": 1100},
     )
     try:
-        blob, error = download_csv(page, scope["geo"])
+        blob, error, recorte = download_csv(page, scope["geo"], scope["id"])
         if error:
             return {
                 "escopo_id": scope["id"],
@@ -339,6 +404,7 @@ def collect_scope(browser, scope: dict) -> dict:
                 "geo": scope["geo"],
                 "status": "INDISPONIVEL",
                 "mensagem": error,
+                "recorte_usado": recorte,
                 "pontos": [],
             }
 
@@ -350,6 +416,7 @@ def collect_scope(browser, scope: dict) -> dict:
                 "geo": scope["geo"],
                 "status": "SEM_DADOS",
                 "mensagem": "O CSV foi obtido, mas não continha série temporal utilizável. Isso pode ocorrer por volume insuficiente.",
+                "recorte_usado": recorte,
                 "pontos": [],
             }
 
@@ -359,6 +426,7 @@ def collect_scope(browser, scope: dict) -> dict:
             "geo": scope["geo"],
             "status": "OK",
             "mensagem": "Coleta concluída pela exportação CSV da interface pública do Google Trends.",
+            "recorte_usado": recorte,
             **summarize(points),
             "pontos": points[-90:],
         }
@@ -400,6 +468,7 @@ def write_sheet(scopes: list[dict], updated_at: str):
 
 def main():
     updated_at = datetime.now(ACRE_TZ).isoformat(timespec="seconds")
+    DIAG_DIR.mkdir(parents=True, exist_ok=True)
     results = []
 
     with sync_playwright() as p:
