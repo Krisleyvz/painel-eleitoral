@@ -1,0 +1,43 @@
+name: Macroterritórios Rio Branco v2
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install pandas numpy gspread google-auth
+
+      - name: Gerar macroterritórios com coordenadas existentes
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          MAP_CACHE_WORKSHEET: Mapa_Coordenadas
+          SUPPORTER_MIN_CELL: "10"
+          MACRO_K_URBANO: "6"
+          HISTORICO_PATH: dados.csv
+          ELEITORADO_2026_PATH: eleitorado_2026_ac.csv
+          MACRO_OUTPUT: macroterritorios_rio_branco_v2.json
+        run: python macroterritorios_rio_branco_v2.py
+
+      - name: Guardar resultado como artefato privado
+        uses: actions/upload-artifact@v4
+        with:
+          name: macroterritorios-rio-branco-v2
+          path: macroterritorios_rio_branco_v2.json
+          retention-days: 1
