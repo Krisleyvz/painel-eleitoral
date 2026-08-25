@@ -1,0 +1,41 @@
+name: Diagnóstico territorial 2026
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnosticar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install pandas numpy gspread google-auth
+
+      - name: Executar motor territorial
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          SUPPORTER_MIN_CELL: "10"
+          HISTORICO_PATH: dados.csv
+          ELEITORADO_2026_PATH: eleitorado_2026_ac.csv
+          DIAGNOSTICO_OUTPUT: diagnostico_territorial.json
+        run: python diagnostico_territorial.py
+
+      - name: Guardar diagnóstico como artefato privado
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-territorial
+          path: diagnostico_territorial.json
+          retention-days: 1
