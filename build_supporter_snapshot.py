@@ -128,10 +128,20 @@ def main():
     headers = list(registros[0].keys())
     col_nome = achar_coluna(headers, ["Nome Completo", "Nome"])
     col_bairro = achar_coluna(headers, ["Bairro"])
-    col_mun = achar_coluna(headers, ["Município", "Municipio", "Cidade"])
+    col_mun = (
+        achar_coluna(headers, ["Município", "Municipio", "Cidade"])
+        or achar_coluna(headers, [], contem=["MUNICIP"])
+        or achar_coluna(headers, [], contem=["CIDADE"])
+    )
     col_data = achar_coluna(headers, ["Carimbo de data/hora", "Timestamp", "Data do cadastro"], contem=["DATA"])
     col_indicacao = achar_coluna(headers, ["Através de quem chegou até nós?", "Através de quem", "Atraves de quem"], contem=["ATRAVES", "QUEM"])
     col_participacao = achar_coluna(headers, [], contem=["PARTICIP"])
+
+    if not col_mun:
+        raise RuntimeError(
+            "Não foi possível identificar a coluna de município/cidade na planilha. "
+            "A execução foi interrompida para evitar classificar todos os cadastros como Rio Branco."
+        )
 
     agora = datetime.now(ACRE_TZ)
     limite7 = agora - timedelta(days=7)
@@ -152,7 +162,8 @@ def main():
         total += 1
 
         bairro = str(row.get(col_bairro, "") if col_bairro else "").strip().title() or "Sem bairro informado"
-        mun = str(row.get(col_mun, "") if col_mun else "").strip().upper() or "RIO BRANCO"
+        mun_raw = str(row.get(col_mun, "")).strip()
+        mun = mun_raw.upper() if mun_raw else "MUNICÍPIO NÃO INFORMADO"
         por_bairro[(mun, bairro)] += 1
         por_mun[mun] += 1
 
@@ -219,7 +230,13 @@ def main():
         "meta": {
             "gerado_em": agora.isoformat(timespec="seconds"),
             "aba_origem": ws.title,
-            "privacidade": f"Somente agregados; sem PII; territórios com menos de {MIN_CELL} cadastros são suprimidos."
+            "privacidade": f"Somente agregados; sem PII; territórios com menos de {MIN_CELL} cadastros são suprimidos.",
+            "colunas_detectadas": {
+                "bairro": col_bairro or "",
+                "municipio": col_mun or "",
+                "data": col_data or "",
+                "participacao": col_participacao or ""
+            }
         },
         "resumo": {
             "total": total,
