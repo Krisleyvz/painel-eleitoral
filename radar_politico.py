@@ -49,6 +49,25 @@ RSS_LOCAIS_PADRAO = {
     "Portal Acre": "https://portalacre.com.br/feed/",
     "Acre Agora": "https://acreagora.com/feed/",
     "O Alto Acre": "https://oaltoacre.com/feed/",
+    "Diário do Acre": "https://diariodoacre.com.br/feed/",
+    "Na Hora da Notícia": "https://nahoradanoticia.com.br/feed/",
+    "PáginaNET": "https://paginanet.com.br/feed/",
+    "O Palaciano": "https://opalaciano.com.br/feed/",
+    "NauasNews": "https://www.nauasnews.com.br/feed/",
+}
+
+# Segunda rota de captura para portais WordPress. Se um RSS atrasar ou omitir
+# uma matéria, a busca pública do próprio portal pode encontrá-la.
+WP_PORTAIS_SAMIR = {
+    "ContilNet Notícias": "https://contilnetnoticias.com.br",
+    "Notícias da Hora": "https://noticiasdahora.com.br",
+    "Portal Acre": "https://portalacre.com.br",
+    "Acre Agora": "https://acreagora.com",
+    "O Alto Acre": "https://oaltoacre.com",
+    "Diário do Acre": "https://diariodoacre.com.br",
+    "Na Hora da Notícia": "https://nahoradanoticia.com.br",
+    "PáginaNET": "https://paginanet.com.br",
+    "O Palaciano": "https://opalaciano.com.br",
 }
 
 HEADERS = [
@@ -75,6 +94,13 @@ DEFAULT_CONFIG = {
         "agazetadoacre.com",
         "noticiasdahora.com.br",
         "acreagora.com",
+        "portalacre.com.br",
+        "oaltoacre.com",
+        "diariodoacre.com.br",
+        "nahoradanoticia.com.br",
+        "paginanet.com.br",
+        "opalaciano.com.br",
+        "nauasnews.com.br",
     ],
     "adversaries": [],
     "topics": [
@@ -87,6 +113,10 @@ DEFAULT_CONFIG = {
     "news_window_hours": 72,
     "google_news_when": "3d",
     "google_news_every_minutes": 30,
+    "samir_watch_every_minutes": 10,
+    "wp_samir_every_minutes": 15,
+    "samir_watch_window_hours": 168,
+    "wp_samir_portais": WP_PORTAIS_SAMIR,
     "gdelt_every_minutes": 60,
     "tse_every_minutes": 60,
     "rss_local_feeds": RSS_LOCAIS_PADRAO,
@@ -226,16 +256,43 @@ def limpar_html(texto: str) -> str:
 
 def rodada_due(intervalo_minutos: int) -> bool:
     """Executa fontes mais pesadas apenas em uma das rodadas do intervalo."""
+    if os.getenv("RADAR_FORCE_ALL", "").strip().lower() in {"1", "true", "sim", "yes"}:
+        return True
     if intervalo_minutos <= 5:
         return True
     minuto = datetime.now(timezone.utc).minute
     return (minuto % intervalo_minutos) < 5
 
 
+def menciona_samir(texto: str) -> bool:
+    """Detecção determinística de menção ao principal nome monitorado."""
+    base = normalizar_texto(texto).lower()
+    if not base:
+        return False
+
+    # Casos inequívocos
+    if "samir bestene" in base or "samir figueiredo bestene" in base:
+        return True
+
+    # Alguns veículos usam apenas o primeiro nome no título/corpo.
+    # Só aceitamos "Samir" isolado se houver contexto político acreano suficiente.
+    if re.search(r"\bsamir\b", base):
+        contexto = [
+            "vereador", "candidato", "deputado estadual", "progressistas",
+            "pp", "comitê", "comite", "campanha", "rio branco", "acre",
+            "bestene"
+        ]
+        if any(t in base for t in contexto):
+            return True
+    return False
+
+
 def item_politicamente_relevante(texto: str, cfg: dict[str, Any]) -> bool:
     base = normalizar_texto(texto).lower()
     if not base:
         return False
+    if menciona_samir(base):
+        return True
 
     termos_diretos = [
         "samir bestene", "samir",
@@ -377,6 +434,140 @@ def coletar_google_news(cfg: dict[str, Any]) -> list[Item]:
             time.sleep(0.7)
         except Exception as exc:
             print(f"[google-news] {consulta!r}: {exc}")
+    return itens
+
+
+def coletar_google_news_samir(cfg: dict[str, Any]) -> list[Item]:
+    """
+    Vigia redundante do nome Samir. Roda mais frequentemente que o Google News
+    geral e usa janela de 7 dias para recuperar matérias que tenham surgido
+    entre execuções ou atrasado na indexação.
+    """
+    itens: list[Item] = []
+    vistos: set[str] = set()
+    janela_horas = int(cfg.get("samir_watch_window_hours", 168))
+
+    consultas = [
+        '"Samir Bestene"',
+        '"Samir Figueiredo Bestene"',
+        '"Samir Bestene" Acre',
+        '"Samir Bestene" campanha',
+        '"Samir Bestene" comitê',
+        '"Samir Bestene" deputado estadual',
+        '"Samir" "deputado estadual" Acre',
+    ]
+
+    for consulta in consultas:
+        try:
+            consulta_efetiva = f"{consulta} when:7d"
+            url = GOOGLE_NEWS_RSS.format(q=quote_plus(consulta_efetiva))
+            xml = http_get(url, timeout=20, retries=1).text
+            root = ET.fromstring(xml)
+
+            for node in root.findall(".//item"):
+                titulo = normalizar_texto(node.findtext("title"))
+                link = normalizar_texto(node.findtext("link"))
+                fonte = normalizar_texto(node.findtext("source")) or "Google Notícias"
+                descricao = limpar_html(node.findtext("description") or "")
+                publicado = parse_pubdate(normalizar_texto(node.findtext("pubDate")))
+
+                if not titulo or not link:
+                    continue
+                if not dentro_da_janela(publicado, janela_horas):
+                    continue
+                if not menciona_samir(f"{titulo} {descricao}"):
+                    continue
+
+                iid = make_id("GOOGLE_NEWS_SAMIR", link, titulo)
+                if iid in vistos:
+                    continue
+                vistos.add(iid)
+                itens.append(Item(
+                    id=iid,
+                    coletado_em=agora_iso(),
+                    publicado_em=publicado,
+                    fonte=fonte,
+                    tipo_fonte="GOOGLE_NEWS_SAMIR",
+                    titulo=titulo,
+                    url=link,
+                    conteudo_bruto=f"Vigia Samir. Consulta: {consulta_efetiva}. {descricao}"[:6000],
+                ))
+            time.sleep(0.4)
+        except Exception as exc:
+            print(f"[google-news-samir] {consulta!r}: {exc}")
+
+    return itens
+
+
+def coletar_wp_samir(cfg: dict[str, Any]) -> list[Item]:
+    """
+    Fallback público para WordPress: consulta o mecanismo REST do próprio portal.
+    Não é obrigatório para o radar funcionar; qualquer portal que bloqueie o
+    endpoint simplesmente é ignorado naquela rodada.
+    """
+    itens: list[Item] = []
+    vistos: set[str] = set()
+    portais = cfg.get("wp_samir_portais") or WP_PORTAIS_SAMIR
+    janela_horas = int(cfg.get("samir_watch_window_hours", 168))
+    after = (datetime.now(timezone.utc) - timedelta(hours=janela_horas)).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+    for nome_fonte, base_url in dict(portais).items():
+        endpoint = str(base_url).rstrip("/") + "/wp-json/wp/v2/posts"
+        try:
+            params = {
+                "search": "Samir Bestene",
+                "after": after,
+                "per_page": 20,
+                "orderby": "date",
+                "order": "desc",
+                "_fields": "date_gmt,date,link,title,excerpt",
+            }
+            dados = http_get(
+                endpoint,
+                params=params,
+                timeout=18,
+                retries=0,
+                extra_headers={"Accept": "application/json"},
+            ).json()
+
+            if not isinstance(dados, list):
+                continue
+
+            for post in dados:
+                titulo_obj = post.get("title") or {}
+                exc_obj = post.get("excerpt") or {}
+                titulo = limpar_html(titulo_obj.get("rendered") if isinstance(titulo_obj, dict) else titulo_obj)
+                descricao = limpar_html(exc_obj.get("rendered") if isinstance(exc_obj, dict) else exc_obj)
+                link = normalizar_texto(post.get("link"))
+                publicado_raw = normalizar_texto(post.get("date_gmt") or post.get("date"))
+                publicado = publicado_raw
+                if publicado and publicado.endswith("Z") is False and "+" not in publicado[-6:]:
+                    publicado = publicado + "+00:00"
+
+                if not titulo or not link:
+                    continue
+                if not menciona_samir(f"{titulo} {descricao}"):
+                    continue
+                if not dentro_da_janela(publicado, janela_horas):
+                    continue
+
+                iid = make_id("WP_SAMIR", link, titulo)
+                if iid in vistos:
+                    continue
+                vistos.add(iid)
+                itens.append(Item(
+                    id=iid,
+                    coletado_em=agora_iso(),
+                    publicado_em=publicado,
+                    fonte=normalizar_texto(nome_fonte),
+                    tipo_fonte="WP_SAMIR",
+                    titulo=titulo,
+                    url=link,
+                    conteudo_bruto=f"Busca pública do portal. {descricao}"[:6000],
+                ))
+        except Exception as exc:
+            print(f"[wp-samir] {nome_fonte}: {exc}")
+
     return itens
 
 
@@ -648,6 +839,8 @@ Regras:
 - tom_cobertura: FAVORAVEL, NEUTRO_INFORMATIVO, CRITICO ou INDETERMINADO.
 - fato_alegacao: FATO_REPORTADO, ALEGACAO, OPINIAO, RUMOR_NAO_CONFIRMADO ou INDETERMINADO.
 - pesquisa_eleitoral e samir_direto: booleanos.
+- samir_direto = true sempre que Samir Bestene for citado nominalmente no título
+  OU no conteúdo do item, mesmo que ele não seja o ator principal da matéria.
 - CRITICO é reservado a situação que possa exigir resposta da coordenação em poucas horas: crise reputacional relevante, ataque com propagação concreta, decisão judicial/eleitoral de alto impacto, pesquisa confiável com mudança material, fato grave diretamente ligado a Samir ou rearranjo político excepcional. Uma agenda, declaração, apoio comum, convenção rotineira ou matéria favorável NÃO é CRITICO; nesses casos use IMPORTANTE ou ACOMPANHAR.
 - Pesquisa registrada no TSE é um registro oficial de existência, não valida resultado nem metodologia.
 - Resumo em até 320 caracteres e por_que_importa em até 320 caracteres.
@@ -699,7 +892,7 @@ def linha_sheet(item: Item, analise: dict[str, Any] | None = None) -> list[Any]:
         normalizar_texto(a.get("por_que_importa")),
         normalizar_texto(a.get("fato_alegacao")) or "INDETERMINADO",
         bool(a.get("pesquisa_eleitoral", item.tipo_fonte == "TSE_PESQELE")),
-        bool(a.get("samir_direto", "SAMIR" in item.titulo.upper())),
+        bool(a.get("samir_direto")) or menciona_samir(f"{item.titulo} {item.conteudo_bruto}"),
         "NOVO",
         item.conteudo_bruto[:12000],
     ]
@@ -737,26 +930,34 @@ def executar_radar(
     # 1) Camada rápida e principal: feeds diretos dos portais acreanos em toda rodada.
     coletados.extend(coletar_rss_locais(cfg))
 
-    # 2) Redes de descoberta mais amplas, porém mais sujeitas a bloqueio/rate limit.
+    # 2) Vigia específico de Samir: redundância para que uma matéria direta
+    # não dependa de um único RSS ou da classificação de IA.
+    if rodada_due(int(cfg.get("samir_watch_every_minutes", 10))):
+        coletados.extend(coletar_google_news_samir(cfg))
+
+    if rodada_due(int(cfg.get("wp_samir_every_minutes", 15))):
+        coletados.extend(coletar_wp_samir(cfg))
+
+    # 3) Redes de descoberta mais amplas, porém mais sujeitas a bloqueio/rate limit.
     if rodada_due(int(cfg.get("google_news_every_minutes", 30))):
         coletados.extend(coletar_google_news(cfg))
 
     if rodada_due(int(cfg.get("gdelt_every_minutes", 60))):
         coletados.extend(coletar_gdelt(cfg))
 
-    # 3) PesqEle: fonte oficial, atualização diária. Uma consulta por hora é suficiente.
+    # 4) PesqEle: fonte oficial, atualização diária. Uma consulta por hora é suficiente.
     if rodada_due(int(cfg.get("tse_every_minutes", 60))):
         coletados.extend(coletar_tse_pesqele())
 
     coletados = deduplicar_local(coletados)
 
     novos = [i for i in coletados if i.id not in existentes]
-    # Prioridade: registros oficiais do TSE, menções diretas a Samir e, dentro
-    # de cada grupo, as publicações mais recentes primeiro.
+    # Prioridade máxima: qualquer menção direta a Samir. Depois vêm TSE e
+    # demais itens, sempre do mais recente para o mais antigo.
     novos.sort(
         key=lambda i: (
+            not menciona_samir(f"{i.titulo} {i.conteudo_bruto}"),
             i.tipo_fonte != "TSE_PESQELE",
-            "SAMIR" not in i.titulo.upper(),
             -timestamp_publicacao(i.publicado_em),
         )
     )
@@ -775,16 +976,39 @@ def executar_radar(
         except Exception as exc:
             print(f"[gemini] lote falhou: {exc}")
 
-    # Só grava itens que receberam análise de IA. Assim, qualquer item que falhe
-    # hoje permanece "novo" e será tentado novamente na próxima rodada, em vez de
-    # ficar para sempre como INDETERMINADO.
-    processados = [i for i in analisar if i.id in analises]
-    linhas = [linha_sheet(i, analises[i.id]) for i in processados]
+    # Menções diretas a Samir nunca podem desaparecer porque a IA falhou.
+    # Se a classificação automática estiver indisponível, gravamos uma análise
+    # mínima e conservadora. Os demais itens continuam podendo ser tentados depois.
+    processados: list[Item] = []
+    analises_finais: dict[str, dict[str, Any]] = dict(analises)
+
+    for item in analisar:
+        if item.id in analises_finais:
+            processados.append(item)
+            continue
+
+        if menciona_samir(f"{item.titulo} {item.conteudo_bruto}"):
+            analises_finais[item.id] = {
+                "ator_principal": "Samir Bestene",
+                "tema": "Menção direta",
+                "tipo_ocorrencia": "MENCAO_DIRETA",
+                "tom_cobertura": "INDETERMINADO",
+                "nivel_atencao": "ACOMPANHAR",
+                "resumo": item.titulo[:320],
+                "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+                "fato_alegacao": "FATO_REPORTADO",
+                "pesquisa_eleitoral": False,
+                "samir_direto": True,
+            }
+            processados.append(item)
+
+    linhas = [linha_sheet(i, analises_finais[i.id]) for i in processados]
     if linhas:
         ws.append_rows(linhas, value_input_option="RAW")
 
-    criticos = sum(1 for i in processados if analises.get(i.id, {}).get("nivel_atencao") == "CRITICO")
-    importantes = sum(1 for i in processados if analises.get(i.id, {}).get("nivel_atencao") == "IMPORTANTE")
+    criticos = sum(1 for i in processados if analises_finais.get(i.id, {}).get("nivel_atencao") == "CRITICO")
+    importantes = sum(1 for i in processados if analises_finais.get(i.id, {}).get("nivel_atencao") == "IMPORTANTE")
+    samir_diretos = sum(1 for i in processados if menciona_samir(f"{i.titulo} {i.conteudo_bruto}"))
     resultado = {
         "ok": True,
         "coletados": len(coletados),
@@ -794,6 +1018,8 @@ def executar_radar(
         "pendentes_ia": len(analisar) - len(processados),
         "criticos": criticos,
         "importantes": importantes,
+        "samir_direto_detectados": samir_diretos,
+        "portais_rss_configurados": len(cfg.get("rss_local_feeds") or RSS_LOCAIS_PADRAO),
         "duracao_s": round(time.time() - inicio, 1),
         "modelo": DEFAULT_MODEL,
         "aba": RADAR_WORKSHEET,
