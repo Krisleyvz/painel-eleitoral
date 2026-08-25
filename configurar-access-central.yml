@@ -1,0 +1,152 @@
+name: Configurar acesso da Central
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  proteger:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Proteger central-samir-2026.pages.dev
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CENTRAL_ACCESS_EMAILS: ${{ secrets.CENTRAL_ACCESS_EMAILS }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+          import urllib.error
+
+          TOKEN = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
+          ACCOUNT = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
+          EMAILS_RAW = os.environ.get("CENTRAL_ACCESS_EMAILS", "").strip()
+
+          DOMAIN = "central-samir-2026.pages.dev"
+          APP_NAME = "Central Samir 2026 - Produção"
+          POLICY_NAME = "Equipe autorizada"
+
+          if not TOKEN or not ACCOUNT or not EMAILS_RAW:
+              raise SystemExit(
+                  "Secrets ausentes. Verifique CLOUDFLARE_API_TOKEN, "
+                  "CLOUDFLARE_ACCOUNT_ID e CENTRAL_ACCESS_EMAILS."
+              )
+
+          emails = sorted({
+              x.strip().lower()
+              for x in EMAILS_RAW.split(",")
+              if x.strip()
+          })
+          if not emails:
+              raise SystemExit("CENTRAL_ACCESS_EMAILS não contém nenhum e-mail.")
+
+          base = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}"
+          headers = {
+              "Authorization": f"Bearer {TOKEN}",
+              "Content-Type": "application/json",
+          }
+
+          def api(method, path, body=None):
+              data = None if body is None else json.dumps(body).encode("utf-8")
+              req = urllib.request.Request(
+                  base + path,
+                  data=data,
+                  headers=headers,
+                  method=method
+              )
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as resp:
+                      obj = json.loads(resp.read().decode("utf-8"))
+              except urllib.error.HTTPError as e:
+                  detail = e.read().decode("utf-8", errors="replace")
+                  raise SystemExit(f"Cloudflare API HTTP {e.code}: {detail}")
+
+              if not obj.get("success"):
+                  raise SystemExit(
+                      "Cloudflare API retornou erro: "
+                      + json.dumps(obj, ensure_ascii=False)
+                  )
+              return obj.get("result")
+
+          # 1. Garantir o método oficial One-time PIN (código por e-mail).
+          idps = api("GET", "/access/identity_providers")
+          otp = next((x for x in idps if x.get("type") == "onetimepin"), None)
+
+          if otp is None:
+              otp = api("POST", "/access/identity_providers", {
+                  "name": "Código por e-mail",
+                  "type": "onetimepin",
+                  "config": {}
+              })
+              print("✓ Login por código de e-mail criado.")
+          else:
+              print("✓ Login por código de e-mail já existia.")
+
+          otp_id = otp["id"]
+
+          # 2. Criar ou atualizar o aplicativo EXATO de produção.
+          apps = api("GET", "/access/apps")
+          app = next((x for x in apps if x.get("domain") == DOMAIN), None)
+
+          app_body = {
+              "name": APP_NAME,
+              "domain": DOMAIN,
+              "type": "self_hosted",
+              "session_duration": "24h",
+              "allowed_idps": [otp_id],
+              "auto_redirect_to_identity": True,
+          }
+
+          if app is None:
+              app = api("POST", "/access/apps", app_body)
+              print("✓ Aplicativo de produção criado.")
+          else:
+              app = api("PUT", f"/access/apps/{app['id']}", app_body)
+              print("✓ Aplicativo de produção atualizado.")
+
+          app_id = app["id"]
+
+          # 3. Criar/atualizar uma política exclusiva para os e-mails autorizados.
+          policies = api("GET", f"/access/apps/{app_id}/policies")
+          policy = next(
+              (x for x in policies if x.get("name") == POLICY_NAME),
+              None
+          )
+
+          policy_body = {
+              "name": POLICY_NAME,
+              "decision": "allow",
+              "include": [
+                  {"email": {"email": email}}
+                  for email in emails
+              ],
+              "exclude": [],
+              "require": [],
+              "session_duration": "24h",
+          }
+
+          if policy is None:
+              api("POST", f"/access/apps/{app_id}/policies", policy_body)
+              print("✓ Política de e-mails autorizados criada.")
+          else:
+              api(
+                  "PUT",
+                  f"/access/apps/{app_id}/policies/{policy['id']}",
+                  policy_body
+              )
+              print("✓ Política de e-mails autorizados atualizada.")
+
+          print("")
+          print("==============================================")
+          print("CENTRAL PROTEGIDA COM SUCESSO")
+          print("Endereço:", DOMAIN)
+          print("E-mails autorizados:", len(emails))
+          print("Login: código temporário enviado por e-mail")
+          print("==============================================")
+          PY
