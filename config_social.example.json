@@ -1,0 +1,11 @@
+{
+  "observacao": "v1 não exige este arquivo. Mantido para a próxima fase de parametrização.",
+  "termometro": {
+    "presenca": 0.25,
+    "engajamento": 0.3,
+    "discussao": 0.2,
+    "momento": 0.15,
+    "escala": 0.1
+  },
+  "nota": "Sentimento não entra no ranking comparativo enquanto não houver cobertura equivalente para todos."
+}
