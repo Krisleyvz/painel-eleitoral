@@ -1,0 +1,62 @@
+name: Radar Social SAMIR v1
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: radar-social-samir-v1
+  cancel-in-progress: true
+
+jobs:
+  social:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install requests gspread google-auth
+
+      - name: Executar Radar Social
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: gemini-3.7-flash
+
+          META_GRAPH_VERSION: v26.0
+          META_IG_USER_ID: ${{ secrets.META_IG_USER_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          SOCIAL_SAMIR_USERNAME: ${{ secrets.SOCIAL_SAMIR_USERNAME }}
+
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_API_HOST: https://graph.threads.net/v1.0
+
+          SOCIAL_FORCE_ALL: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+        run: python radar_social_v1.py
+
+      - name: Gerar runtime social
+        env:
+          GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          SOCIAL_RUNTIME_OUTPUT: social_runtime.json
+        run: python social_runtime_snapshot_v1.py
+
+      - name: Guardar runtime para validação
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-runtime
+          path: social_runtime.json
+          retention-days: 1
