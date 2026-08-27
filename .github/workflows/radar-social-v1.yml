@@ -7,10 +7,12 @@ on:
       - main
     paths:
       - "radar_social_v1.py"
+      - "radar_social_tse_adapter_v1.py"
       - "social_runtime_snapshot_v1.py"
       - ".github/workflows/radar-social-v1.yml"
   schedule:
     - cron: "*/15 * * * *"
+
 permissions:
   contents: read
 
@@ -51,7 +53,7 @@ jobs:
           THREADS_API_HOST: https://graph.threads.net/v1.0
 
           SOCIAL_FORCE_ALL: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
-        run: python radar_social_v1.py
+        run: python radar_social_tse_adapter_v1.py
 
       - name: Gerar runtime social
         env:
