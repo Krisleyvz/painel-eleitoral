@@ -2,9 +2,15 @@ name: Radar Social SAMIR v1
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "radar_social_v1.py"
+      - "social_runtime_snapshot_v1.py"
+      - ".github/workflows/radar-social-v1.yml"
   schedule:
     - cron: "*/15 * * * *"
-
 permissions:
   contents: read
 
