@@ -7,7 +7,8 @@ on:
       - main
     paths:
       - "radar_social_v1.py"
-      - "radar_social_tse_adapter_v1.py"
+      - "radar_social_seed_adapter_v2.py"
+      - "social_perfis_seed_2026.json"
       - "social_runtime_snapshot_v1.py"
       - ".github/workflows/radar-social-v1.yml"
   schedule:
@@ -52,8 +53,10 @@ jobs:
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_API_HOST: https://graph.threads.net/v1.0
 
-          SOCIAL_FORCE_ALL: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
-        run: python radar_social_tse_adapter_v1.py
+          # Push também força validação: ao atualizar o cadastro/código,
+          # já testamos a planilha sem exigir um segundo clique manual.
+          SOCIAL_FORCE_ALL: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && '1' || '0' }}
+        run: python radar_social_seed_adapter_v2.py
 
       - name: Gerar runtime social
         env:
