@@ -1,0 +1,115 @@
+{
+  "versao": "2026-08-27",
+  "descricao": "Lista inicial prioritária do Radar Social SAMIR. Samir + principais concorrentes parlamentares da Federação União Progressista.",
+  "federacao": "FEDERAÇÃO UNIÃO PROGRESSISTA (UNIÃO / PP)",
+  "perfis": [
+    {
+      "nr": "11106",
+      "nome": "Samir Bestene",
+      "partido": "PP",
+      "instagram": "samir.bestene",
+      "e_samir": true,
+      "prioridade": "PRINCIPAL",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR"
+    },
+    {
+      "nr": "11122",
+      "nome": "Nicolau Júnior",
+      "partido": "PP",
+      "instagram": "nicolaujunioroficial",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "11133",
+      "nome": "Maria Antonia",
+      "partido": "PP",
+      "instagram": "dep.mariaantonia",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "11234",
+      "nome": "Manoel Moraes",
+      "partido": "PP",
+      "instagram": "manoelmoraesdep",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "11555",
+      "nome": "Clodoaldo Rodrigues",
+      "partido": "PP",
+      "instagram": "clodoaldorodrigues_",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "11444",
+      "nome": "André da Droga Vale",
+      "partido": "PP",
+      "instagram": "deputadoandrevale.ac",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "44222",
+      "nome": "Adailton Cruz",
+      "partido": "UNIÃO",
+      "instagram": "adailtoncruzac",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR"
+    },
+    {
+      "nr": "44123",
+      "nome": "Afonso Fernandes",
+      "partido": "UNIÃO",
+      "instagram": "afonsofernandesoficial",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR"
+    },
+    {
+      "nr": "44000",
+      "nome": "Dra. Michelle Melo",
+      "partido": "UNIÃO",
+      "instagram": "michellemelo.ac",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR"
+    },
+    {
+      "nr": "44777",
+      "nome": "Fagner Calegario",
+      "partido": "UNIÃO",
+      "instagram": "calegariofagner",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "44444",
+      "nome": "Gilberto Lira",
+      "partido": "UNIÃO",
+      "instagram": "gilbertoliraoficial",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR/Nexo"
+    },
+    {
+      "nr": "44555",
+      "nome": "Whendy Lima",
+      "partido": "UNIÃO",
+      "instagram": "whendylima_",
+      "e_samir": false,
+      "prioridade": "ALTA",
+      "fonte": "TSE 2026 reproduzido por Tribuna PR"
+    }
+  ]
+}
