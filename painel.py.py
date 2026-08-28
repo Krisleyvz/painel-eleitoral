@@ -1014,6 +1014,483 @@ def filtrar_radar_periodo(radar, periodo):
     limite = agora_utc - pd.Timedelta(hours=horas)
     return radar[radar['COLETADO_EM'].notna() & (radar['COLETADO_EM'] >= limite)].copy()
 
+
+
+# ==========================================
+# FINANCEIRO — DADOS PÚBLICOS DO TSE
+# ==========================================
+ARQUIVO_FINANCEIRO_RUNTIME = "financeiro_runtime.json"
+FINANCEIRO_TSE_BASE = "https://divulgacandcontas.tse.jus.br/divulga/rest/v1"
+FINANCEIRO_TSE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Referer": "https://divulgacandcontas.tse.jus.br/divulga/",
+    "Origin": "https://divulgacandcontas.tse.jus.br",
+}
+FINANCEIRO_CAMPANHAS = {
+    2026: {
+        "ue": "AC",
+        "cargo": 7,
+        "cargo_nome": "Deputado Estadual",
+        "numero": 11106,
+        "partido": 11,
+        "id_candidato": "10002544519",
+        "eleicoes": [20322002026, 2062262026],
+    },
+    2024: {
+        "ue": "1392",
+        "cargo": 13,
+        "cargo_nome": "Vereador",
+        "numero": 11106,
+        "partido": 11,
+        "eleicoes": [2045202024],
+    },
+}
+
+# Último snapshot público conhecido para 2026. É usado somente se a API do TSE
+# não responder; a tela o marca como desatualizado e tenta novamente no refresh.
+FINANCEIRO_FALLBACK_2026 = {
+    "ano": 2026,
+    "cargo": "Deputado Estadual",
+    "numero": 11106,
+    "partido": "PP",
+    "cnpj": "68499897000183",
+    "atualizado_tse_em": "2026-08-27T15:13:00-05:00",
+    "status": "desatualizado",
+    "resumo": {
+        "total_recebido": 0.0,
+        "despesas_contratadas": 0.0,
+        "despesas_pagas": 0.0,
+        "saldo_caixa_aproximado": 0.0,
+        "limite_gastos": 1270629.01,
+        "percentual_limite_contratado": 0.0,
+    },
+    "origens_recursos": [],
+    "natureza_receitas": [],
+    "doadores": [],
+    "fornecedores": [],
+    "categorias_despesa": [],
+    "historico_entregas": [],
+    "tem_extratos": False,
+    "tem_notas_fiscais": False,
+}
+
+# Contingência histórica: 2024 já é uma prestação final. Estes totais foram
+# conferidos no material de referência enviado para esta implementação e só são
+# usados se a consulta pública do TSE estiver temporariamente indisponível.
+FINANCEIRO_FALLBACK_2024 = {
+    "ano": 2024,
+    "cargo": "Vereador",
+    "numero": 11106,
+    "partido": "PP",
+    "status": "historico_contingencia",
+    "resumo": {
+        "total_recebido": 156410.0,
+        "despesas_contratadas": 127241.0,
+        "despesas_pagas": 127241.0,
+        "saldo_caixa_aproximado": 29169.0,
+        "limite_gastos": 0.0,
+        "percentual_limite_contratado": 0.0,
+    },
+    "origens_recursos": [
+        {"origem": "Fundo Especial", "valor": 127500.0},
+        {"origem": "Outros recursos", "valor": 28910.0},
+    ],
+    "natureza_receitas": [],
+    "doadores": [
+        {"nome": "PROGRESSISTAS - BRASIL - BR - NACIONAL", "documento": "", "valor": 127500.0},
+        {"nome": "ELIAS FIRMINO DE FARIAS", "documento": "", "valor": 4500.0},
+        {"nome": "NABIHA BESTENE KOURY", "documento": "", "valor": 3250.0},
+        {"nome": "TAMARA ABDALLA ISPER", "documento": "", "valor": 3250.0},
+        {"nome": "MARIA LUCIA DA COSTA AMORIM", "documento": "", "valor": 3000.0},
+        {"nome": "NATHALIN KRISHNA ROCHA DE ASSUNCAO", "documento": "", "valor": 2250.0},
+    ],
+    "fornecedores": [
+        {"nome": "J A COMUNICACAO VISUAL LTDA", "documento": "", "valor": 75000.0},
+        {"nome": "MARIA KLAUDIA MENDES DA SILVA", "documento": "", "valor": 7750.0},
+        {"nome": "ANGELA MARIA FERREIRA", "documento": "", "valor": 5000.0},
+        {"nome": "AJS DERIVADOS DE PETROLEO LTDA", "documento": "", "valor": 4920.0},
+        {"nome": "FRANCISCO BRITO DO NASCIMENTO", "documento": "", "valor": 4250.0},
+        {"nome": "M S FEITOSA", "documento": "", "valor": 3201.0},
+        {"nome": "ANTONIA RODRIGUES MARQUES GOMES", "documento": "", "valor": 2250.0},
+        {"nome": "ALAMO CARIO FERNANDES DE HOLANDA", "documento": "", "valor": 2000.0},
+    ],
+    "categorias_despesa": [
+        {"categoria": "Publicidade por materiais impressos", "valor": 75000.0, "quantidade": 6},
+        {"categoria": "Atividades de militância e mobilização de rua", "valor": 22010.0, "quantidade": 15},
+        {"categoria": "Alimentação", "valor": 7750.0, "quantidade": 3},
+        {"categoria": "Serviços advocatícios", "valor": 5000.0, "quantidade": 1},
+        {"categoria": "Combustíveis e lubrificantes", "valor": 4920.0, "quantidade": 1},
+        {"categoria": "Serviços contábeis", "valor": 4250.0, "quantidade": 1},
+        {"categoria": "Materiais de expediente", "valor": 3201.0, "quantidade": 1},
+    ],
+    "historico_entregas": [],
+    "tem_extratos": False,
+    "tem_notas_fiscais": False,
+    "observacao_contingencia": (
+        "Snapshot final de 2024 usado apenas quando a fonte pública do TSE não responde."
+    ),
+}
+
+
+def valor_financeiro(valor):
+    try:
+        if valor in (None, ""):
+            return 0.0
+        if isinstance(valor, (int, float)):
+            return float(valor)
+        texto = str(valor).strip().replace("R$", "").replace(" ", "")
+        if "," in texto and "." in texto:
+            texto = texto.replace(".", "").replace(",", ".")
+        elif "," in texto:
+            texto = texto.replace(",", ".")
+        return float(texto)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def moeda_pt(valor, casas=2):
+    numero = valor_financeiro(valor)
+    texto = f"{numero:,.{casas}f}"
+    texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"R$ {texto}"
+
+
+def documento_publico_financeiro(valor):
+    """Mantém CNPJ legível e mascara CPF no painel executivo."""
+    digitos = re.sub(r"\D", "", str(valor or ""))
+    if len(digitos) == 14:
+        return (
+            f"{digitos[:2]}.{digitos[2:5]}.{digitos[5:8]}/"
+            f"{digitos[8:12]}-{digitos[12:]}"
+        )
+    if len(digitos) == 11:
+        return f"***.{digitos[3:6]}.{digitos[6:9]}-**"
+    return str(valor or "")
+
+
+def data_financeiro_legivel(valor):
+    if not valor:
+        return "não informada"
+    try:
+        instante = pd.to_datetime(valor, utc=True)
+        if pd.isna(instante):
+            return str(valor)
+        return instante.tz_convert("America/Rio_Branco").strftime("%d/%m/%Y %H:%M")
+    except Exception:
+        return str(valor)
+
+
+def _fin_normalizar_texto(valor):
+    texto = '' if valor is None else str(valor)
+    texto = unicodedata.normalize('NFKD', texto)
+    texto = texto.encode('ascii', errors='ignore').decode('ascii')
+    texto = re.sub(r'[^A-Za-z0-9]+', ' ', texto.upper())
+    return re.sub(r'\s+', ' ', texto).strip()
+
+
+def _fin_primeiro(obj, *chaves, default=None):
+    for chave in chaves:
+        if isinstance(obj, dict) and obj.get(chave) not in (None, ''):
+            return obj.get(chave)
+    return default
+
+
+def _fin_lista(payload, *chaves):
+    if isinstance(payload, list):
+        return [x for x in payload if isinstance(x, dict)]
+    if isinstance(payload, dict):
+        for chave in chaves:
+            valor = payload.get(chave)
+            if isinstance(valor, list):
+                return [x for x in valor if isinstance(x, dict)]
+    return []
+
+
+def _fin_get(session, caminho, tentativas=2):
+    import time
+
+    url = caminho if caminho.startswith('http') else FINANCEIRO_TSE_BASE + caminho
+    ultimo_erro = None
+    for tentativa in range(tentativas):
+        try:
+            resposta = session.get(
+                url,
+                headers=FINANCEIRO_TSE_HEADERS,
+                timeout=25,
+            )
+            resposta.raise_for_status()
+            return resposta.json()
+        except Exception as erro:
+            ultimo_erro = erro
+            if tentativa + 1 < tentativas:
+                time.sleep(1.2 * (tentativa + 1))
+    raise RuntimeError(str(ultimo_erro))
+
+
+def _fin_ids_eleicao(session, ano):
+    ids = []
+    try:
+        payload = _fin_get(session, '/eleicao/ordinarias')
+        itens = _fin_lista(payload, 'eleicoes', 'items', 'resultados')
+        for item in itens:
+            ano_item = _fin_primeiro(item, 'ano', 'anoEleicao', 'anoReferencia')
+            id_item = _fin_primeiro(item, 'id', 'idEleicao', 'sqEleicao', 'codigo')
+            try:
+                if int(ano_item) == int(ano) and int(id_item) not in ids:
+                    ids.append(int(id_item))
+            except (TypeError, ValueError):
+                pass
+    except Exception:
+        pass
+    for fallback in FINANCEIRO_CAMPANHAS[ano]['eleicoes']:
+        if fallback not in ids:
+            ids.append(fallback)
+    return ids
+
+
+def _fin_localizar_candidato(session, ano, eleicao, config):
+    try:
+        payload = _fin_get(
+            session,
+            f"/candidatura/listar/{ano}/{config['ue']}/{eleicao}/{config['cargo']}/candidatos",
+        )
+    except Exception:
+        return None
+    candidatos = _fin_lista(payload, 'candidatos', 'items', 'resultados')
+    for candidato in candidatos:
+        nome = _fin_normalizar_texto(
+            _fin_primeiro(candidato, 'nomeCompleto', 'nomeUrna', 'nome', 'nmCandidato')
+        )
+        if 'SAMIR' in nome and 'BESTENE' in nome:
+            return candidato
+    return None
+
+
+def _fin_candidato_id(candidato, config):
+    valor = _fin_primeiro(
+        candidato or {}, 'id', 'idCandidato', 'sqCandidato', 'sequencial', 'sq_candidato'
+    )
+    return str(valor or config.get('id_candidato') or '')
+
+
+def _fin_partido_numero(candidato, config):
+    partido = candidato.get('partido') if isinstance(candidato, dict) and isinstance(candidato.get('partido'), dict) else {}
+    valor = _fin_primeiro(
+        candidato or {}, 'numeroPartido', 'nrPartido',
+        default=_fin_primeiro(partido, 'numero', 'nrPartido', default=config.get('partido'))
+    )
+    try:
+        return int(valor)
+    except (TypeError, ValueError):
+        return int(config.get('partido', 11))
+
+
+def _fin_numero_candidato(candidato, config):
+    valor = _fin_primeiro(candidato or {}, 'numero', 'numeroCandidato', 'nrCandidato', default=config['numero'])
+    try:
+        return int(valor)
+    except (TypeError, ValueError):
+        return int(config['numero'])
+
+
+def _fin_consultar_prestador(session, ano, eleicao, config, candidato):
+    id_candidato = _fin_candidato_id(candidato, config)
+    if not id_candidato:
+        raise RuntimeError('Identificador da candidatura não localizado.')
+    nr_partido = _fin_partido_numero(candidato, config)
+    nr_candidato = _fin_numero_candidato(candidato, config)
+    caminhos = [
+        f"/prestador/consulta/{eleicao}/{ano}/{config['ue']}/{config['cargo']}/90/90/{id_candidato}",
+        f"/prestador/consulta/{eleicao}/{ano}/{config['ue']}/{config['cargo']}/{nr_partido}/{id_candidato}",
+        f"/prestador/consulta/{eleicao}/{ano}/{config['ue']}/{config['cargo']}/{nr_partido}/{nr_candidato}/{id_candidato}",
+    ]
+    erros = []
+    for caminho in caminhos:
+        try:
+            payload = _fin_get(session, caminho)
+            if isinstance(payload, dict) and payload:
+                return payload, id_candidato
+        except Exception as erro:
+            erros.append(str(erro))
+    raise RuntimeError(' | '.join(erros[-3:]))
+
+
+def _fin_limpar_ranking(itens, tipo):
+    saida = []
+    if not isinstance(itens, list):
+        return saida
+    for item in itens:
+        if not isinstance(item, dict):
+            continue
+        saida.append({
+            'nome': str(_fin_primeiro(
+                item, 'nome', 'nomeDoador', 'nomeFornecedor', 'nmDoador', 'nmFornecedor',
+                default='Não informado'
+            )),
+            'documento': str(_fin_primeiro(
+                item, 'cpfCnpj', 'cpfCnpjDoador', 'cpfCnpjFornecedor', 'nrCpfCnpj', default=''
+            )),
+            'valor': valor_financeiro(_fin_primeiro(
+                item, 'valor', 'vrReceita', 'vrDespesa', 'total', default=0
+            )),
+            'quantidade': _fin_primeiro(item, 'qntd', 'qtde', 'quantidade', 'qtd', default=''),
+            'tipo': tipo,
+        })
+    return sorted(saida, key=lambda x: x['valor'], reverse=True)
+
+
+def _fin_limpar_categorias(itens):
+    saida = []
+    if not isinstance(itens, list):
+        return saida
+    for item in itens:
+        if not isinstance(item, dict):
+            continue
+        saida.append({
+            'categoria': str(_fin_primeiro(
+                item, 'dsDRD', 'descricao', 'categoria', 'dsOrigemDespesa', default='Não informado'
+            )),
+            'valor': valor_financeiro(_fin_primeiro(item, 'valor', 'vrDespesa', 'total', default=0)),
+            'quantidade': _fin_primeiro(item, 'qtdeDespesas', 'qtd', 'quantidade', default=''),
+        })
+    return sorted(saida, key=lambda x: x['valor'], reverse=True)
+
+
+def _fin_resumir(payload, ano, config, eleicao, id_candidato):
+    consolidado = payload.get('dadosConsolidados') or {}
+    despesas = payload.get('despesas') or {}
+    total_recebido = valor_financeiro(consolidado.get('totalRecebido'))
+    total_financeiro = valor_financeiro(consolidado.get('totalFinanceiro'))
+    total_estimado = valor_financeiro(consolidado.get('totalEstimados'))
+    despesas_contratadas = valor_financeiro(despesas.get('totalDespesasContratadas'))
+    despesas_pagas = valor_financeiro(despesas.get('totalDespesasPagas'))
+    limite = valor_financeiro(_fin_primeiro(
+        despesas, 'valorLimiteDeGastos', 'limiteDeGasto1T', default=0
+    ))
+    fefc = valor_financeiro(consolidado.get('graphVrReceitaFinFefc'))
+    fundo = valor_financeiro(consolidado.get('graphVrReceitaFinFundo'))
+    outros_fin = valor_financeiro(consolidado.get('graphVrReceitaFinOutros'))
+    if total_financeiro and not any([fefc, fundo, outros_fin]):
+        outros_fin = total_financeiro
+    origens = [
+        {'origem': 'Fundo Eleitoral (FEFC)', 'valor': fefc},
+        {'origem': 'Fundo Partidário', 'valor': fundo},
+        {'origem': 'Outros recursos financeiros', 'valor': outros_fin},
+        {'origem': 'Recursos estimáveis', 'valor': total_estimado},
+    ]
+    origens = [x for x in origens if x['valor'] > 0]
+    natureza = [
+        {'natureza': 'Pessoas físicas', 'valor': valor_financeiro(consolidado.get('totalReceitaPF'))},
+        {'natureza': 'Partidos', 'valor': valor_financeiro(consolidado.get('totalPartidos'))},
+        {'natureza': 'Recursos próprios', 'valor': valor_financeiro(consolidado.get('totalProprios'))},
+        {'natureza': 'Outros candidatos/partidos', 'valor': valor_financeiro(consolidado.get('totalReceitaOutCand'))},
+        {'natureza': 'Financiamento coletivo', 'valor': valor_financeiro(consolidado.get('totalInternet'))},
+    ]
+    natureza = [x for x in natureza if x['valor'] > 0]
+    return {
+        'ano': ano,
+        'cargo': config['cargo_nome'],
+        'numero': _fin_primeiro(payload, 'nrCandidato', default=config['numero']),
+        'partido': _fin_primeiro(payload, 'siglaPartido', default='PP'),
+        'cnpj': _fin_primeiro(payload, 'cnpj', default=''),
+        'id_eleicao': eleicao,
+        'id_candidato': id_candidato,
+        'atualizado_tse_em': _fin_primeiro(payload, 'dataUltimaAtualizacaoContas', default=''),
+        'resumo': {
+            'total_recebido': total_recebido,
+            'total_financeiro': total_financeiro,
+            'total_estimado': total_estimado,
+            'despesas_contratadas': despesas_contratadas,
+            'despesas_pagas': despesas_pagas,
+            'saldo_caixa_aproximado': max(total_recebido - despesas_pagas, 0),
+            'limite_gastos': limite,
+            'percentual_limite_contratado': despesas_contratadas / limite * 100 if limite > 0 else 0,
+        },
+        'origens_recursos': origens,
+        'natureza_receitas': natureza,
+        'doadores': _fin_limpar_ranking(payload.get('rankingDoadores'), 'doador'),
+        'fornecedores': _fin_limpar_ranking(payload.get('rankingFornecedores'), 'fornecedor'),
+        'categorias_despesa': _fin_limpar_categorias(payload.get('concentracaoDespesas')),
+        'historico_entregas': payload.get('historicoEntregas') if isinstance(payload.get('historicoEntregas'), list) else [],
+        'tem_extratos': bool(payload.get('haveExtratos')),
+        'tem_notas_fiscais': bool(payload.get('haveNfes')),
+        'status': 'ok',
+    }
+
+
+@st.cache_data(ttl=1800)
+def coletar_financeiro_tse_ao_vivo():
+    """Consulta o TSE somente quando a rota Financeiro é aberta; cache de 30 min."""
+    import requests
+
+    resultado = {
+        'schema_version': 1,
+        'gerado_em': datetime.now(pytz.UTC).isoformat(),
+        'fonte': 'TSE — DivulgaCandContas',
+        'fonte_url': 'https://divulgacandcontas.tse.jus.br/divulga/',
+        'status': 'ok',
+        'campanhas': {},
+        'erros': [],
+        'modo_atualizacao': 'consulta_direta_cache_30min',
+    }
+    session = requests.Session()
+    session.headers.update(FINANCEIRO_TSE_HEADERS)
+
+    for ano in [2026, 2024]:
+        config = FINANCEIRO_CAMPANHAS[ano]
+        erro_ano = []
+        campanha = None
+        for eleicao in _fin_ids_eleicao(session, ano):
+            candidato = _fin_localizar_candidato(session, ano, eleicao, config)
+            try:
+                payload, id_candidato = _fin_consultar_prestador(
+                    session, ano, eleicao, config, candidato
+                )
+                campanha = _fin_resumir(payload, ano, config, eleicao, id_candidato)
+                break
+            except Exception as erro:
+                erro_ano.append(f"{eleicao}: {erro}")
+        if campanha is None:
+            if ano == 2024:
+                campanha = json.loads(json.dumps(FINANCEIRO_FALLBACK_2024))
+                campanha['erro_atualizacao'] = ' | '.join(erro_ano[-3:])
+            else:
+                campanha = json.loads(json.dumps(FINANCEIRO_FALLBACK_2026))
+                campanha['erro_atualizacao'] = ' | '.join(erro_ano[-3:])
+                resultado['status'] = 'parcial'
+            resultado['erros'].append({'ano': ano, 'erro': ' | '.join(erro_ano[-3:])})
+        resultado['campanhas'][str(ano)] = campanha
+    return resultado
+
+
+@st.cache_data(ttl=300)
+def carregar_financeiro_runtime():
+    """Prefere snapshot local; sem ele, consulta o TSE ao vivo com cache."""
+    if os.path.exists(ARQUIVO_FINANCEIRO_RUNTIME):
+        try:
+            with open(ARQUIVO_FINANCEIRO_RUNTIME, 'r', encoding='utf-8') as arquivo:
+                payload = json.load(arquivo)
+            if (
+                isinstance(payload, dict)
+                and payload.get('gerado_em')
+                and isinstance(payload.get('campanhas'), dict)
+            ):
+                return payload
+        except Exception:
+            pass
+    return coletar_financeiro_tse_ao_vivo()
+
+
+def campanha_financeira(runtime, ano):
+    campanhas = runtime.get('campanhas', {}) if isinstance(runtime, dict) else {}
+    campanha = campanhas.get(str(ano), {})
+    return campanha if isinstance(campanha, dict) else {}
+
+
 # ==========================================
 # 3. BARRA LATERAL (MENUS E FILTROS)
 # ==========================================
@@ -1067,12 +1544,13 @@ st.sidebar.header("🧭 Navegação do Sistema")
 rotas_menu = {
     "🎯 1. Central de Comando 2026": "🎯 Central de Comando 2026",
     "🛰️ 2. Inteligência Política": "🛰️ Inteligência Política",
-    "📊 3. Território e Eleitorado": "📊 1. Desempenho Eleitoral por Território",
-    "🗺️ 4. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
-    "📋 5. Concorrência": "📋 4. Panorama da Concorrência",
-    "🔗 6. Correlação Territorial": "🔗 5. Correlação territorial",
-    "🚜 7. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
-    "🗳️ 8. Cenário 2026": "🗳️ 7. Cenário Eleitoral 2026",
+    "💰 3. Financeiro": "💰 Financeiro",
+    "📊 4. Território e Eleitorado": "📊 1. Desempenho Eleitoral por Território",
+    "🗺️ 5. Participação Eleitoral": "🗺️ 3. Participação e Não Comparecimento",
+    "📋 6. Concorrência": "📋 4. Panorama da Concorrência",
+    "🔗 7. Correlação Territorial": "🔗 5. Correlação territorial",
+    "🚜 8. Zona Rural": "🚜 6. Análise Territorial da Zona Rural",
+    "🗳️ 9. Cenário 2026": "🗳️ 7. Cenário Eleitoral 2026",
 }
 opcao_menu = st.sidebar.radio(
     "Selecione o Painel Desejado:",
@@ -1083,6 +1561,7 @@ st.sidebar.markdown("---")
 
 rota_central_comando = menu_selecionado == "🎯 Central de Comando 2026"
 rota_inteligencia_politica = menu_selecionado == "🛰️ Inteligência Política"
+rota_financeiro = menu_selecionado == "💰 Financeiro"
 rota_cenario_2026 = menu_selecionado == "🗳️ 7. Cenário Eleitoral 2026"
 
 if rota_central_comando:
@@ -1141,6 +1620,25 @@ elif rota_inteligencia_politica:
     apenas_samir_radar = st.sidebar.checkbox("Somente menções diretas a Samir", value=False)
     st.sidebar.caption(
         "O radar usa somente fontes públicas. A IA não recebe bases internas da campanha."
+    )
+
+elif rota_financeiro:
+    st.sidebar.header("💰 Financeiro da Campanha")
+    runtime_financeiro_sidebar = carregar_financeiro_runtime()
+    anos_financeiros = sorted(
+        [str(a) for a in runtime_financeiro_sidebar.get("campanhas", {}).keys()],
+        reverse=True,
+    )
+    if not anos_financeiros:
+        anos_financeiros = ["2026", "2024"]
+    ano_financeiro = st.sidebar.selectbox(
+        "Eleição:",
+        anos_financeiros,
+        index=0,
+    )
+    st.sidebar.caption(
+        "Dados públicos declarados à Justiça Eleitoral. A tela usa um snapshot "
+        "automático para permanecer rápida e auditável."
     )
 
 elif rota_cenario_2026:
@@ -1895,6 +2393,395 @@ elif menu_selecionado == "🛰️ Inteligência Política":
                     "indexação instantânea. Por isso a arquitetura usa malhas redundantes e uma varredura "
                     "manual de contingência."
                 )
+
+
+
+# ==========================================
+# FINANCEIRO — CAMPANHA E PRESTAÇÃO DE CONTAS
+# ==========================================
+elif menu_selecionado == "💰 Financeiro":
+    st.title("💰 Financeiro da Campanha")
+
+    col_fin_titulo, col_fin_refresh = st.columns([4, 1])
+    with col_fin_refresh:
+        if st.button("🔄 Atualizar TSE", use_container_width=True):
+            carregar_financeiro_runtime.clear()
+            coletar_financeiro_tse_ao_vivo.clear()
+            st.rerun()
+
+    runtime_financeiro = carregar_financeiro_runtime()
+    campanha_atual = campanha_financeira(runtime_financeiro, ano_financeiro)
+    status_campanha = str(campanha_atual.get("status", "indisponivel")).lower()
+    resumo_financeiro = campanha_atual.get("resumo", {}) or {}
+
+    cargo_financeiro = campanha_atual.get("cargo", "Campanha eleitoral")
+    partido_financeiro = campanha_atual.get("partido", "PP")
+    atualizado_tse = campanha_atual.get("atualizado_tse_em")
+    gerado_em = runtime_financeiro.get("gerado_em")
+
+    st.markdown(
+        f"""
+        <div class="cc-hero">
+            <div class="cc-kicker">Prestação de contas • {ano_financeiro} • TSE</div>
+            <h2>Quanto entrou, quanto foi comprometido e para onde o dinheiro está indo</h2>
+            <p>{cargo_financeiro} • {partido_financeiro}. Leitura executiva dos dados públicos declarados à Justiça Eleitoral.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if status_campanha == "indisponivel":
+        st.warning(
+            "A estrutura do módulo financeiro já está ativa, mas o TSE ainda não "
+            "entregou um snapshot utilizável nesta atualização automática."
+        )
+        erro_financeiro = campanha_atual.get("erro_atualizacao") or runtime_financeiro.get("erro_carregamento")
+        if erro_financeiro:
+            with st.expander("Detalhe da atualização"):
+                st.code(str(erro_financeiro))
+    elif status_campanha == "desatualizado":
+        st.warning(
+            "A última consulta ao TSE falhou temporariamente. O painel preservou o "
+            "último snapshot válido e o identifica como desatualizado."
+        )
+    elif status_campanha == "historico_contingencia":
+        st.info(
+            "A consulta ao TSE para 2024 não respondeu nesta abertura. Como 2024 já possui "
+            "prestação final, o painel está usando o snapshot histórico conferido para essa eleição."
+        )
+
+    total_recebido = valor_financeiro(resumo_financeiro.get("total_recebido"))
+    despesas_contratadas = valor_financeiro(resumo_financeiro.get("despesas_contratadas"))
+    despesas_pagas = valor_financeiro(resumo_financeiro.get("despesas_pagas"))
+    saldo_aproximado = valor_financeiro(resumo_financeiro.get("saldo_caixa_aproximado"))
+    limite_gastos = valor_financeiro(resumo_financeiro.get("limite_gastos"))
+    pct_limite = valor_financeiro(resumo_financeiro.get("percentual_limite_contratado"))
+
+    f1, f2, f3, f4 = st.columns(4)
+    f1.metric("Receitas recebidas", moeda_pt(total_recebido))
+    f2.metric("Despesas contratadas", moeda_pt(despesas_contratadas))
+    f3.metric("Despesas pagas", moeda_pt(despesas_pagas))
+    f4.metric(
+        "Saldo aproximado",
+        moeda_pt(saldo_aproximado),
+        help=(
+            "Receitas recebidas menos despesas pagas no snapshot. Não substitui "
+            "o saldo bancário oficial nem considera obrigações ainda não liquidadas."
+        ),
+    )
+
+    if limite_gastos > 0:
+        st.markdown(
+            f"**Limite de gastos:** {moeda_pt(limite_gastos)} • "
+            f"**{pct_limite:.1f}%** já comprometido em despesas contratadas."
+        )
+        st.progress(min(max(pct_limite / 100, 0.0), 1.0))
+
+    if total_recebido > 0 or despesas_contratadas > 0:
+        percentual_comprometido_receita = (
+            despesas_contratadas / total_recebido * 100 if total_recebido else 0
+        )
+        leitura = (
+            f"A campanha declarou **{moeda_pt(total_recebido)} em receitas** e já "
+            f"contratou **{moeda_pt(despesas_contratadas)} em despesas**. "
+        )
+        if total_recebido:
+            leitura += (
+                f"O valor contratado corresponde a **{percentual_comprometido_receita:.1f}%** "
+                "do que entrou até o momento. "
+            )
+        if despesas_contratadas > despesas_pagas:
+            leitura += (
+                f"Há **{moeda_pt(despesas_contratadas - despesas_pagas)}** em despesas "
+                "contratadas que ainda não aparecem como pagas no snapshot."
+            )
+        st.info(leitura)
+    else:
+        st.info(
+            "Nenhuma movimentação financeira foi publicada neste snapshot. Isso pode "
+            "significar ausência de movimento declarado até agora ou atraso temporário "
+            "na disponibilização pública pelo TSE."
+        )
+
+    st.caption(
+        f"Snapshot do painel: {data_financeiro_legivel(gerado_em)} • "
+        f"Última atualização indicada pelo TSE: {data_financeiro_legivel(atualizado_tse)}."
+    )
+
+    (
+        aba_fin_visao,
+        aba_fin_origens,
+        aba_fin_doadores,
+        aba_fin_despesas,
+        aba_fin_historico,
+        aba_fin_fonte,
+    ) = st.tabs([
+        "Visão Geral",
+        "Origem dos Recursos",
+        "Doadores",
+        "Despesas e Fornecedores",
+        "2024 × 2026",
+        "Fonte e Atualização",
+    ])
+
+    with aba_fin_visao:
+        st.subheader("📌 Estrutura financeira da campanha")
+        dados_visao = pd.DataFrame([
+            {"Indicador": "Receitas recebidas", "Valor": total_recebido},
+            {"Indicador": "Despesas contratadas", "Valor": despesas_contratadas},
+            {"Indicador": "Despesas pagas", "Valor": despesas_pagas},
+            {"Indicador": "Saldo aproximado", "Valor": saldo_aproximado},
+        ])
+        if dados_visao["Valor"].sum() > 0:
+            grafico_visao_fin = alt.Chart(dados_visao).mark_bar().encode(
+                x=alt.X("Valor:Q", title="Valor (R$)"),
+                y=alt.Y("Indicador:N", title=None, sort="-x"),
+                tooltip=[
+                    alt.Tooltip("Indicador:N", title="Indicador"),
+                    alt.Tooltip("Valor:Q", title="Valor (R$)", format=",.2f"),
+                ],
+            ).properties(height=250)
+            st.altair_chart(grafico_visao_fin, use_container_width=True)
+
+        cnpj_campanha = campanha_atual.get("cnpj")
+        if cnpj_campanha:
+            st.caption(f"CNPJ da campanha: {documento_publico_financeiro(cnpj_campanha)}")
+
+        entregas = campanha_atual.get("historico_entregas", []) or []
+        if entregas:
+            st.subheader("Entregas da prestação de contas")
+            tabela_entregas = pd.DataFrame(entregas)
+            colunas_entrega = [
+                c for c in ["dataEntrega", "tipo", "retificadora", "numeroControle"]
+                if c in tabela_entregas.columns
+            ]
+            if colunas_entrega:
+                st.dataframe(
+                    tabela_entregas[colunas_entrega].head(20),
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+    with aba_fin_origens:
+        st.subheader("💵 De onde vieram os recursos")
+        origens = campanha_atual.get("origens_recursos", []) or []
+        if origens:
+            df_origens = pd.DataFrame(origens)
+            total_origens = df_origens["valor"].sum()
+            df_origens["participacao"] = np.where(
+                total_origens > 0,
+                df_origens["valor"] / total_origens * 100,
+                0,
+            )
+            grafico_origens = alt.Chart(df_origens).mark_bar().encode(
+                x=alt.X("valor:Q", title="Valor (R$)"),
+                y=alt.Y("origem:N", title=None, sort="-x"),
+                tooltip=[
+                    alt.Tooltip("origem:N", title="Origem"),
+                    alt.Tooltip("valor:Q", title="Valor (R$)", format=",.2f"),
+                    alt.Tooltip("participacao:Q", title="Participação (%)", format=".1f"),
+                ],
+            ).properties(height=max(230, len(df_origens) * 48))
+            st.altair_chart(grafico_origens, use_container_width=True)
+
+            tabela_origens = df_origens.rename(columns={
+                "origem": "Origem",
+                "valor": "Valor",
+                "participacao": "Participação (%)",
+            })
+            tabela_origens["Valor"] = tabela_origens["Valor"].apply(moeda_pt)
+            tabela_origens["Participação (%)"] = tabela_origens["Participação (%)"].round(1)
+            st.dataframe(tabela_origens, use_container_width=True, hide_index=True)
+        else:
+            st.info("O snapshot ainda não trouxe a decomposição por origem dos recursos.")
+
+        natureza = campanha_atual.get("natureza_receitas", []) or []
+        if natureza:
+            st.subheader("Natureza dos recebimentos")
+            st.caption(
+                "Esta classificação é complementar e pode se sobrepor às origens acima; "
+                "por isso os valores não devem ser somados entre as duas tabelas."
+            )
+            df_natureza = pd.DataFrame(natureza).rename(columns={
+                "natureza": "Natureza",
+                "valor": "Valor",
+            })
+            df_natureza["Valor"] = df_natureza["Valor"].apply(moeda_pt)
+            st.dataframe(df_natureza, use_container_width=True, hide_index=True)
+
+    with aba_fin_doadores:
+        st.subheader("🤝 Quem financiou a campanha")
+        doadores = campanha_atual.get("doadores", []) or []
+        if doadores:
+            df_doadores = pd.DataFrame(doadores)
+            total_doadores = df_doadores["valor"].sum()
+            df_doadores["Participação (%)"] = np.where(
+                total_doadores > 0,
+                df_doadores["valor"] / total_doadores * 100,
+                0,
+            )
+            tabela_doadores = df_doadores[["nome", "documento", "valor", "Participação (%)"]].copy()
+            tabela_doadores["documento"] = tabela_doadores["documento"].apply(documento_publico_financeiro)
+            tabela_doadores["valor"] = tabela_doadores["valor"].apply(moeda_pt)
+            tabela_doadores["Participação (%)"] = tabela_doadores["Participação (%)"].round(1)
+            tabela_doadores.columns = ["Doador / Origem", "Documento", "Valor", "Participação (%)"]
+            st.dataframe(tabela_doadores.head(100), use_container_width=True, hide_index=True)
+
+            principal_doador = df_doadores.iloc[0]
+            st.info(
+                f"A maior origem individual listada no ranking é **{principal_doador['nome']}**, "
+                f"com **{moeda_pt(principal_doador['valor'])}**."
+            )
+        else:
+            st.info("Nenhum ranking de doadores foi publicado no snapshot desta campanha.")
+
+    with aba_fin_despesas:
+        st.subheader("🧾 Para onde o dinheiro está indo")
+        categorias = campanha_atual.get("categorias_despesa", []) or []
+        if categorias:
+            df_categorias = pd.DataFrame(categorias)
+            total_categorias = df_categorias["valor"].sum()
+            df_categorias["participacao"] = np.where(
+                total_categorias > 0,
+                df_categorias["valor"] / total_categorias * 100,
+                0,
+            )
+            grafico_cat = alt.Chart(df_categorias.head(15)).mark_bar().encode(
+                x=alt.X("valor:Q", title="Valor (R$)"),
+                y=alt.Y("categoria:N", title=None, sort="-x", axis=alt.Axis(labelLimit=0)),
+                tooltip=[
+                    alt.Tooltip("categoria:N", title="Categoria"),
+                    alt.Tooltip("valor:Q", title="Valor (R$)", format=",.2f"),
+                    alt.Tooltip("participacao:Q", title="Participação (%)", format=".1f"),
+                ],
+            ).properties(height=max(300, min(len(df_categorias), 15) * 38))
+            st.altair_chart(grafico_cat, use_container_width=True)
+
+            maior_categoria = df_categorias.iloc[0]
+            st.info(
+                f"A maior categoria de gasto listada é **{maior_categoria['categoria']}**, "
+                f"com **{moeda_pt(maior_categoria['valor'])}** "
+                f"({maior_categoria['participacao']:.1f}% do total categorizado)."
+            )
+        else:
+            st.info("O TSE ainda não publicou concentração de despesas para este snapshot.")
+
+        st.markdown("---")
+        st.subheader("🏢 Principais fornecedores")
+        fornecedores = campanha_atual.get("fornecedores", []) or []
+        if fornecedores:
+            df_fornec = pd.DataFrame(fornecedores)
+            total_fornec = df_fornec["valor"].sum()
+            df_fornec["Participação (%)"] = np.where(
+                total_fornec > 0,
+                df_fornec["valor"] / total_fornec * 100,
+                0,
+            )
+            tabela_fornec = df_fornec[["nome", "documento", "valor", "Participação (%)"]].copy()
+            tabela_fornec["documento"] = tabela_fornec["documento"].apply(documento_publico_financeiro)
+            tabela_fornec["valor"] = tabela_fornec["valor"].apply(moeda_pt)
+            tabela_fornec["Participação (%)"] = tabela_fornec["Participação (%)"].round(1)
+            tabela_fornec.columns = ["Fornecedor", "Documento", "Valor", "Participação (%)"]
+            st.dataframe(tabela_fornec.head(100), use_container_width=True, hide_index=True)
+        else:
+            st.info("Nenhum ranking de fornecedores foi publicado no snapshot desta campanha.")
+
+    with aba_fin_historico:
+        st.subheader("📈 2024 × 2026")
+        campanhas_runtime = runtime_financeiro.get("campanhas", {}) or {}
+        comparacao = []
+        for ano_hist in [2024, 2026]:
+            camp_hist = campanhas_runtime.get(str(ano_hist), {}) or {}
+            res_hist = camp_hist.get("resumo", {}) or {}
+            comparacao.append({
+                "Ano": str(ano_hist),
+                "Receitas": valor_financeiro(res_hist.get("total_recebido")),
+                "Despesas contratadas": valor_financeiro(res_hist.get("despesas_contratadas")),
+                "Despesas pagas": valor_financeiro(res_hist.get("despesas_pagas")),
+            })
+        df_comparacao = pd.DataFrame(comparacao)
+        if df_comparacao[["Receitas", "Despesas contratadas", "Despesas pagas"]].to_numpy().sum() > 0:
+            df_long = df_comparacao.melt(
+                id_vars="Ano",
+                var_name="Indicador",
+                value_name="Valor",
+            )
+            grafico_comparacao = alt.Chart(df_long).mark_bar().encode(
+                x=alt.X("Ano:N", title="Eleição"),
+                y=alt.Y("Valor:Q", title="Valor (R$)"),
+                xOffset="Indicador:N",
+                color=alt.Color("Indicador:N", title=None),
+                tooltip=[
+                    alt.Tooltip("Ano:N", title="Ano"),
+                    alt.Tooltip("Indicador:N", title="Indicador"),
+                    alt.Tooltip("Valor:Q", title="Valor (R$)", format=",.2f"),
+                ],
+            ).properties(height=360)
+            st.altair_chart(grafico_comparacao, use_container_width=True)
+
+            tabela_comp = df_comparacao.copy()
+            for coluna in ["Receitas", "Despesas contratadas", "Despesas pagas"]:
+                tabela_comp[coluna] = tabela_comp[coluna].apply(moeda_pt)
+            st.dataframe(tabela_comp, use_container_width=True, hide_index=True)
+        else:
+            st.info("Ainda não há dados financeiros suficientes para comparar as duas eleições.")
+
+        votos_2024 = 0
+        if "ANO_ELEICAO" in dados.columns and "QT_VOTOS_SAMIR" in dados.columns:
+            votos_2024 = pd.to_numeric(
+                dados.loc[dados["ANO_ELEICAO"] == 2024, "QT_VOTOS_SAMIR"],
+                errors="coerce",
+            ).fillna(0).sum()
+        camp_2024 = campanhas_runtime.get("2024", {}) or {}
+        despesa_2024 = valor_financeiro((camp_2024.get("resumo") or {}).get("despesas_pagas"))
+        if votos_2024 > 0 and despesa_2024 > 0:
+            custo_voto_2024 = despesa_2024 / votos_2024
+            cv1, cv2, cv3 = st.columns(3)
+            cv1.metric("Votos em 2024", inteiro_pt(votos_2024))
+            cv2.metric("Despesa paga em 2024", moeda_pt(despesa_2024))
+            cv3.metric("Custo financeiro por voto", moeda_pt(custo_voto_2024))
+            st.caption(
+                "Custo por voto = despesas pagas declaradas ÷ votos obtidos. É uma medida "
+                "retrospectiva de 2024 e não deve ser projetada automaticamente para 2026."
+            )
+
+        st.warning(
+            "2026 é uma campanha em andamento e para cargo diferente. A comparação mostra "
+            "ritmo e escala financeira, não equivalência eleitoral direta."
+        )
+
+    with aba_fin_fonte:
+        st.subheader("🔎 Fonte, atualização e limites")
+        st.markdown(
+            "**Fonte primária:** DivulgaCandContas/TSE, com dados públicos informados pelos "
+            "prestadores de contas à Justiça Eleitoral."
+        )
+        st.markdown(
+            "**Arquitetura:** um coletor separado consulta a fonte pública e grava apenas um "
+            "snapshot compacto no repositório. O Streamlit lê esse arquivo local, reduzindo "
+            "lentidão e dependência do TSE a cada acesso."
+        )
+        st.markdown(
+            f"**Atualização do snapshot:** {data_financeiro_legivel(gerado_em)}."
+        )
+        if status_campanha == "historico_contingencia":
+            st.caption(
+                "Para 2024, esta abertura utilizou a contingência histórica porque a API pública "
+                "não respondeu. A próxima atualização tenta novamente a fonte do TSE."
+            )
+        st.markdown(
+            f"**Extratos bancários disponíveis:** {'sim' if campanha_atual.get('tem_extratos') else 'não no snapshot atual'}.  "
+            f"**Notas fiscais disponíveis:** {'sim' if campanha_atual.get('tem_notas_fiscais') else 'não no snapshot atual'}."
+        )
+        st.warning(
+            "Os dados exibidos são declarações públicas em atualização durante a campanha. "
+            "Saldo aproximado, rankings e concentrações não substituem a contabilidade interna, "
+            "extratos bancários nem a prestação de contas formal."
+        )
+        if runtime_financeiro.get("erros"):
+            with st.expander("Ocorrências da última coleta"):
+                st.json(runtime_financeiro.get("erros"))
+
 
 # ==========================================
 # ROTA 1: DESEMPENHO ELEITORAL POR TERRITÓRIO
