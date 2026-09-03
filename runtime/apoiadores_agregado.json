@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-03T16:47:42-05:00",
+    "gerado_em": "2026-09-03T18:33:27-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,14 +11,14 @@
     }
   },
   "resumo": {
-    "total": 692,
-    "com_municipio": 643,
+    "total": 693,
+    "com_municipio": 644,
     "sem_municipio": 49,
     "territorializados_pct": 92.9,
-    "novos_7d": 6,
+    "novos_7d": 7,
     "novos_30d": 99,
-    "bairros": 241,
-    "municipios": 14,
+    "bairros": 242,
+    "municipios": 15,
     "reunioes": 253,
     "celula_minima_privacidade": 10
   },
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "6 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "7 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -104,8 +104,8 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 527,
-      "novos_7d": 3
+      "total": 528,
+      "novos_7d": 4
     }
   ],
   "municipios": [
@@ -163,6 +163,10 @@
     },
     {
       "municipio": "TARAUACÁ",
+      "total": 1
+    },
+    {
+      "municipio": "BUJARI",
       "total": 1
     }
   ]
