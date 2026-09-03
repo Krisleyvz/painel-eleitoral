@@ -148,6 +148,8 @@ def main():
     limite30 = agora - timedelta(days=30)
 
     total = 0
+    com_municipio = 0
+    sem_municipio = 0
     novos7 = 0
     novos30 = 0
     reunioes = 0
@@ -163,6 +165,10 @@ def main():
 
         bairro = str(row.get(col_bairro, "") if col_bairro else "").strip().title() or "Sem bairro informado"
         mun_raw = str(row.get(col_mun, "")).strip()
+        if mun_raw:
+            com_municipio += 1
+        else:
+            sem_municipio += 1
         mun = mun_raw.upper() if mun_raw else "MUNICÍPIO NÃO INFORMADO"
         por_bairro[(mun, bairro)] += 1
         por_mun[mun] += 1
@@ -240,6 +246,9 @@ def main():
         },
         "resumo": {
             "total": total,
+            "com_municipio": com_municipio,
+            "sem_municipio": sem_municipio,
+            "territorializados_pct": round(100 * com_municipio / total, 1) if total else 0.0,
             "novos_7d": novos7,
             "novos_30d": novos30,
             "bairros": len(por_bairro),
