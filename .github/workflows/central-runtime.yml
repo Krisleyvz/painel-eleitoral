@@ -85,6 +85,8 @@ jobs:
             cd runtime-publish
             git init
             git checkout -b central-runtime-data
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
             git add runtime/
             git commit -m "Cria runtime da Central"
