@@ -2,11 +2,18 @@ name: Central Runtime 2026
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "central_runtime_snapshot.py"
+      - "build_supporter_snapshot.py"
+      - ".github/workflows/central-runtime.yml"
   schedule:
-    - cron: "17 * * * *"
+    - cron: "*/10 * * * *"
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: central-runtime-2026
@@ -29,7 +36,7 @@ jobs:
       - name: Instalar dependências
         run: pip install pandas numpy gspread google-auth
 
-      - name: Gerar dados atuais da Central
+      - name: Gerar Radar, território e apoiadores
         env:
           GCP_SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
@@ -40,17 +47,34 @@ jobs:
           RESUMO_MUNICIPAL_PATH: resumo_municipal_2026_ac.csv
           RADAR_OUTPUT: radar_runtime.json
           PERFIL_OUTPUT: perfil_territorial_2026.json
-        run: python central_runtime_snapshot.py
+          SUPPORTER_MIN_CELL: "10"
+          SUPPORTER_SNAPSHOT_OUTPUT: apoiadores_agregado.json
+        run: |
+          python central_runtime_snapshot.py
+          python build_supporter_snapshot.py
 
       - name: Empacotar runtime
         run: |
           mkdir -p central-runtime
           cp radar_runtime.json central-runtime/
           cp perfil_territorial_2026.json central-runtime/
+          cp apoiadores_agregado.json central-runtime/
 
-      - name: Guardar runtime como artefato privado
-        uses: actions/upload-artifact@v4
-        with:
-          name: central-runtime
-          path: central-runtime/
-          retention-days: 1
+      - name: Publicar runtime consumido pela Central
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin central-runtime-data
+          git worktree add runtime-publish origin/central-runtime-data
+          mkdir -p runtime-publish/runtime
+          cp central-runtime/*.json runtime-publish/runtime/
+          cd runtime-publish
+          git add runtime/radar_runtime.json runtime/perfil_territorial_2026.json runtime/apoiadores_agregado.json
+          if git diff --cached --quiet; then
+            echo "Runtime já está atualizado."
+          else
+            git commit -m "Atualiza runtime da Central"
+            git push origin HEAD:central-runtime-data
+          fi
