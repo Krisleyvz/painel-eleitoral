@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-03T11:44:28-05:00",
+    "gerado_em": "2026-09-03T14:27:43-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,12 +11,12 @@
     }
   },
   "resumo": {
-    "total": 691,
-    "com_municipio": 642,
+    "total": 692,
+    "com_municipio": 643,
     "sem_municipio": 49,
     "territorializados_pct": 92.9,
-    "novos_7d": 5,
-    "novos_30d": 110,
+    "novos_7d": 6,
+    "novos_30d": 102,
     "bairros": 241,
     "municipios": 14,
     "reunioes": 253,
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "5 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "6 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -66,6 +66,12 @@
       "novos_7d": 0
     },
     {
+      "municipio": "RIO BRANCO",
+      "bairro": "Nova Estação",
+      "total": 13,
+      "novos_7d": 1
+    },
+    {
       "municipio": "CRUZEIRO DO SUL",
       "bairro": "Cobal",
       "total": 12,
@@ -74,12 +80,6 @@
     {
       "municipio": "RIO BRANCO",
       "bairro": "Morada Do Sol",
-      "total": 12,
-      "novos_7d": 0
-    },
-    {
-      "municipio": "RIO BRANCO",
-      "bairro": "Nova Estação",
       "total": 12,
       "novos_7d": 0
     },
@@ -111,7 +111,7 @@
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 525
+      "total": 526
     },
     {
       "municipio": "CRUZEIRO DO SUL",
