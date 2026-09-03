@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "gerado_em": "2026-09-03T10:19:28-05:00",
+    "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
+    "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
+    "colunas_detectadas": {
+      "bairro": "Bairro",
+      "municipio": "Município de Residência",
+      "data": "Carimbo de data/hora",
+      "participacao": "Como você gostaria de participar da nossa caminhada? "
+    }
+  },
+  "resumo": {
+    "total": 686,
+    "com_municipio": 637,
+    "sem_municipio": 49,
+    "territorializados_pct": 92.9,
+    "novos_7d": 0,
+    "novos_30d": 105,
+    "bairros": 241,
+    "municipios": 14,
+    "reunioes": 251,
+    "celula_minima_privacidade": 10
+  },
+  "leituras": [
+    {
+      "titulo": "Maior concentração cadastrada: Rui Lino",
+      "status": "OBSERVAR",
+      "texto": "23 apoiador(es) cadastrados nesse bairro. Isso mede organização da campanha, não intenção de voto."
+    },
+    {
+      "titulo": "Sem crescimento recente identificado",
+      "status": "VERIFICAR",
+      "texto": "Nenhum cadastro com data reconhecida nos últimos 7 dias; confirme se a coluna de data foi localizada corretamente."
+    }
+  ],
+  "bairros": [
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Rui Lino",
+      "total": 23,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Mocinha Magalhães",
+      "total": 20,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Joafra",
+      "total": 19,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Esperança",
+      "total": 17,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Tucumã",
+      "total": 17,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "CRUZEIRO DO SUL",
+      "bairro": "Cobal",
+      "total": 12,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Morada Do Sol",
+      "total": 12,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Nova Estação",
+      "total": 12,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Universitário",
+      "total": 10,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Tancredo Neves",
+      "total": 10,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Bosque",
+      "total": 10,
+      "novos_7d": 0
+    },
+    {
+      "municipio": "AGREGADO",
+      "bairro": "Outros bairros (menos de 10 cadastros cada)",
+      "total": 524,
+      "novos_7d": 0
+    }
+  ],
+  "municipios": [
+    {
+      "municipio": "RIO BRANCO",
+      "total": 520
+    },
+    {
+      "municipio": "CRUZEIRO DO SUL",
+      "total": 79
+    },
+    {
+      "municipio": "MUNICÍPIO NÃO INFORMADO",
+      "total": 49
+    },
+    {
+      "municipio": "FEIJÓ",
+      "total": 15
+    },
+    {
+      "municipio": "PLÁCIDO DE CASTRO",
+      "total": 8
+    },
+    {
+      "municipio": "SENA MADUREIRA",
+      "total": 5
+    },
+    {
+      "municipio": "BRASILÉIA",
+      "total": 2
+    },
+    {
+      "municipio": "MÂNCIO LIMA",
+      "total": 2
+    },
+    {
+      "municipio": "ASSIS BRASIL",
+      "total": 1
+    },
+    {
+      "municipio": "MANOEL URBANO",
+      "total": 1
+    },
+    {
+      "municipio": "ACRELÂNDIA",
+      "total": 1
+    },
+    {
+      "municipio": "SENADOR GUIOMARD",
+      "total": 1
+    },
+    {
+      "municipio": "CAPIXABA",
+      "total": 1
+    },
+    {
+      "municipio": "TARAUACÁ",
+      "total": 1
+    }
+  ]
+}

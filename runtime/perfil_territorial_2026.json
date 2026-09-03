@@ -1,0 +1,393 @@
+{
+  "meta": {
+    "gerado_em": "2026-09-03T10:19:23-05:00",
+    "fontes": [
+      "perfil_eleitorado_2026_ac.csv",
+      "resumo_municipal_2026_ac.csv",
+      "eleitorado_2026_ac.csv",
+      "dados.csv"
+    ],
+    "escopo": "Perfil eleitoral agregado. Não contém renda domiciliar.",
+    "limite": "Escolaridade, idade e ruralidade descrevem o eleitorado agregado do território. Não devem ser convertidas em características de indivíduos nem tratadas como causalidade do voto."
+  },
+  "rio_branco": {
+    "zonas": [
+      {
+        "zona": 1,
+        "eleitores_2026": 136527,
+        "participacao_rural_pct": 3.8,
+        "indice_historico": 1.07,
+        "historico_por_ano": {
+          "2020": {
+            "votos": 1839,
+            "indice_relativo": 1.07
+          },
+          "2022": {
+            "votos": 3247,
+            "indice_relativo": 1.09
+          },
+          "2024": {
+            "votos": 2845,
+            "indice_relativo": 0.99
+          }
+        },
+        "eleitores": 136527,
+        "escolaridade_baixa_pct": 24.3,
+        "escolaridade_media_pct": 54.6,
+        "superior_pct": 21.1,
+        "ate_29_pct": 26.1,
+        "30_59_pct": 55.0,
+        "60_mais_pct": 18.9
+      },
+      {
+        "zona": 9,
+        "eleitores_2026": 133823,
+        "participacao_rural_pct": 4.2,
+        "indice_historico": 0.93,
+        "historico_por_ano": {
+          "2020": {
+            "votos": 1564,
+            "indice_relativo": 0.93
+          },
+          "2022": {
+            "votos": 2651,
+            "indice_relativo": 0.91
+          },
+          "2024": {
+            "votos": 2859,
+            "indice_relativo": 1.01
+          }
+        },
+        "eleitores": 133823,
+        "escolaridade_baixa_pct": 23.3,
+        "escolaridade_media_pct": 53.9,
+        "superior_pct": 22.8,
+        "ate_29_pct": 27.0,
+        "30_59_pct": 57.4,
+        "60_mais_pct": 15.6
+      }
+    ],
+    "leituras": [
+      {
+        "titulo": "Zona 1 apresenta maior força histórica relativa",
+        "texto": "Índice histórico 1.07. No eleitorado atual, 24.3% estão nas faixas de escolaridade baixa e 21.1% possuem ensino superior incompleto ou completo.",
+        "tipo": "DESCRITIVO"
+      },
+      {
+        "titulo": "Zona 9 apresenta menor força histórica relativa",
+        "texto": "Índice histórico 0.93. A participação de eleitores em seções classificadas como rurais é 4.2%.",
+        "tipo": "DESCRITIVO"
+      }
+    ]
+  },
+  "municipios": [
+    {
+      "municipio": "RIO BRANCO",
+      "eleitores_2026": 270350,
+      "participacao_rural_pct": 4.4,
+      "votos_samir_2022": 5898,
+      "indice_historico_2022": 1.8,
+      "eleitores": 270350,
+      "escolaridade_baixa_pct": 23.8,
+      "escolaridade_media_pct": 54.2,
+      "superior_pct": 21.9,
+      "ate_29_pct": 26.6,
+      "30_59_pct": 56.2,
+      "60_mais_pct": 17.3
+    },
+    {
+      "municipio": "CRUZEIRO DO SUL",
+      "eleitores_2026": 64167,
+      "participacao_rural_pct": 25.7,
+      "votos_samir_2022": 21,
+      "indice_historico_2022": 0.03,
+      "eleitores": 64167,
+      "escolaridade_baixa_pct": 32.7,
+      "escolaridade_media_pct": 52.1,
+      "superior_pct": 15.2,
+      "ate_29_pct": 32.9,
+      "30_59_pct": 52.8,
+      "60_mais_pct": 14.3
+    },
+    {
+      "municipio": "SENA MADUREIRA",
+      "eleitores_2026": 30905,
+      "participacao_rural_pct": 9.3,
+      "votos_samir_2022": 34,
+      "indice_historico_2022": 0.09,
+      "eleitores": 30905,
+      "escolaridade_baixa_pct": 48.2,
+      "escolaridade_media_pct": 42.8,
+      "superior_pct": 9.0,
+      "ate_29_pct": 32.1,
+      "30_59_pct": 53.1,
+      "60_mais_pct": 14.8
+    },
+    {
+      "municipio": "TARAUACÁ",
+      "eleitores_2026": 30033,
+      "participacao_rural_pct": 14.3,
+      "votos_samir_2022": 113,
+      "indice_historico_2022": 0.31,
+      "eleitores": 30033,
+      "escolaridade_baixa_pct": 51.5,
+      "escolaridade_media_pct": 40.8,
+      "superior_pct": 7.7,
+      "ate_29_pct": 38.0,
+      "30_59_pct": 49.1,
+      "60_mais_pct": 12.8
+    },
+    {
+      "municipio": "FEIJÓ",
+      "eleitores_2026": 24230,
+      "participacao_rural_pct": 20.4,
+      "votos_samir_2022": 77,
+      "indice_historico_2022": 0.26,
+      "eleitores": 24230,
+      "escolaridade_baixa_pct": 52.0,
+      "escolaridade_media_pct": 39.9,
+      "superior_pct": 8.1,
+      "ate_29_pct": 36.6,
+      "30_59_pct": 49.7,
+      "60_mais_pct": 13.7
+    },
+    {
+      "municipio": "BRASILÉIA",
+      "eleitores_2026": 19993,
+      "participacao_rural_pct": 17.7,
+      "votos_samir_2022": 60,
+      "indice_historico_2022": 0.25,
+      "eleitores": 19993,
+      "escolaridade_baixa_pct": 41.2,
+      "escolaridade_media_pct": 44.1,
+      "superior_pct": 14.8,
+      "ate_29_pct": 29.3,
+      "30_59_pct": 54.0,
+      "60_mais_pct": 16.7
+    },
+    {
+      "municipio": "SENADOR GUIOMARD",
+      "eleitores_2026": 18670,
+      "participacao_rural_pct": 22.4,
+      "votos_samir_2022": 198,
+      "indice_historico_2022": 0.88,
+      "eleitores": 18670,
+      "escolaridade_baixa_pct": 38.4,
+      "escolaridade_media_pct": 48.2,
+      "superior_pct": 13.4,
+      "ate_29_pct": 28.1,
+      "30_59_pct": 54.3,
+      "60_mais_pct": 17.6
+    },
+    {
+      "municipio": "MÂNCIO LIMA",
+      "eleitores_2026": 14659,
+      "participacao_rural_pct": 25.9,
+      "votos_samir_2022": 6,
+      "indice_historico_2022": 0.03,
+      "eleitores": 14659,
+      "escolaridade_baixa_pct": 40.2,
+      "escolaridade_media_pct": 49.2,
+      "superior_pct": 10.6,
+      "ate_29_pct": 34.7,
+      "30_59_pct": 52.0,
+      "60_mais_pct": 13.3
+    },
+    {
+      "municipio": "EPITACIOLÂNDIA",
+      "eleitores_2026": 14604,
+      "participacao_rural_pct": 17.7,
+      "votos_samir_2022": 29,
+      "indice_historico_2022": 0.16,
+      "eleitores": 14604,
+      "escolaridade_baixa_pct": 39.0,
+      "escolaridade_media_pct": 44.1,
+      "superior_pct": 16.9,
+      "ate_29_pct": 28.3,
+      "30_59_pct": 53.9,
+      "60_mais_pct": 17.8
+    },
+    {
+      "municipio": "PORTO ACRE",
+      "eleitores_2026": 14268,
+      "participacao_rural_pct": 24.2,
+      "votos_samir_2022": 103,
+      "indice_historico_2022": 0.6,
+      "eleitores": 14268,
+      "escolaridade_baixa_pct": 46.1,
+      "escolaridade_media_pct": 45.8,
+      "superior_pct": 8.2,
+      "ate_29_pct": 29.5,
+      "30_59_pct": 52.5,
+      "60_mais_pct": 18.0
+    },
+    {
+      "municipio": "XAPURI",
+      "eleitores_2026": 12786,
+      "participacao_rural_pct": 11.3,
+      "votos_samir_2022": 169,
+      "indice_historico_2022": 1.09,
+      "eleitores": 12786,
+      "escolaridade_baixa_pct": 47.8,
+      "escolaridade_media_pct": 41.0,
+      "superior_pct": 11.1,
+      "ate_29_pct": 29.0,
+      "30_59_pct": 53.2,
+      "60_mais_pct": 17.7
+    },
+    {
+      "municipio": "PLÁCIDO DE CASTRO",
+      "eleitores_2026": 12305,
+      "participacao_rural_pct": 18.5,
+      "votos_samir_2022": 223,
+      "indice_historico_2022": 1.5,
+      "eleitores": 12305,
+      "escolaridade_baixa_pct": 44.2,
+      "escolaridade_media_pct": 44.6,
+      "superior_pct": 11.2,
+      "ate_29_pct": 28.0,
+      "30_59_pct": 52.4,
+      "60_mais_pct": 19.6
+    },
+    {
+      "municipio": "RODRIGUES ALVES",
+      "eleitores_2026": 12143,
+      "participacao_rural_pct": 55.6,
+      "votos_samir_2022": 18,
+      "indice_historico_2022": 0.12,
+      "eleitores": 12143,
+      "escolaridade_baixa_pct": 39.0,
+      "escolaridade_media_pct": 50.4,
+      "superior_pct": 10.6,
+      "ate_29_pct": 37.8,
+      "30_59_pct": 50.7,
+      "60_mais_pct": 11.5
+    },
+    {
+      "municipio": "MARECHAL THAUMATURGO",
+      "eleitores_2026": 11857,
+      "participacao_rural_pct": 51.3,
+      "votos_samir_2022": 0,
+      "indice_historico_2022": 0.0,
+      "eleitores": 11857,
+      "escolaridade_baixa_pct": 53.9,
+      "escolaridade_media_pct": 41.2,
+      "superior_pct": 5.0,
+      "ate_29_pct": 41.5,
+      "30_59_pct": 48.2,
+      "60_mais_pct": 10.3
+    },
+    {
+      "municipio": "BUJARI",
+      "eleitores_2026": 11148,
+      "participacao_rural_pct": 31.5,
+      "votos_samir_2022": 86,
+      "indice_historico_2022": 0.64,
+      "eleitores": 11148,
+      "escolaridade_baixa_pct": 48.4,
+      "escolaridade_media_pct": 44.6,
+      "superior_pct": 7.0,
+      "ate_29_pct": 28.8,
+      "30_59_pct": 54.6,
+      "60_mais_pct": 16.6
+    },
+    {
+      "municipio": "ACRELÂNDIA",
+      "eleitores_2026": 10220,
+      "participacao_rural_pct": 32.8,
+      "votos_samir_2022": 136,
+      "indice_historico_2022": 1.1,
+      "eleitores": 10220,
+      "escolaridade_baixa_pct": 46.4,
+      "escolaridade_media_pct": 44.5,
+      "superior_pct": 9.1,
+      "ate_29_pct": 27.7,
+      "30_59_pct": 54.2,
+      "60_mais_pct": 18.1
+    },
+    {
+      "municipio": "MANOEL URBANO",
+      "eleitores_2026": 8621,
+      "participacao_rural_pct": 6.6,
+      "votos_samir_2022": 210,
+      "indice_historico_2022": 2.01,
+      "eleitores": 8621,
+      "escolaridade_baixa_pct": 55.9,
+      "escolaridade_media_pct": 37.8,
+      "superior_pct": 6.3,
+      "ate_29_pct": 36.1,
+      "30_59_pct": 50.8,
+      "60_mais_pct": 13.0
+    },
+    {
+      "municipio": "CAPIXABA",
+      "eleitores_2026": 8164,
+      "participacao_rural_pct": 26.6,
+      "votos_samir_2022": 27,
+      "indice_historico_2022": 0.27,
+      "eleitores": 8164,
+      "escolaridade_baixa_pct": 49.5,
+      "escolaridade_media_pct": 42.4,
+      "superior_pct": 8.1,
+      "ate_29_pct": 29.7,
+      "30_59_pct": 51.7,
+      "60_mais_pct": 18.5
+    },
+    {
+      "municipio": "PORTO WALTER",
+      "eleitores_2026": 7998,
+      "participacao_rural_pct": 31.5,
+      "votos_samir_2022": 0,
+      "indice_historico_2022": 0.0,
+      "eleitores": 7998,
+      "escolaridade_baixa_pct": 50.7,
+      "escolaridade_media_pct": 43.4,
+      "superior_pct": 5.9,
+      "ate_29_pct": 44.3,
+      "30_59_pct": 46.4,
+      "60_mais_pct": 9.3
+    },
+    {
+      "municipio": "ASSIS BRASIL",
+      "eleitores_2026": 7290,
+      "participacao_rural_pct": 31.8,
+      "votos_samir_2022": 10,
+      "indice_historico_2022": 0.11,
+      "eleitores": 7290,
+      "escolaridade_baixa_pct": 57.3,
+      "escolaridade_media_pct": 36.2,
+      "superior_pct": 6.6,
+      "ate_29_pct": 30.7,
+      "30_59_pct": 53.7,
+      "60_mais_pct": 15.6
+    },
+    {
+      "municipio": "JORDÃO",
+      "eleitores_2026": 6003,
+      "participacao_rural_pct": 25.8,
+      "votos_samir_2022": 4,
+      "indice_historico_2022": 0.06,
+      "eleitores": 6003,
+      "escolaridade_baixa_pct": 53.7,
+      "escolaridade_media_pct": 41.4,
+      "superior_pct": 4.9,
+      "ate_29_pct": 42.5,
+      "30_59_pct": 48.4,
+      "60_mais_pct": 9.1
+    },
+    {
+      "municipio": "SANTA ROSA DO PURUS",
+      "eleitores_2026": 3961,
+      "participacao_rural_pct": 28.3,
+      "votos_samir_2022": 14,
+      "indice_historico_2022": 0.29,
+      "eleitores": 3961,
+      "escolaridade_baixa_pct": 59.6,
+      "escolaridade_media_pct": 35.2,
+      "superior_pct": 5.2,
+      "ate_29_pct": 40.5,
+      "30_59_pct": 48.6,
+      "60_mais_pct": 10.9
+    }
+  ]
+}
