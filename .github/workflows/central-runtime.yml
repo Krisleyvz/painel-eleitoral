@@ -66,15 +66,27 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch origin central-runtime-data
-          git worktree add runtime-publish origin/central-runtime-data
-          mkdir -p runtime-publish/runtime
-          cp central-runtime/*.json runtime-publish/runtime/
-          cd runtime-publish
-          git add runtime/radar_runtime.json runtime/perfil_territorial_2026.json runtime/apoiadores_agregado.json
-          if git diff --cached --quiet; then
-            echo "Runtime já está atualizado."
+          if git ls-remote --exit-code --heads origin central-runtime-data; then
+            git fetch origin central-runtime-data
+            git worktree add runtime-publish origin/central-runtime-data
+            mkdir -p runtime-publish/runtime
+            cp central-runtime/*.json runtime-publish/runtime/
+            cd runtime-publish
+            git add runtime/radar_runtime.json runtime/perfil_territorial_2026.json runtime/apoiadores_agregado.json
+            if git diff --cached --quiet; then
+              echo "Runtime já está atualizado."
+            else
+              git commit -m "Atualiza runtime da Central"
+              git push origin HEAD:central-runtime-data
+            fi
           else
-            git commit -m "Atualiza runtime da Central"
-            git push origin HEAD:central-runtime-data
+            mkdir runtime-publish
+            cp -R central-runtime runtime-publish/runtime
+            cd runtime-publish
+            git init
+            git checkout -b central-runtime-data
+            git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            git add runtime/
+            git commit -m "Cria runtime da Central"
+            git push -u origin central-runtime-data
           fi
