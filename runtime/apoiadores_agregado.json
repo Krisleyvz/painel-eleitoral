@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-03T10:19:28-05:00",
+    "gerado_em": "2026-09-03T10:58:28-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,15 +11,15 @@
     }
   },
   "resumo": {
-    "total": 686,
-    "com_municipio": 637,
+    "total": 691,
+    "com_municipio": 642,
     "sem_municipio": 49,
     "territorializados_pct": 92.9,
-    "novos_7d": 0,
-    "novos_30d": 105,
+    "novos_7d": 5,
+    "novos_30d": 110,
     "bairros": 241,
     "municipios": 14,
-    "reunioes": 251,
+    "reunioes": 253,
     "celula_minima_privacidade": 10
   },
   "leituras": [
@@ -29,9 +29,9 @@
       "texto": "23 apoiador(es) cadastrados nesse bairro. Isso mede organização da campanha, não intenção de voto."
     },
     {
-      "titulo": "Sem crescimento recente identificado",
-      "status": "VERIFICAR",
-      "texto": "Nenhum cadastro com data reconhecida nos últimos 7 dias; confirme se a coluna de data foi localizada corretamente."
+      "titulo": "Crescimento recente da base",
+      "status": "ACOMPANHAR",
+      "texto": "5 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -85,33 +85,33 @@
     },
     {
       "municipio": "RIO BRANCO",
-      "bairro": "Universitário",
-      "total": 10,
-      "novos_7d": 0
-    },
-    {
-      "municipio": "RIO BRANCO",
       "bairro": "Tancredo Neves",
-      "total": 10,
-      "novos_7d": 0
+      "total": 11,
+      "novos_7d": 1
     },
     {
       "municipio": "RIO BRANCO",
       "bairro": "Bosque",
+      "total": 11,
+      "novos_7d": 1
+    },
+    {
+      "municipio": "RIO BRANCO",
+      "bairro": "Universitário",
       "total": 10,
       "novos_7d": 0
     },
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 524,
-      "novos_7d": 0
+      "total": 527,
+      "novos_7d": 3
     }
   ],
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 520
+      "total": 525
     },
     {
       "municipio": "CRUZEIRO DO SUL",
