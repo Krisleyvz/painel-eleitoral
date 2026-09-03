@@ -10,7 +10,8 @@ on:
       - "build_supporter_snapshot.py"
       - ".github/workflows/central-runtime.yml"
   schedule:
-    - cron: "*/10 * * * *"
+    # Minutos deslocados evitam a maior fila dos agendamentos no início da hora.
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
   contents: write
