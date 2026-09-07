@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-07T10:56:25-05:00",
+    "gerado_em": "2026-09-07T14:29:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 78,
-    "ocorrencias_7d": 504,
-    "alertas_24h": 13,
-    "samir_direto_24h": 2,
-    "pesquisas_24h": 10,
-    "total_base": 689
+    "ocorrencias_24h": 59,
+    "ocorrencias_7d": 505,
+    "alertas_24h": 9,
+    "samir_direto_24h": 1,
+    "pesquisas_24h": 8,
+    "total_base": 690
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-07T14:15:12-05:00",
+      "publicado_em": "2026-09-06T16:35:39+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "No Alto Acre, Samir Bestene defende nova rota comercial com o Peru: “Precisamos transformar esse potencial em realidade”",
+      "url": "https://noticiasdahora.com.br/politica/no-alto-acre-samir-bestene-defende-nova-rota-comercial-com-o-peru-precisamos-transformar-esse-potencial-em-realidade/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "No Alto Acre, Samir Bestene defende nova rota comercial com o Peru: “Precisamos transformar esse potencial em realidade”",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-07T04:34:55-05:00",
       "publicado_em": "2026-09-07T04:28:22+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Thor Dantas visitou o comércio de Cruzeiro do Sul acompanhado de Jorge Viana, ouvindo demandas e propondo a recuperação de ramais para apoiar a produção local.",
       "por_que_importa": "Registra a movimentação da chapa de oposição de esquerda no segundo maior colégio eleitoral do Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-06T23:22:36-05:00",
-      "publicado_em": "2026-09-06T20:55:08+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Bocalom percorre Tarauacá e reforça discurso de trabalho, produção e combate à corrupção",
-      "url": "https://portalacre.com.br/2026/09/bocalom-percorre-tarauaca-e-reforca-discurso-de-trabalho-producao-e-combate-a-corrupcao/",
-      "ator_principal": "Tião Bocalom",
-      "tema": "Campanha eleitoral no interior",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Tião Bocalom percorreu as ruas de Tarauacá em carro de som, após agendas no Juruá, reforçando discurso voltado a trabalho, produção e combate à corrupção.",
-      "por_que_importa": "Mostra a circulação de Bocalom pelo interior do estado na busca por consolidação de palanque majoritário.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
