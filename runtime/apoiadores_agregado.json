@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-07T17:12:21-05:00",
+    "gerado_em": "2026-09-07T19:23:40-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,13 +11,13 @@
     }
   },
   "resumo": {
-    "total": 702,
-    "com_municipio": 653,
+    "total": 703,
+    "com_municipio": 654,
     "sem_municipio": 49,
     "territorializados_pct": 93.0,
-    "novos_7d": 16,
-    "novos_30d": 81,
-    "bairros": 244,
+    "novos_7d": 17,
+    "novos_30d": 82,
+    "bairros": 245,
     "municipios": 15,
     "reunioes": 257,
     "celula_minima_privacidade": 10
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "16 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "17 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -104,8 +104,8 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 537,
-      "novos_7d": 13
+      "total": 538,
+      "novos_7d": 14
     }
   ],
   "municipios": [
@@ -135,7 +135,7 @@
     },
     {
       "municipio": "BRASILÉIA",
-      "total": 2
+      "total": 3
     },
     {
       "municipio": "MÂNCIO LIMA",
