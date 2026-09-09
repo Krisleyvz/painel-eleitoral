@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-09T08:43:54-05:00",
+    "gerado_em": "2026-09-09T12:17:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 70,
+    "ocorrencias_24h": 72,
     "ocorrencias_7d": 618,
     "alertas_24h": 26,
-    "samir_direto_24h": 4,
+    "samir_direto_24h": 6,
     "pesquisas_24h": 2,
-    "total_base": 829
+    "total_base": 831
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-09T10:11:21-05:00",
+      "publicado_em": "2026-09-09T14:53:53+00:00",
+      "fonte": "A Gazeta do Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene cobra provas de Matheus Paiva sobre suposto \"curral eleitoral\" na Sesacre - A Gazeta do Acre",
+      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNemcxd1NYSHVJUDhUVHNUWHNGQVMxSklTSDU3Qmw1emZZcmVla19KRGNHYWRQQ2JJdW16Z2tSam9VQ0dranI1MDRjVVA1UjUxOXRvWGFNQnAtekNia0tnWHV5QVlVSVViWnV1SW1Uc09RTkhLTjVZXzgzcHRNak5OYnR3Q2ptTzdDUTFDcDdSRVQzTldINHNmekl6T09uOGVsOHlXWFJRb2ZkNk50OUZMTUlSajZ4RklQeHhBSllpaUR4V2N4UUdIa2JpQWVoMkd3LXVrTW8xdUxZdw?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene cobra provas de Matheus Paiva sobre suposto \"curral eleitoral\" na Sesacre - A Gazeta do Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-09T10:11:09-05:00",
+      "publicado_em": "2026-09-09T14:53:53+00:00",
+      "fonte": "A Gazeta do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene cobra provas de Matheus Paiva sobre suposto “curral eleitoral” na Sesacre",
+      "url": "https://agazetadoacre.com/2026/09/destaques/3o-destaque/samir-bestene-cobra-provas-de-matheus-paiva-sobre-suposto-curral-eleitoral-na-sesacre/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene cobra provas de Matheus Paiva sobre suposto “curral eleitoral” na Sesacre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-09T06:16:14-05:00",
       "publicado_em": "2026-09-08T16:09:03+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "O empresário João Adibe, CEO da Cimed, anunciou apoio a uma campanha para custear o tratamento de dois irmãos acreanos diagnosticados com distrofia muscular rara.",
       "por_que_importa": "Notícia de cunho assistencial e social no estado, sem impacto eleitoral ou político direto.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-08T20:11:28-05:00",
-      "publicado_em": "2026-09-08T23:18:04+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "TRE-AC indefere candidatura de Antônia Lúcia à reeleição para deputada federal por crime de peculato",
-      "url": "https://ac24horas.com/2026/09/08/tre-ac-indefere-candidatura-de-antonia-lucia-a-reeleicao-para-deputada-federal-por-crime-de-peculato/",
-      "ator_principal": "Antônia Lúcia",
-      "tema": "Justiça Eleitoral / Registro de Candidatura",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "IMPORTANTE",
-      "resumo": "O TRE-AC indeferiu o registro de candidatura à reeleição da deputada federal Antônia Lúcia (MDB) após acolher pedido de impugnação do MPE referente a condenação por peculato.",
-      "por_que_importa": "Decisão judicial de peso na disputa pela Câmara dos Deputados, alterando a correlação de forças e quocientes eleitorais no Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-08T20:11:28-05:00",
-      "publicado_em": "2026-09-08T23:13:21+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "João Marcos Luz critica debate entre Márcio Bittar e Jorge Viana e cobra propostas para o Acre",
-      "url": "https://ac24horas.com/2026/09/08/joao-marcos-luz-critica-debate-entre-marcio-bittar-e-jorge-viana-e-cobra-propostas-para-o-acre/",
-      "ator_principal": "João Marcos Luz",
-      "tema": "Eleições 2026 / Debate Político",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "João Marcos Luz criticou o embate entre Márcio Bittar e Jorge Viana, classificando o confronto como eleitoral/pessoal e cobrando apresentação de propostas para o Acre.",
-      "por_que_importa": "Sinaliza posicionamento de liderança local em relação à polarização na disputa majoritária estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
