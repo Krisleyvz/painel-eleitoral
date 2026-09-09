@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-09T04:15:07-05:00",
+    "gerado_em": "2026-09-09T08:43:54-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 84,
-    "ocorrencias_7d": 617,
-    "alertas_24h": 27,
-    "samir_direto_24h": 3,
+    "ocorrencias_24h": 70,
+    "ocorrencias_7d": 618,
+    "alertas_24h": 26,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 2,
-    "total_base": 828
+    "total_base": 829
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-09T06:16:14-05:00",
+      "publicado_em": "2026-09-08T16:09:03+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "“Tem que ter provas&#8221;: Samir Bestene reage a fala de Matheus Paiva sobre suposto curral eleitoral na Sesacre",
+      "url": "https://noticiasdahora.com.br/politica/tem-que-ter-provas-samir-bestene-reage-a-fala-de-matheus-paiva-sobre-suposto-curral-eleitoral-na-sesacre/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Tem que ter provas&#8221;: Samir Bestene reage a fala de Matheus Paiva sobre suposto curral eleitoral na Sesacre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-08T20:11:43-05:00",
       "publicado_em": "2026-09-08T22:30:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "João Marcos Luz criticou o embate entre Márcio Bittar e Jorge Viana, classificando o confronto como eleitoral/pessoal e cobrando apresentação de propostas para o Acre.",
       "por_que_importa": "Sinaliza posicionamento de liderança local em relação à polarização na disputa majoritária estadual.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-08T20:11:28-05:00",
-      "publicado_em": "2026-09-08T22:59:58+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Em reunião com mães atípicas, Nicolau promete apoio a projetos para mulheres e crianças",
-      "url": "https://ac24horas.com/2026/09/08/em-reuniao-com-maes-atipicas-nicolau-promete-apoio-a-projetos-para-mulheres-e-criancas/",
-      "ator_principal": "Nicolau Júnior",
-      "tema": "Poder Legislativo / Políticas Públicas",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "O presidente da Aleac, Nicolau Júnior, reuniu-se com mães atípicas ao lado da governadora Mailza Assis e prometeu apoio legislativo a projetos para mulheres e crianças.",
-      "por_que_importa": "Evidencia articulação institucional entre a presidência da Assembleia e o Executivo estadual em pauta de forte apelo social.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
