@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-10T13:22:04-05:00",
+    "gerado_em": "2026-09-10T15:57:50-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -15,7 +15,7 @@
     "com_municipio": 656,
     "sem_municipio": 49,
     "territorializados_pct": 93.0,
-    "novos_7d": 14,
+    "novos_7d": 13,
     "novos_30d": 74,
     "bairros": 246,
     "municipios": 15,
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "14 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "13 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -69,7 +69,7 @@
       "municipio": "RIO BRANCO",
       "bairro": "Nova Estação",
       "total": 13,
-      "novos_7d": 1
+      "novos_7d": 0
     },
     {
       "municipio": "CRUZEIRO DO SUL",
