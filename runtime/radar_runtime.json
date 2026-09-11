@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-11T12:18:31-05:00",
+    "gerado_em": "2026-09-11T14:46:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 31,
-    "ocorrencias_7d": 556,
-    "alertas_24h": 2,
-    "samir_direto_24h": 7,
+    "ocorrencias_24h": 20,
+    "ocorrencias_7d": 527,
+    "alertas_24h": 1,
+    "samir_direto_24h": 8,
     "pesquisas_24h": 0,
-    "total_base": 889
+    "total_base": 890
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-11T13:30:31-05:00",
+      "publicado_em": "2026-09-10T20:47:34+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene amplia caminhada e leva campanha dos bairros de Rio Branco ao interior do Acre: &#8220;O povo abraçou o nosso projeto&#8221;",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-amplia-caminhada-e-leva-campanha-dos-bairros-de-rio-branco-ao-interior-do-acre-o-povo-abracou-o-nosso-projeto/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene amplia caminhada e leva campanha dos bairros de Rio Branco ao interior do Acre: &#8220;O povo abraçou o nosso projeto&#8221;",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-11T10:04:34-05:00",
       "publicado_em": "2026-09-08T18:46:47+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Mailza destaca investimento de R$ 22 milhões na habitação e propõe programa de reformas e entrega de 2,7 mil moradias no Acre.",
       "por_que_importa": "Divulgação de promessas e ações de gestão da candidata à reeleição em tema de forte apelo social.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-10T13:24:05-05:00",
-      "publicado_em": "2026-09-10T16:39:13+00:00",
-      "fonte": "PáginaNET",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "No Z4 dos mandantes, Botafogo tem mais 180 minutos para reagir",
-      "url": "https://paginanet.com.br/no-z4-dos-mandantes-botafogo-tem-mais-180-minutos-para-reagir/",
-      "ator_principal": "Botafogo",
-      "tema": "Esportes / Futebol",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Desempenho do Botafogo no Campeonato Brasileiro e situação na tabela como mandante.",
-      "por_que_importa": "Conteúdo estritamente esportivo nacional, irrelevante para a política estadual acreana.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
