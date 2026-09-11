@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-10T17:53:57-05:00",
+    "gerado_em": "2026-09-10T19:37:28-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -15,7 +15,7 @@
     "com_municipio": 656,
     "sem_municipio": 49,
     "territorializados_pct": 93.0,
-    "novos_7d": 13,
+    "novos_7d": 12,
     "novos_30d": 74,
     "bairros": 246,
     "municipios": 15,
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "13 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "12 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -111,7 +111,7 @@
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
       "total": 530,
-      "novos_7d": 12
+      "novos_7d": 11
     }
   ],
   "municipios": [

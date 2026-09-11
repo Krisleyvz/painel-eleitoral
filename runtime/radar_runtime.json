@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-10T17:53:51-05:00",
+    "gerado_em": "2026-09-10T19:37:22-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 43,
-    "ocorrencias_7d": 580,
+    "ocorrencias_24h": 44,
+    "ocorrencias_7d": 563,
     "alertas_24h": 4,
-    "samir_direto_24h": 6,
+    "samir_direto_24h": 7,
     "pesquisas_24h": 1,
-    "total_base": 877
+    "total_base": 878
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-10T18:10:08-05:00",
+      "publicado_em": "2026-09-10T18:47:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene amplia caminhada e leva campanha dos bairros de Rio Branco ao interior do Acre: \"O povo abraçou o nosso projeto\" - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi9gFBVV95cUxNWXhlSVZsblE4QXdKOXZOVXlDbGJ3ZjkzUUJWNGlrWElKVy0yLXJ6MEJ6YTQtdHVBUURUX0pRbmdlakp3OEdVM01Wd0s3aVZfZlVncHVIc180TDg1ak1YY0RMbmVoR3pTMU1sRzd1SHR5YTZKbGdESTFkczN3SDRxbHk2OWZneWhRTHRVeGFOSGFBY1B0RHhYbTJ3VzNmSmdOM201dnRVcUZSZl90RFA2YzB0TzNOSkNVY1ZadmtVNjFEUXIxUkx5ajlXTUFHcW9NMkpZRUY3UFpRdDNtSkZLbDVtTW16NE5tZnF2WnMyN2pUdDJIYVE?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene amplia caminhada e leva campanha dos bairros de Rio Branco ao interior do Acre: \"O povo abraçou o nosso projeto\" - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-10T16:06:14-05:00",
       "publicado_em": "2026-09-10T17:55:43+00:00",
@@ -315,22 +331,6 @@
       "resumo": "Campanha para custear terapia gênica de Pedro e Tiago Fleming nos EUA atinge 48% da meta, somando R$ 2,5 milhões.",
       "por_que_importa": "Mobilização social e de saúde de interesse público comunitário, sem impacto eleitoral direto.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-10T10:04:57-05:00",
-      "publicado_em": "2026-09-09T15:11:51+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Homem é encontrado morto no Rio Acre com braços fraturados e tiros na cabeça - A Gazeta do Acre",
-      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxNQ0VUZTJ6YTBCRDAwajRGSHdnRGl5QmFkRThfcE83MDZKdTNQd21oc0xTZmZLb2plbUVVQS1hTEkwT0lqRnlITHJBVm83VEJ0ZkNQZDM2WnF2UkdnRlBKeEtxX0ZLeFlYQ1E2TmlHbnFTSkZTdlRIdHNSTXVNbjI2ODhNeHNEaEFidS1XWmxpVTRNenIyMThDcDdPcmF5TzZwVTRiS1lPWGFrcV9FbUlHYnN2S0I4akFJSUJTM3prdFhydElRb3RR?oc=5",
-      "ator_principal": "Não identificado",
-      "tema": "Segurança Pública / Policial",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Homem com marcas de disparos e fraturas é encontrado morto no Rio Acre.",
-      "por_que_importa": "Ocorrência policial sem vínculo temático ou prático com o cenário eleitoral acreano.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
