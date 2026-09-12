@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-12T08:59:45-05:00",
+    "gerado_em": "2026-09-12T11:46:59-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 66,
-    "ocorrencias_7d": 465,
+    "ocorrencias_24h": 63,
+    "ocorrencias_7d": 454,
     "alertas_24h": 17,
-    "samir_direto_24h": 6,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 3,
-    "total_base": 950
+    "total_base": 952
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-12T11:34:54-05:00",
+      "publicado_em": "2026-09-12T13:51:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“Mãe, eu te amo, obrigado por tudo”: Samir Bestene emociona ao homenagear a mulher que está ao seu lado em cada batalha - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxNSFFsS2F3MkRvMFozbVowcTFNa1I2cGhGbVU0Ujh4VF9kY1lXSmIzVWRBbnI5UUNtX3d2YjhlaGFYVk92elo2WUFmaTk2RzN5d2FpTkhvR3J6eFc1R3ZKTDU3alhmN3Job0lwR28wZzItNTQ4eFBiQkJoZHhtVGlDdlVNQzM2NkI4NDNucGMwbGZDRmQ0YU94MFZqVUJXNm5xZVVxQ0o3Sk9iNnUxc3dGcU9nWElTWGFkckdHdmFwY0ZsUGh3M1lGSzg2REliNlg3Q3V5aG9nMEl4OGVEOEdvQWpfTnI2WG9Pb0E?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Mãe, eu te amo, obrigado por tudo”: Samir Bestene emociona ao homenagear a mulher que está ao seu lado em cada batalha - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-12T11:34:44-05:00",
+      "publicado_em": "2026-09-12T15:51:43+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“Mãe, eu te amo, obrigado por tudo”: Samir Bestene emociona ao homenagear a mulher que está ao seu lado em cada batalha",
+      "url": "https://noticiasdahora.com.br/politica/mae-eu-te-amo-obrigado-por-tudo-samir-bestene-emociona-ao-homenagear-a-mulher-que-esta-ao-seu-lado-em-cada-batalha/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Mãe, eu te amo, obrigado por tudo”: Samir Bestene emociona ao homenagear a mulher que está ao seu lado em cada batalha",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-12T05:47:14-05:00",
       "publicado_em": "2026-09-12T02:57:12+00:00",
@@ -298,38 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Alan Rick propõe retomar acordos com Peru e Bolívia e criar gabinete contra o crime organizado nos primeiros 100 dias.",
       "por_que_importa": "Mostra o direcionamento do plano de governo de Alan Rick na área de segurança e relações de fronteira no Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-12T01:07:35-05:00",
-      "publicado_em": "2026-09-11T22:35:19+00:00",
-      "fonte": "Acre Agora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "TRE barra candidatura de Gladson Cameli ao Senado",
-      "url": "https://acreagora.com/2026/09/11/tre-barra-candidatura-de-gladson-cameli-ao-senado/",
-      "ator_principal": "Gladson Cameli",
-      "tema": "Justiça Eleitoral",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "CRITICO",
-      "resumo": "TRE-AC indefere registro de Gladson Cameli ao Senado, que poderá recorrer ao TSE e seguir em campanha sub judice.",
-      "por_que_importa": "Rearranjo eleitoral de alto impacto; define a condição jurídica e viabilidade do ex-governador na corrida eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-12T01:07:35-05:00",
-      "publicado_em": "2026-09-11T22:06:48+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Inelegível: TRE-AC rejeita por unanimidade registro de Gladson Cameli para disputa ao Senado",
-      "url": "https://portalacre.com.br/2026/09/inelegivel-tre-ac-rejeita-por-unanimidade-registro-de-gladson-cameli-para-disputa-ao-senado/",
-      "ator_principal": "Gladson Cameli",
-      "tema": "Justiça Eleitoral",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "CRITICO",
-      "resumo": "TRE-AC decide por unanimidade pela inelegibilidade e indeferimento de Gladson Cameli ao Senado em 2026.",
-      "por_que_importa": "Repercussão da decisão judicial que retira temporariamente o ex-governador da regularidade na disputa ao Senado.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
