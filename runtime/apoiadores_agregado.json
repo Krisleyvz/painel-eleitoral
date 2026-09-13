@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-13T12:26:38-05:00",
+    "gerado_em": "2026-09-13T14:35:50-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,13 +11,13 @@
     }
   },
   "resumo": {
-    "total": 705,
-    "com_municipio": 656,
+    "total": 706,
+    "com_municipio": 657,
     "sem_municipio": 49,
-    "territorializados_pct": 93.0,
-    "novos_7d": 12,
-    "novos_30d": 67,
-    "bairros": 246,
+    "territorializados_pct": 93.1,
+    "novos_7d": 13,
+    "novos_30d": 68,
+    "bairros": 247,
     "municipios": 15,
     "reunioes": 258,
     "celula_minima_privacidade": 10
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "12 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "13 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -110,8 +110,8 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 530,
-      "novos_7d": 11
+      "total": 531,
+      "novos_7d": 12
     }
   ],
   "municipios": [
@@ -137,7 +137,7 @@
     },
     {
       "municipio": "SENA MADUREIRA",
-      "total": 5
+      "total": 6
     },
     {
       "municipio": "BRASILÉIA",
