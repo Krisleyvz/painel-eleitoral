@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-14T08:04:37-05:00",
+    "gerado_em": "2026-09-14T13:32:10-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,15 +11,15 @@
     }
   },
   "resumo": {
-    "total": 707,
-    "com_municipio": 658,
+    "total": 709,
+    "com_municipio": 660,
     "sem_municipio": 49,
     "territorializados_pct": 93.1,
-    "novos_7d": 14,
-    "novos_30d": 69,
+    "novos_7d": 7,
+    "novos_30d": 71,
     "bairros": 247,
     "municipios": 15,
-    "reunioes": 258,
+    "reunioes": 260,
     "celula_minima_privacidade": 10
   },
   "leituras": [
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "14 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "7 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -110,8 +110,8 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 532,
-      "novos_7d": 13
+      "total": 534,
+      "novos_7d": 6
     }
   ],
   "municipios": [
@@ -133,7 +133,7 @@
     },
     {
       "municipio": "PLÁCIDO DE CASTRO",
-      "total": 8
+      "total": 10
     },
     {
       "municipio": "SENA MADUREIRA",

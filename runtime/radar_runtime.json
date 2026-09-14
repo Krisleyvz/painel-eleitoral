@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-14T08:04:30-05:00",
+    "gerado_em": "2026-09-14T13:32:06-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 51,
-    "ocorrencias_7d": 342,
+    "ocorrencias_24h": 45,
+    "ocorrencias_7d": 344,
     "alertas_24h": 9,
     "samir_direto_24h": 3,
     "pesquisas_24h": 1,
-    "total_base": 1031
+    "total_base": 1033
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-14T13:12:56-05:00",
+      "publicado_em": "2026-09-14T11:52:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Mulheres mostram sua força e transformam bandeiraço de Samir Bestene no Lago do Amor em grande ato de apoio ao candidato - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxQcHM4WUE5RGZGdUs0TTFULURQNTJzTF84QlhFZFZQS0RxQkt1YlBMQVN5eVZQX1l2RHpNT21UcFViSUhCZW9qMWo5X1ZpeDVtMDJINE95dkx3TW5RdWd5NUcwQ2s1SVo4U3NXNG0tU3RqVlBfWUpxdFBIN0NwSzZfZlFJQjdSdWxaNUFhUnYtbTIyTl92V0RJaDVNOTEyc0duWUVYUWRMb3NSVFE4bFpqblExZFNDZnYtdmdPNG9odXExb0lLOEdhaU9mRzBBcEliQXl1aml3cVYtLUNTQ0xVUDNsT09XNjhIMnFWcnFLbElGQQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Mulheres mostram sua força e transformam bandeiraço de Samir Bestene no Lago do Amor em grande ato de apoio ao candidato - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-14T13:12:49-05:00",
+      "publicado_em": "2026-09-14T16:02:10+00:00",
+      "fonte": "PáginaNET",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene reúne mais de 800 pessoas no Lago do Amor em dia de chuva e frio",
+      "url": "https://paginanet.com.br/samir-bestene-reune-mais-de-800-pessoas-no-lago-do-amor-em-dia-de-chuva-e-frio/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene reúne mais de 800 pessoas no Lago do Amor em dia de chuva e frio",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-14T01:05:03-05:00",
       "publicado_em": "2026-09-13T14:32:46+00:00",
@@ -298,38 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Alysson Bestene, Eduardo Velloso e Tião Bocalom participaram de carreata em Rio Branco e declararam aposta em vitória no primeiro turno.",
       "por_que_importa": "Demonstra o alinhamento da prefeitura de Rio Branco à candidatura de Bocalom e o discurso de otimismo do grupo político.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-13T19:56:56-05:00",
-      "publicado_em": "2026-09-13T21:42:26+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Para Alysson, Rio Branco reconhece trabalho de Bocalom e prevê vitória no 1º turno",
-      "url": "https://ac24horas.com/2026/09/13/para-alysson-rio-branco-reconhece-trabalho-de-bocalom-e-preve-vitoria-no-1o-turno/",
-      "ator_principal": "Alysson Bestene",
-      "tema": "Apoio da prefeitura a Bocalom e previsão de 1º turno",
-      "tom": "FAVORAVEL",
-      "nivel": "IMPORTANTE",
-      "resumo": "O prefeito Alysson Bestene declarou que os eleitores da capital reconhecem a gestão de Tião Bocalom e previu vitória no 1º turno.",
-      "por_que_importa": "Reforça o engajamento direto do prefeito da capital na campanha ao governo estadual e reflete a narrativa eleitoral da aliança.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-13T15:53:19-05:00",
-      "publicado_em": "2026-09-13T17:24:22+00:00",
-      "fonte": "PáginaNET",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Jorge Viana participa do Restaura Rio Branco e destaca união das famílias, fé e esperança",
-      "url": "https://paginanet.com.br/jorge-viana-participa-do-restaura-rio-branco-e-destaca-uniao-das-familias-fe-e-esperanca/",
-      "ator_principal": "Jorge Viana",
-      "tema": "CAMPANHA_MAJORITARIA_SENADO",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Jorge Viana, candidato ao Senado, participa do evento católico Restaura Rio Branco no Ginásio do Sesi e discursa sobre união das famílias e fé.",
-      "por_que_importa": "Mapeia aproximação de candidato ao Senado com o segmento religioso na capital acreana.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
