@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-15T09:26:52-05:00",
+    "gerado_em": "2026-09-15T13:19:48-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,13 +11,13 @@
     }
   },
   "resumo": {
-    "total": 713,
-    "com_municipio": 664,
-    "sem_municipio": 49,
-    "territorializados_pct": 93.1,
-    "novos_7d": 9,
-    "novos_30d": 75,
-    "bairros": 250,
+    "total": 730,
+    "com_municipio": 680,
+    "sem_municipio": 50,
+    "territorializados_pct": 93.2,
+    "novos_7d": 26,
+    "novos_30d": 92,
+    "bairros": 254,
     "municipios": 15,
     "reunioes": 262,
     "celula_minima_privacidade": 10
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "9 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "26 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -67,6 +67,12 @@
     },
     {
       "municipio": "RIO BRANCO",
+      "bairro": "Bosque",
+      "total": 15,
+      "novos_7d": 4
+    },
+    {
+      "municipio": "RIO BRANCO",
       "bairro": "Nova Estação",
       "total": 13,
       "novos_7d": 0
@@ -76,12 +82,6 @@
       "bairro": "Cobal",
       "total": 12,
       "novos_7d": 0
-    },
-    {
-      "municipio": "RIO BRANCO",
-      "bairro": "Bosque",
-      "total": 12,
-      "novos_7d": 1
     },
     {
       "municipio": "RIO BRANCO",
@@ -110,14 +110,14 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 537,
-      "novos_7d": 7
+      "total": 551,
+      "novos_7d": 21
     }
   ],
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 541
+      "total": 557
     },
     {
       "municipio": "CRUZEIRO DO SUL",
@@ -125,7 +125,7 @@
     },
     {
       "municipio": "MUNICÍPIO NÃO INFORMADO",
-      "total": 49
+      "total": 50
     },
     {
       "municipio": "FEIJÓ",
