@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-15T16:28:10-05:00",
+    "gerado_em": "2026-09-15T18:34:53-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 57,
-    "ocorrencias_7d": 306,
-    "alertas_24h": 10,
-    "samir_direto_24h": 12,
-    "pesquisas_24h": 2,
-    "total_base": 1090
+    "ocorrencias_24h": 28,
+    "ocorrencias_7d": 283,
+    "alertas_24h": 2,
+    "samir_direto_24h": 11,
+    "pesquisas_24h": 0,
+    "total_base": 1091
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-15T17:05:33-05:00",
+      "publicado_em": "2026-09-15T20:57:17+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior",
+      "url": "https://noticiasdahora.com.br/politica/o-acre-inteiro-esta-abracando-nossa-caminhada-samir-bestene-leva-campanha-a-sena-madureira-e-intensifica-caminhada-pelo-interior/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-15T10:01:53-05:00",
       "publicado_em": "2026-09-15T00:40:42+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Bocalom reuniu-se com frente sindical, defendeu união pelo estado e destacou sua experiência como prefeito de Acrelândia e Rio Branco.",
       "por_que_importa": "Evidencia a disputa simultânea entre os principais candidatos ao governo pelo diálogo e influência junto ao funcionalismo estadual.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-14T19:24:33-05:00",
-      "publicado_em": "2026-09-14T22:33:32+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "No Deck Trattoria, Alan Rick garante: “Nós vamos fazer a saúde funcionar”",
-      "url": "https://portalacre.com.br/2026/09/no-deck-trattoria-alan-rick-garante-nos-vamos-fazer-a-saude-funcionar/",
-      "ator_principal": "Alan Rick",
-      "tema": "Saúde Pública / Agenda de Campanha",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Alan Rick visitou restaurante em Rio Branco e prometeu fazer a saúde pública funcionar, reduzindo tempo de espera em atendimentos.",
-      "por_que_importa": "Agenda rotineira de contato direto com eleitores e trabalhadores, reforçando a saúde como tema central do seu discurso.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
