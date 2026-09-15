@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-15T04:38:49-05:00",
+    "gerado_em": "2026-09-15T09:26:52-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,15 +11,15 @@
     }
   },
   "resumo": {
-    "total": 709,
-    "com_municipio": 660,
+    "total": 713,
+    "com_municipio": 664,
     "sem_municipio": 49,
     "territorializados_pct": 93.1,
-    "novos_7d": 6,
-    "novos_30d": 71,
-    "bairros": 247,
+    "novos_7d": 9,
+    "novos_30d": 75,
+    "bairros": 250,
     "municipios": 15,
-    "reunioes": 260,
+    "reunioes": 262,
     "celula_minima_privacidade": 10
   },
   "leituras": [
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "6 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "9 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -79,6 +79,12 @@
     },
     {
       "municipio": "RIO BRANCO",
+      "bairro": "Bosque",
+      "total": 12,
+      "novos_7d": 1
+    },
+    {
+      "municipio": "RIO BRANCO",
       "bairro": "Morada Do Sol",
       "total": 12,
       "novos_7d": 0
@@ -86,12 +92,6 @@
     {
       "municipio": "RIO BRANCO",
       "bairro": "Tancredo Neves",
-      "total": 11,
-      "novos_7d": 0
-    },
-    {
-      "municipio": "RIO BRANCO",
-      "bairro": "Bosque",
       "total": 11,
       "novos_7d": 0
     },
@@ -110,14 +110,14 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 534,
-      "novos_7d": 5
+      "total": 537,
+      "novos_7d": 7
     }
   ],
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 537
+      "total": 541
     },
     {
       "municipio": "CRUZEIRO DO SUL",
