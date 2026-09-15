@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-15T13:19:48-05:00",
+    "gerado_em": "2026-09-15T16:28:15-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,15 +11,15 @@
     }
   },
   "resumo": {
-    "total": 730,
-    "com_municipio": 680,
+    "total": 731,
+    "com_municipio": 681,
     "sem_municipio": 50,
     "territorializados_pct": 93.2,
-    "novos_7d": 26,
-    "novos_30d": 92,
-    "bairros": 254,
+    "novos_7d": 27,
+    "novos_30d": 93,
+    "bairros": 255,
     "municipios": 15,
-    "reunioes": 262,
+    "reunioes": 263,
     "celula_minima_privacidade": 10
   },
   "leituras": [
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "26 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "27 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -110,14 +110,14 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 551,
-      "novos_7d": 21
+      "total": 552,
+      "novos_7d": 22
     }
   ],
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 557
+      "total": 558
     },
     {
       "municipio": "CRUZEIRO DO SUL",
