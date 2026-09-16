@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-16T01:39:32-05:00",
+    "gerado_em": "2026-09-16T07:00:30-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 10,
+    "ocorrencias_24h": 11,
     "ocorrencias_7d": 263,
     "alertas_24h": 0,
-    "samir_direto_24h": 10,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 0,
-    "total_base": 1091
+    "total_base": 1092
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-16T04:52:07-05:00",
+      "publicado_em": "2026-09-15T18:57:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi_AFBVV95cUxNNWlzb0lnMGp3aGpTVWVtUkYzaXlQbHVXRHNOOFRDcTJMRE16QTBBcGxpRXNvNU5LMmtDZjNWS3ZEbThPeUUyejRPWnRoajJsZFFmQmV5akVYWTI4b1h5eEZiTnJtRFFpa3Z4TzZDTi1PQTdXcGZhRlNMQnNMZnUwS0hPTHpHOFJCaFl3UHZlUDliUDUzbHVERjYyQlU2VU1NU0NWVzlMREdVUzVOblZtbHZXQl9USy0wRTU2MUhvMW1NN2pFRk5aM3RQS2Q5ZXl4aUlvUnVfLXI2Z2ppWFU5eVV5OEFZTm9oajNQUlAxaHV2WVQ2UVRYQTNxSE8?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-15T17:05:33-05:00",
       "publicado_em": "2026-09-15T20:57:17+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Mailza propôs a criação de uma mesa permanente de diálogo com servidores em reunião com 23 entidades sindicais em seu comitê central.",
       "por_que_importa": "Apresenta proposta institucional direta aos servidores, buscando consolidar apoio entre categorias organizadas do Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-14T19:24:33-05:00",
-      "publicado_em": "2026-09-14T22:39:18+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Bocalom se reúne com frente sindical e defende união para recuperar o Acre",
-      "url": "https://portalacre.com.br/2026/09/bocalom-se-reune-com-frente-sindical-e-defende-uniao-para-recuperar-o-acre/",
-      "ator_principal": "Tião Bocalom",
-      "tema": "Funcionalismo Público / Campanha",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Bocalom reuniu-se com frente sindical, defendeu união pelo estado e destacou sua experiência como prefeito de Acrelândia e Rio Branco.",
-      "por_que_importa": "Evidencia a disputa simultânea entre os principais candidatos ao governo pelo diálogo e influência junto ao funcionalismo estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
