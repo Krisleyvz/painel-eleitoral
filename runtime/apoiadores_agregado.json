@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-17T05:00:18-05:00",
+    "gerado_em": "2026-09-17T09:44:27-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -15,8 +15,8 @@
     "com_municipio": 683,
     "sem_municipio": 50,
     "territorializados_pct": 93.2,
-    "novos_7d": 29,
-    "novos_30d": 81,
+    "novos_7d": 28,
+    "novos_30d": 79,
     "bairros": 255,
     "municipios": 15,
     "reunioes": 263,
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "29 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "28 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -105,7 +105,7 @@
       "municipio": "RIO BRANCO",
       "bairro": "Ivete Vargas",
       "total": 10,
-      "novos_7d": 1
+      "novos_7d": 0
     },
     {
       "municipio": "AGREGADO",
