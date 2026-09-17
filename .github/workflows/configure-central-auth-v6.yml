@@ -1,0 +1,98 @@
+name: Configure Central SAMIR v6 Auth
+
+on:
+  push:
+    paths:
+      - '.configure-central-auth-v6-trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  configure-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Configurar Cloudflare login e sessão de 30 dias
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error, urllib.parse
+
+          token=os.environ['CLOUDFLARE_API_TOKEN'].strip()
+          account=os.environ['CLOUDFLARE_ACCOUNT_ID'].strip()
+          domain='admin-v1.central-samir-2026.pages.dev'
+          base=f'https://api.cloudflare.com/client/v4/accounts/{account}'
+          headers={'Authorization':f'Bearer {token}','Content-Type':'application/json'}
+
+          def api(method,path,body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(base+path,data=data,headers=headers,method=method)
+              try:
+                  with urllib.request.urlopen(req,timeout=60) as r:
+                      obj=json.loads(r.read().decode())
+              except urllib.error.HTTPError as e:
+                  raise SystemExit(f'HTTP {e.code} {path}: '+e.read().decode(errors='replace'))
+              if not obj.get('success'):
+                  raise SystemExit('Cloudflare API error: '+json.dumps(obj,ensure_ascii=False))
+              return obj.get('result')
+
+          idps=api('GET','/access/identity_providers') or []
+          otp=next((x for x in idps if x.get('type')=='onetimepin'),None)
+          if not otp:
+              otp=api('POST','/access/identity_providers',{'name':'Código por e-mail','type':'onetimepin','config':{}})
+              print('✓ OTP criado como contingência.')
+          else:
+              print('✓ OTP mantido como contingência.')
+
+          cf=next((x for x in idps if x.get('type')=='cloudflare'),None)
+          if not cf:
+              cf=api('POST','/access/identity_providers',{
+                  'name':'Entrar com Cloudflare',
+                  'type':'cloudflare',
+                  'config':{'restrict_to_account_members':True}
+              })
+              print('✓ Cloudflare Identity Provider criado.')
+          else:
+              cf=api('PUT',f"/access/identity_providers/{cf['id']}",{
+                  'name':'Entrar com Cloudflare',
+                  'type':'cloudflare',
+                  'config':{'restrict_to_account_members':True}
+              })
+              print('✓ Cloudflare Identity Provider atualizado.')
+
+          apps=api('GET','/access/apps?domain='+urllib.parse.quote(domain)+'&exact=true') or []
+          app=next((x for x in apps if x.get('domain')==domain),None)
+          if not app:
+              raise SystemExit('Aplicação Preview não encontrada: '+domain)
+
+          app_body={
+              'name':app.get('name') or 'Central Samir 2026 - Preview Admin v1',
+              'domain':domain,
+              'type':'self_hosted',
+              'session_duration':'720h',
+              'allowed_idps':[cf['id'],otp['id']],
+              'auto_redirect_to_identity':False
+          }
+          app=api('PUT',f"/access/apps/{app['id']}",app_body)
+          print('✓ Aplicação configurada com Cloudflare + OTP e sessão de 30 dias.')
+
+          policies=api('GET',f"/access/apps/{app['id']}/policies") or []
+          for p in policies:
+              if p.get('decision')!='allow':
+                  continue
+              body={
+                  'name':p.get('name') or 'Equipe autorizada',
+                  'decision':'allow',
+                  'include':p.get('include') or [],
+                  'exclude':p.get('exclude') or [],
+                  'require':p.get('require') or [],
+                  'session_duration':'720h'
+              }
+              api('PUT',f"/access/apps/{app['id']}/policies/{p['id']}",body)
+          print('✓ Políticas allow atualizadas para 30 dias.')
+          print('AUTH CONFIG OK')
+          PY
