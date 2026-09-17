@@ -1,0 +1,210 @@
+name: Bootstrap Central SAMIR v6
+
+on:
+  push:
+    paths:
+      - '.central-v6-bootstrap-trigger'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Criar D1 e configurar Preview da Central v6
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CENTRAL_ACCESS_EMAILS: ${{ secrets.CENTRAL_ACCESS_EMAILS }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error, urllib.parse
+
+          TOKEN=os.environ.get('CLOUDFLARE_API_TOKEN','').strip()
+          ACCOUNT=os.environ.get('CLOUDFLARE_ACCOUNT_ID','').strip()
+          EMAILS_RAW=os.environ.get('CENTRAL_ACCESS_EMAILS','').strip()
+          if not TOKEN or not ACCOUNT or not EMAILS_RAW:
+              raise SystemExit('Secrets Cloudflare ausentes no repositório painel-eleitoral.')
+
+          PROJECT='central-samir-2026'
+          PREVIEW_DOMAIN='admin-v1.central-samir-2026.pages.dev'
+          DB_NAME='central-samir-auth'
+          emails=sorted({x.strip().lower() for x in EMAILS_RAW.split(',') if x.strip()})
+          if not emails: raise SystemExit('CENTRAL_ACCESS_EMAILS vazio.')
+
+          base=f'https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}'
+          headers={'Authorization':f'Bearer {TOKEN}','Content-Type':'application/json'}
+          def api(method,path,body=None):
+              data=None if body is None else json.dumps(body).encode()
+              req=urllib.request.Request(base+path,data=data,headers=headers,method=method)
+              try:
+                  with urllib.request.urlopen(req,timeout=60) as r:
+                      obj=json.loads(r.read().decode())
+              except urllib.error.HTTPError as e:
+                  detail=e.read().decode(errors='replace')
+                  raise SystemExit(f'Cloudflare API HTTP {e.code} em {path}: {detail}')
+              if not obj.get('success'):
+                  raise SystemExit('Cloudflare API erro: '+json.dumps(obj,ensure_ascii=False))
+              return obj.get('result')
+
+          # 1) D1: localizar ou criar.
+          dbs=api('GET','/d1/database?name='+urllib.parse.quote(DB_NAME))
+          db=next((x for x in dbs if x.get('name')==DB_NAME),None)
+          if db is None:
+              db=api('POST','/d1/database',{'name':DB_NAME,'primary_location_hint':'enam'})
+              print('✓ D1 criado:',DB_NAME)
+          else:
+              print('✓ D1 já existia:',DB_NAME)
+          dbid=db.get('uuid') or db.get('id')
+          if not dbid: raise SystemExit('Cloudflare não retornou UUID do D1.')
+
+          # 2) Schema idempotente.
+          sql='''
+          PRAGMA foreign_keys = ON;
+          CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            name TEXT,
+            role TEXT NOT NULL DEFAULT 'USER' CHECK (role IN ('MASTER','ADMIN','USER')),
+            active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1)),
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_by TEXT
+          );
+          CREATE TABLE IF NOT EXISTS modules (
+            module_key TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            kind TEXT NOT NULL DEFAULT 'native' CHECK (kind IN ('native','external')),
+            active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0,1))
+          );
+          CREATE TABLE IF NOT EXISTS permissions (
+            user_id INTEGER NOT NULL,
+            module_key TEXT NOT NULL,
+            can_access INTEGER NOT NULL DEFAULT 0 CHECK (can_access IN (0,1)),
+            can_admin INTEGER NOT NULL DEFAULT 0 CHECK (can_admin IN (0,1)),
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_by TEXT,
+            PRIMARY KEY (user_id,module_key),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (module_key) REFERENCES modules(module_key) ON DELETE CASCADE
+          );
+          CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            actor_email TEXT NOT NULL,
+            action TEXT NOT NULL,
+            target_type TEXT NOT NULL,
+            target_id TEXT,
+            details_json TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+          );
+          CREATE TABLE IF NOT EXISTS verifica_inconsistencias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fingerprint TEXT NOT NULL UNIQUE,
+            responsavel TEXT NOT NULL,
+            municipio_informado TEXT,
+            zona TEXT,
+            secao TEXT,
+            status TEXT NOT NULL,
+            mensagem TEXT,
+            municipio_encontrado TEXT,
+            local_votacao TEXT,
+            bairro TEXT,
+            submitted_by TEXT NOT NULL,
+            first_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            occurrences INTEGER NOT NULL DEFAULT 1
+          );
+          INSERT OR IGNORE INTO modules(module_key,name,kind) VALUES
+          ('hub','Hub / Plataformas','native'),
+          ('central_comando','Central de Comando','native'),
+          ('painel_eleitoral','Painel Eleitoral','external'),
+          ('radar','Inteligência e Radar','native'),
+          ('financeiro','Financeiro','native'),
+          ('territorio','Território','native'),
+          ('apoiadores','Apoiadores','native'),
+          ('cenario','Cenário 2026','native'),
+          ('rua_gestao','Rua Gestão','external'),
+          ('rua_logistica','Rua Logística','external'),
+          ('materiais','Central de Materiais','external'),
+          ('verifica','SAMIR Verifica','native'),
+          ('admin_users','Administração e Usuários','native'),
+          ('site_publico','Site Público','external');
+          '''
+          api('POST',f'/d1/database/{dbid}/query',{'sql':sql})
+          print('✓ Schema D1 aplicado.')
+
+          # 3) Descobrir o domínio da organização Zero Trust.
+          org=api('GET','/access/organizations')
+          auth_domain=(org or {}).get('auth_domain')
+          if not auth_domain: raise SystemExit('Não foi possível descobrir auth_domain do Zero Trust.')
+          access_domain='https://'+auth_domain.strip().rstrip('/')
+          print('✓ Zero Trust:',access_domain)
+
+          # 4) Garantir OTP.
+          idps=api('GET','/access/identity_providers')
+          otp=next((x for x in idps if x.get('type')=='onetimepin'),None)
+          if otp is None:
+              otp=api('POST','/access/identity_providers',{'name':'Código por e-mail','type':'onetimepin','config':{}})
+          otp_id=otp['id']
+
+          # 5) Access separado para o alias Preview admin-v1.
+          apps=api('GET','/access/apps?domain='+urllib.parse.quote(PREVIEW_DOMAIN)+'&exact=true')
+          app=next((x for x in apps if x.get('domain')==PREVIEW_DOMAIN),None)
+          app_body={
+            'name':'Central Samir 2026 - Preview Admin v1',
+            'domain':PREVIEW_DOMAIN,
+            'type':'self_hosted',
+            'session_duration':'24h',
+            'allowed_idps':[otp_id],
+            'auto_redirect_to_identity':True
+          }
+          if app is None:
+              app=api('POST','/access/apps',app_body)
+              print('✓ Access Preview criado.')
+          else:
+              app=api('PUT',f"/access/apps/{app['id']}",app_body)
+              print('✓ Access Preview atualizado.')
+          app_id=app['id']; aud=app.get('aud')
+          if not aud: raise SystemExit('Access Preview não retornou AUD.')
+
+          policies=api('GET',f'/access/apps/{app_id}/policies')
+          pname='Equipe autorizada - Preview Admin v1'
+          pol=next((x for x in policies if x.get('name')==pname),None)
+          pbody={
+            'name':pname,'decision':'allow',
+            'include':[{'email':{'email':e}} for e in emails],
+            'exclude':[],'require':[],'session_duration':'24h'
+          }
+          if pol is None: api('POST',f'/access/apps/{app_id}/policies',pbody)
+          else: api('PUT',f"/access/apps/{app_id}/policies/{pol['id']}",pbody)
+          print('✓ Política Access Preview configurada para',len(emails),'e-mail(s).')
+
+          # 6) Pages Preview: D1 + variáveis de autenticação. Produção NÃO é alterada.
+          patch={
+            'deployment_configs':{
+              'preview':{
+                'd1_databases':{'DB':{'id':dbid}},
+                'env_vars':{
+                  'CF_ACCESS_DOMAIN':{'type':'plain_text','value':access_domain},
+                  'CF_ACCESS_AUD':{'type':'plain_text','value':aud}
+                }
+              }
+            }
+          }
+          api('PATCH',f'/pages/projects/{PROJECT}',patch)
+          print('✓ Pages Preview recebeu binding DB e variáveis Access.')
+
+          # 7) Verificação mínima do banco.
+          qr=api('POST',f'/d1/database/{dbid}/query',{'sql':'SELECT COUNT(*) AS total_modules FROM modules;'})
+          print('✓ Verificação D1:',json.dumps(qr,ensure_ascii=False))
+          print('')
+          print('===============================================')
+          print('BOOTSTRAP CENTRAL V6 CONCLUÍDO')
+          print('D1:',DB_NAME,dbid)
+          print('Preview protegido:',PREVIEW_DOMAIN)
+          print('Produção: NÃO ALTERADA')
+          print('===============================================')
+          PY
