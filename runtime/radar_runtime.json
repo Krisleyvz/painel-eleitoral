@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-18T09:57:11-05:00",
+    "gerado_em": "2026-09-18T12:59:20-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 13,
-    "ocorrencias_7d": 239,
+    "ocorrencias_24h": 14,
+    "ocorrencias_7d": 235,
     "alertas_24h": 0,
-    "samir_direto_24h": 13,
+    "samir_direto_24h": 14,
     "pesquisas_24h": 0,
-    "total_base": 1123
+    "total_base": 1124
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-18T10:45:21-05:00",
+      "publicado_em": "2026-09-17T19:19:35+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene reafirma apoio à APAE Rio Branco e mobiliza forças para ampliar atendimento durante visita com Mailza e Zé Adriano à entidade",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-reafirma-apoio-a-apae-rio-branco-e-mobiliza-forcas-para-ampliar-atendimento-durante-visita-com-mailza-e-ze-adriano-a-entidade/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene reafirma apoio à APAE Rio Branco e mobiliza forças para ampliar atendimento durante visita com Mailza e Zé Adriano à entidade",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-17T20:34:12-05:00",
       "publicado_em": "2026-09-16T01:56:05+00:00",
@@ -315,22 +331,6 @@
       "resumo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-16T09:35:57-05:00",
-      "publicado_em": "2026-09-16T14:25:55+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Unindo produção à preservação ambiental, Bocalom propõe recuperar matas ciliares e ampliar arborização nas cidades do Acre",
-      "url": "https://diariodoacre.com.br/unindo-producao-a-preservacao-ambiental-bocalom-propoe-recuperar-matas-ciliares-e-ampliar-arborizacao-nas-cidades-do-acre/?utm_source=rss&utm_medium=rss&utm_campaign=unindo-producao-a-preservacao-ambiental-bocalom-propoe-recuperar-matas-ciliares-e-ampliar-arborizacao-nas-cidades-do-acre",
-      "ator_principal": "Tião Bocalom",
-      "tema": "Meio Ambiente / Propostas de Campanha",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Tião Bocalom apresenta propostas de plano de governo focadas na recuperação de matas ciliares e ampliação da arborização urbana aliadas à produção.",
-      "por_que_importa": "Mostra o posicionamento temático de candidato ao governo estadual, relevante para o panorama eleitoral geral.",
-      "samir_direto": false,
       "pesquisa_eleitoral": false
     }
   ]
