@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-18T23:59:21-05:00",
+    "gerado_em": "2026-09-19T04:11:56-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 1,
-    "ocorrencias_7d": 204,
+    "ocorrencias_24h": 3,
+    "ocorrencias_7d": 188,
     "alertas_24h": 0,
-    "samir_direto_24h": 1,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 1124
+    "total_base": 1126
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-19T01:31:03-05:00",
+      "publicado_em": "2026-09-17T19:25:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Governadora Mailza visita APAE Rio Branco, reconhece desafios e garante apoio: “Precisamos oferecer uma vida melhor para as pessoas com deficiência” - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMikgJBVV95cUxQZW5jdXhTRFk5NUNHeE5LaHpMZ0dtSVQtTGQ3RGNwV21rTUpsaW94cmUzdG05YzdOZldONlhzUjNCSFQ0SDRidkhTQlBVZ3o4TkdQR3JYM1I3QTBwSGNIMk1pb05Ndi0yN0JaWEJ4WGh2bjB1WkRKRnlzTHhuQmhubXFITEZGZGhYM0lZZVkwZ3RnZ0xldkRKYWczV3EtaVJUOHJUTEh4UEIyUTRvOXl0T0FxMmpFYWlvUVhuQVU3aHFLMlpWYU9kSDJET2xBRjRBVHN4RW9TZlBpaGY5R1J3cnZXZzFrRndkd1JYZW4tUWluekdiOUtlSU9seWo5bTlEWDhaX1ZqLWEyN2haZElhWnVB?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Governadora Mailza visita APAE Rio Branco, reconhece desafios e garante apoio: “Precisamos oferecer uma vida melhor para as pessoas com deficiência” - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-19T01:31:03-05:00",
+      "publicado_em": "2026-09-16T22:07:46+00:00",
+      "fonte": "A Gazeta do Acre",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Câmara de Rio Branco aprova subsídio de quase R$ 80 milhões para transporte coletivo - A Gazeta do Acre",
+      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxNbkRKRFJfMDVOSmZDWllGX2IzaDd3ajVpcVNrZ2tZUE1pdUY1bUNObkVOcGRBN2lhTDRtX0k0RTREdkhqSkNhcjZpX0FJSnRhLTdHTlpXOFRtamszUm0zYWR3MldvUXhfUTdWZHo0S0N4U0NFX1liNDY2WDBwQkF6OC1RelFZdFhtcXBKOVZNRnN6MWVySV9yb0M3bUEwY1MxenV1WjFibjlsR0Z3VEdWTUFrV1hqT1NGbkhaX2RPV0N2bUxNZ3lyYV8zcHZrT1dVMTdzbEpaTQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Câmara de Rio Branco aprova subsídio de quase R$ 80 milhões para transporte coletivo - A Gazeta do Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-18T10:45:21-05:00",
       "publicado_em": "2026-09-17T19:19:35+00:00",
@@ -297,38 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Mário Gazin formaliza apoio político a Tião Bocalom na corrida pelo Governo do Acre - AcreNews",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-16T22:32:56-05:00",
-      "publicado_em": "2026-09-15T20:32:34+00:00",
-      "fonte": "AcreNews",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Faltam 19 dias: saiba para quem o voto é obrigatório ou facultativo - AcreNews",
-      "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOMVYyRGI2TEpIbWZyTVROeEZaUk1fdlhHNHU0dFdOakg4QlB4VFY0aVBSVjh6eVJLcGVtN2NZei1lRVdQdmZVZTQ5WFptMnVya2dSSlhFRXZvX2pTVDdZQkx0ME9xQXBOYjN3b2NJZXZjYlVxS19UZmt3WDhrWFBLYS1tRV8ycnY4V0t2cWZGdG1uV3BqMVE?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Faltam 19 dias: saiba para quem o voto é obrigatório ou facultativo - AcreNews",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-16T22:32:51-05:00",
-      "publicado_em": "2026-09-15T20:57:17+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior",
-      "url": "https://noticiasdahora.com.br/politica/o-acre-inteiro-esta-abracando-nossa-caminhada-samir-bestene-leva-campanha-a-sena-madureira-e-intensifica-caminhada-pelo-interior/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“O Acre inteiro está abraçando nossa caminhada”: Samir Bestene leva campanha a Sena Madureira e intensifica caminhada pelo interior",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
