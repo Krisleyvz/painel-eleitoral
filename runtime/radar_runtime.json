@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-19T19:22:04-05:00",
+    "gerado_em": "2026-09-20T00:02:18-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 22,
-    "ocorrencias_7d": 179,
+    "ocorrencias_24h": 23,
+    "ocorrencias_7d": 168,
     "alertas_24h": 3,
-    "samir_direto_24h": 4,
+    "samir_direto_24h": 5,
     "pesquisas_24h": 3,
-    "total_base": 1146
+    "total_base": 1147
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-19T20:42:06-05:00",
+      "publicado_em": "2026-09-13T09:20:00+00:00",
+      "fonte": "diariodoacre.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene mostra força política e reúne 400 pessoas no conjunto Bela Vista - diariodoacre.com.br",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxObUhnM0toWHJnUXlkeDZMOGpoaThZczdLX0o1SFVCaS12eGpvVFVrSGsxQ2IxU2FjX3hhZDFRQi1BSmNoeHFzX01fSm9XV3VTSjhTTlVMdF94Rk1QUFEteHR2ZjUtZE5DWjZGMzBXYlBjcjFGSzJYNzlMZHBGcEhnRVJWZm1sb1QtRzRLMHlIMlVBSVBTajBZXzAtY3A4a0hxXzJscGk4UXV0Z3c?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene mostra força política e reúne 400 pessoas no conjunto Bela Vista - diariodoacre.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-19T14:34:27-05:00",
       "publicado_em": "2026-09-19T16:06:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Tião Bocalom e Eduardo Velloso cumpriram agenda de campanha conjunta com caminhada e caravana pelas ruas e comércio de Assis Brasil.",
       "por_que_importa": "Registro da circulação dos candidatos de oposição ao governo e Senado no interior do estado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-19T06:28:51-05:00",
-      "publicado_em": "2026-09-19T01:05:37+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza embala campanha no interior e mobiliza apoiadores em Epitaciolândia",
-      "url": "https://ac24horas.com/2026/09/18/mailza-embala-campanha-no-interior-e-mobiliza-apoiadores-em-epitaciolandia/",
-      "ator_principal": "Mailza Assis",
-      "tema": "CAMPANHA_DE_RUA",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "A candidata à reeleição Mailza realizou corpo a corpo com comerciantes e moradores em Epitaciolândia dentro da agenda 'Abraça Mailza'.",
-      "por_que_importa": "Reflete a agenda da chapa governista na microrregião de Brasiléia/Epitaciolândia.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
