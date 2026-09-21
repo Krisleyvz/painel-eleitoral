@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-20T20:18:36-05:00",
+    "gerado_em": "2026-09-21T01:27:21-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 16,
-    "ocorrencias_7d": 138,
+    "ocorrencias_24h": 17,
+    "ocorrencias_7d": 133,
     "alertas_24h": 1,
-    "samir_direto_24h": 4,
+    "samir_direto_24h": 5,
     "pesquisas_24h": 0,
-    "total_base": 1162
+    "total_base": 1164
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-20T20:31:04-05:00",
+      "publicado_em": "2026-09-20T13:31:00+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Rauan Silva retira candidatura e anuncia apoio a Arlenilson Cunha, fortalecendo projeto de reeleição à Aleac - Portal Acre",
+      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxNaS0xejVrejAzY1h1aVpibklCQld0UXczRk1rNkFjRTlHWjhoc3ZubkhsZUhNRE5KTjR2NUlfQW85MEFoOGxEMjMwRFR6SEh5aGQ5UEFWajJBY0RWcHZHWWtqRmxaUTd2YnRCLXVmak5DVXNkeE5sQm1hdHVkMDFIV2tUNmRnRG1lcFloZGQ2SXU5RG02VURDMW4tTEVudzRoaGV2VGtXMk1tcTFVdV9ZUlZBcm5yTE81NkJjTUdWZXI5bUVmd1B2dldUaWkzOWgzQmR6aWVxcjVuQQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Rauan Silva retira candidatura e anuncia apoio a Arlenilson Cunha, fortalecendo projeto de reeleição à Aleac - Portal Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-20T20:30:59-05:00",
+      "publicado_em": "2026-09-20T13:11:27+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene afirma que mandato na Aleac terá foco no setor produtivo: “Precisamos ajudar quem gera emprego e renda”",
+      "url": "https://portalacre.com.br/2026/09/samir-bestene-afirma-que-mandato-na-aleac-tera-foco-no-apoio-ao-setor-produtivo-precisamos-ajudar-quem-gera-emprego-e-renda/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene afirma que mandato na Aleac terá foco no setor produtivo: “Precisamos ajudar quem gera emprego e renda”",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-20T13:56:37-05:00",
       "publicado_em": "2026-09-20T15:25:52+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Registro de consulta de busca contendo apenas a página inicial de portal de notícias sem texto substantivo.",
       "por_que_importa": "Não apresenta conteúdo político analisável para o monitoramento eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-19T14:34:11-05:00",
-      "publicado_em": "2026-09-19T15:40:00+00:00",
-      "fonte": "NOTíCIAS DA HORA",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior - NOTíCIAS DA HORA",
-      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxQblNwNjJ2WHdkUjRZMjZRaXJzWnZuRWd4YWRXdmg1RHZPRDQ5YnQzNDExY3FRS2pyYWFwbEF6ZDdfRWNWMktUbHlZQ0FaRGlsVHhJWUxwUmRwZE12NnFwcWVvTWVsNWZtOUwwQjdsZHpHMVY0dDZIM2RabnVXRkJUVVNqQXoyX0dXeGdNZFR2U19aTzE5LXBTWmVqU254SUhacy1wR2ZYVlRiSElabHc0QnVmaUprcVdCMTdNLTJuckJXOWFCVVltQjFoWFFkRmRuRGRVN0ZyOTRtcTNNVmpJdkxWd1NibXlpbXBQb0Jld3M2ODBJR2dZ?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior - NOTíCIAS DA HORA",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-19T14:34:01-05:00",
-      "publicado_em": "2026-09-19T16:03:56+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Aposentado ou pensionista que votar não precisará fazer Prova de Vida",
-      "url": "https://portalacre.com.br/2026/09/aposentado-ou-pensionista-que-votar-nao-precisara-fazer-prova-de-vida/",
-      "ator_principal": "INSS / Justiça Eleitoral",
-      "tema": "Serviço / Legislação Eleitoral",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Aposentados e pensionistas do INSS que votarem nas eleições terão a prova de vida validada automaticamente pelo cruzamento de dados eleitorais.",
-      "por_que_importa": "Informativo de utilidade pública sobre o processo de votação, sem impacto político direto na disputa local.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
