@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-22T05:09:02-05:00",
+    "gerado_em": "2026-09-22T09:47:18-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -15,7 +15,7 @@
     "com_municipio": 685,
     "sem_municipio": 50,
     "territorializados_pct": 93.2,
-    "novos_7d": 26,
+    "novos_7d": 22,
     "novos_30d": 59,
     "bairros": 256,
     "municipios": 15,
@@ -31,7 +31,7 @@
     {
       "titulo": "Crescimento recente da base",
       "status": "ACOMPANHAR",
-      "texto": "26 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "texto": "22 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -69,7 +69,7 @@
       "municipio": "RIO BRANCO",
       "bairro": "Bosque",
       "total": 15,
-      "novos_7d": 4
+      "novos_7d": 3
     },
     {
       "municipio": "RIO BRANCO",
@@ -111,7 +111,7 @@
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
       "total": 556,
-      "novos_7d": 22
+      "novos_7d": 19
     }
   ],
   "municipios": [
