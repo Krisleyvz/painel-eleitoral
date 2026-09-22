@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-22T00:26:44-05:00",
+    "gerado_em": "2026-09-22T05:08:58-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 13,
-    "ocorrencias_7d": 96,
+    "ocorrencias_24h": 14,
+    "ocorrencias_7d": 97,
     "alertas_24h": 4,
-    "samir_direto_24h": 1,
+    "samir_direto_24h": 2,
     "pesquisas_24h": 0,
-    "total_base": 1177
+    "total_base": 1178
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-22T01:22:44-05:00",
+      "publicado_em": "2026-09-22T02:17:23+00:00",
+      "fonte": "AcreNews",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Dirigente do PP, Raimundinho Costa faz festa na Baixada para Samir Bestene e Zezinho Barbary - AcreNews",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPMkJpTEloTDNDNFZYVHpRcUNyOHdMRWxVc3FpLWRNRkdzeTcyREFMTHhtOFRRNWlfT1RpQjQyOUlpb1QwaDY2RC05THNvRi02cUNUXzRsYUNlVDRqMTRWN2FzTlBPRTRmYVBQTG9RSzhKQUVmOVdsenhva0NoSHlaLXFvNk9pZldPanlpdkNTd3JSeEpMRkl0WDdxR3hBRl8xN3lUT2dhNFF5cnJJLXpTcE9jZFUxc3MwU1RJd2VwMENkNG5ONVlj?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Dirigente do PP, Raimundinho Costa faz festa na Baixada para Samir Bestene e Zezinho Barbary - AcreNews",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-21T17:46:53-05:00",
       "publicado_em": "2026-09-19T17:40:54+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Coronel Ulysses reúne cerca de 600 mulheres em encontro da Frente 'Ellas com Coronel Ulysses' no Juruá.",
       "por_que_importa": "Mede o engajamento e a força de mobilização do deputado federal na disputa pela reeleição no Juruá.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-20T13:56:34-05:00",
-      "publicado_em": "2026-09-20T13:31:00+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Rauan Silva retira candidatura e anuncia apoio a Arlenilson Cunha, fortalecendo projeto de reeleição à Aleac",
-      "url": "https://portalacre.com.br/2026/09/rauan-silva-retira-candidatura-e-anuncia-apoio-a-arlenilson-cunha-fortalecendo-projeto-de-reeleicao-a-aleac/",
-      "ator_principal": "Rauan Silva e Arlenilson Cunha",
-      "tema": "Eleições Aleac / Alianças Proporcionais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Rauan Silva desiste de candidatura a deputado estadual e oficializa apoio à reeleição de Arlenilson Cunha.",
-      "por_que_importa": "Movimentação que altera o xadrez das vagas proporcionais para a Aleac, fortalecendo a reeleição de Arlenilson Cunha.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
