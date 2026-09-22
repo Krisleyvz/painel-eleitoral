@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-22T16:25:56-05:00",
+    "gerado_em": "2026-09-22T18:40:20-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 32,
-    "ocorrencias_7d": 106,
-    "alertas_24h": 11,
-    "samir_direto_24h": 2,
+    "ocorrencias_24h": 21,
+    "ocorrencias_7d": 107,
+    "alertas_24h": 7,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 1196
+    "total_base": 1198
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-22T17:52:53-05:00",
+      "publicado_em": "2026-09-19T15:40:00+00:00",
+      "fonte": "noticiasdahora.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior - noticiasdahora.com.br",
+      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxQblNwNjJ2WHdkUjRZMjZRaXJzWnZuRWd4YWRXdmg1RHZPRDQ5YnQzNDExY3FRS2pyYWFwbEF6ZDdfRWNWMktUbHlZQ0FaRGlsVHhJWUxwUmRwZE12NnFwcWVvTWVsNWZtOUwwQjdsZHpHMVY0dDZIM2RabnVXRkJUVVNqQXoyX0dXeGdNZFR2U19aTzE5LXBTWmVqU254SUhacy1wR2ZYVlRiSElabHc0QnVmaUprcVdCMTdNLTJuckJXOWFCVVltQjFoWFFkRmRuRGRVN0ZyOTRtcTNNVmpJdkxWd1NibXlpbXBQb0Jld3M2ODBJR2dZ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior - noticiasdahora.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-22T17:52:53-05:00",
+      "publicado_em": "2026-09-17T17:19:00+00:00",
+      "fonte": "noticiasdahora.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene reafirma apoio à APAE Rio Branco e mobiliza forças para ampliar atendimento durante visita com Mailza e Zé Adriano à entidade - noticiasdahora.com.br",
+      "url": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxOX3p5WjRkdnZpU3ZNZkFjTDd1cHM3WHRKbXZUNmVrMXFVb1lqNEk3WmJoQWhyVWpjR1ZLR1pGZkNhZVllTk95VmlyTG9uMUE4TTlQcUxBbmhPWjdIeGhGXzVGSThkZkNuSjdaRFVPWkRtZWRLMWlNZXR0MWZDeXNjRmM4bUxSMnZUamlzTXNFYjBiZ3BIVEktbXcwUWVRQnlCVkJnR2ZnZWNWcXBkWUNpN3c1dW13aFZCRTJMb2pTcVBrMUhyUVRIMGFldTBlZEh1aW5mUTRIelNmXy1JcXVqVWpmNWNaUHhiYUtwY0VfcXd3RzlIamJHLXlzdGNLUXl5ME5WSFBJUmdKTUE?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene reafirma apoio à APAE Rio Branco e mobiliza forças para ampliar atendimento durante visita com Mailza e Zé Adriano à entidade - noticiasdahora.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-22T14:56:47-05:00",
       "publicado_em": "2026-09-22T16:55:05+00:00",
@@ -299,38 +331,6 @@
       "resumo": "TJAC publica convocação de aprovadas em processo seletivo de bolsas de estágio voltado a mulheres egressas do sistema prisional acreano.",
       "por_que_importa": "Informativo institucional do Poder Judiciário estadual, sem conotação política ou eleitoral.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-22T01:22:44-05:00",
-      "publicado_em": "2026-09-22T02:17:23+00:00",
-      "fonte": "AcreNews",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "Dirigente do PP, Raimundinho Costa faz festa na Baixada para Samir Bestene e Zezinho Barbary - AcreNews",
-      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxPMkJpTEloTDNDNFZYVHpRcUNyOHdMRWxVc3FpLWRNRkdzeTcyREFMTHhtOFRRNWlfT1RpQjQyOUlpb1QwaDY2RC05THNvRi02cUNUXzRsYUNlVDRqMTRWN2FzTlBPRTRmYVBQTG9RSzhKQUVmOVdsenhva0NoSHlaLXFvNk9pZldPanlpdkNTd3JSeEpMRkl0WDdxR3hBRl8xN3lUT2dhNFF5cnJJLXpTcE9jZFUxc3MwU1RJd2VwMENkNG5ONVlj?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Dirigente do PP, Raimundinho Costa faz festa na Baixada para Samir Bestene e Zezinho Barbary - AcreNews",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-21T17:46:53-05:00",
-      "publicado_em": "2026-09-19T17:40:54+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior",
-      "url": "https://noticiasdahora.com.br/politica/campanha-se-faz-com-propostas-compromisso-e-trabalho-de-verdade-samir-bestene-intensifica-agenda-em-rio-branco-e-no-interior/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Campanha se faz com propostas, compromisso e trabalho de verdade”: Samir Bestene intensifica agenda em Rio Branco e no interior",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
