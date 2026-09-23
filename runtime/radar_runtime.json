@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-22T18:40:20-05:00",
+    "gerado_em": "2026-09-22T20:46:03-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 21,
-    "ocorrencias_7d": 107,
+    "ocorrencias_24h": 22,
+    "ocorrencias_7d": 108,
     "alertas_24h": 7,
-    "samir_direto_24h": 3,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 1198
+    "total_base": 1199
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-22T20:16:52-05:00",
+      "publicado_em": "2026-09-23T00:04:49+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Esporte e setor produtivo destacam atuação de Samir Bestene e defendem ampliação de seu espaço político na Aleac",
+      "url": "https://noticiasdahora.com.br/politica/esporte-e-setor-produtivo-destacam-atuacao-de-samir-bestene-e-defendem-ampliacao-de-seu-espaco-politico-na-aleac/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Esporte e setor produtivo destacam atuação de Samir Bestene e defendem ampliação de seu espaço político na Aleac",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-22T17:52:53-05:00",
       "publicado_em": "2026-09-19T15:40:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Prefeito Zequinha Lima entrega 1ª etapa do Complexo Industrial do Café na zona rural de Cruzeiro do Sul durante programação de aniversário da cidade.",
       "por_que_importa": "Agenda institucional no segundo maior colégio eleitoral do estado, relevante para o cenário do Vale do Juruá.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-22T14:56:36-05:00",
-      "publicado_em": "2026-09-22T19:15:23+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "TJAC convoca mulheres egressas do sistema prisional para bolsas de estágio",
-      "url": "https://ac24horas.com/2026/09/22/tjac-convoca-mulheres-egressas-do-sistema-prisional-para-bolsas-de-estagio/",
-      "ator_principal": "Tribunal de Justiça do Acre (TJAC)",
-      "tema": "Poder Judiciário e inclusão social",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "TJAC publica convocação de aprovadas em processo seletivo de bolsas de estágio voltado a mulheres egressas do sistema prisional acreano.",
-      "por_que_importa": "Informativo institucional do Poder Judiciário estadual, sem conotação política ou eleitoral.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
