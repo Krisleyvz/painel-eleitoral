@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-23T11:51:59-05:00",
+    "gerado_em": "2026-09-23T14:52:48-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 32,
-    "ocorrencias_7d": 106,
+    "ocorrencias_24h": 34,
+    "ocorrencias_7d": 108,
     "alertas_24h": 7,
-    "samir_direto_24h": 14,
+    "samir_direto_24h": 16,
     "pesquisas_24h": 0,
-    "total_base": 1210
+    "total_base": 1212
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-23T14:14:02-05:00",
+      "publicado_em": "2026-09-23T14:59:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene destaca obras no Canaã, recuperação de ramal e chegada de novos ônibus a Rio Branco - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOOEVRVEdSWk1uMi1LQ0tlalduRlVWeF9LLXZDUWkwdWtXTzVicV9Jd3MtTHUya2FUVkZoS0hGQWtCS1Axb1d3SGloUV83MmRzY3kyYmN1TUpBdXFQdFhtYmtER3c3QXZUVlBqR1o2TzNqWDhuaEpJM0tBdlJGYVFXZGRIY0NWc2hBUE4zeDRJZEdKb0xVTWNJaTh2RnllSnhzZkJXN0l6OFB1NHlCdEtNSWhKT0gtYUxzbjZTdmROdFE3dGlNaHByYnVYYlFnVUYzYUE?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca obras no Canaã, recuperação de ramal e chegada de novos ônibus a Rio Branco - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-23T14:13:51-05:00",
+      "publicado_em": "2026-09-23T16:59:06+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene destaca obras no Canaã, recuperação de ramal e chegada de novos ônibus a Rio Branco",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-destaca-obras-no-canaa-recuperacao-de-ramal-e-chegada-de-novos-onibus-a-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca obras no Canaã, recuperação de ramal e chegada de novos ônibus a Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-23T10:34:38-05:00",
       "publicado_em": "2026-09-22T02:17:23+00:00",
@@ -298,38 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Prefeito Alysson Bestene sanciona pacote de oito leis municipais de autoria da vereadora Elzinha Mendonça voltadas à proteção de crianças e adolescentes.",
       "por_que_importa": "Reforça pauta institucional e conservadora da gestão municipal do PP na capital, com impacto na base eleitoral aliada.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-22T14:56:43-05:00",
-      "publicado_em": "2026-09-22T16:40:44+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mirla Miranda percorre o interior do Acre em uma agenda de encontros, fé e escuta",
-      "url": "https://diariodoacre.com.br/mirla-miranda-percorre-o-interior-do-acre-em-uma-agenda-de-encontros-fe-e-escuta/?utm_source=rss&utm_medium=rss&utm_campaign=mirla-miranda-percorre-o-interior-do-acre-em-uma-agenda-de-encontros-fe-e-escuta",
-      "ator_principal": "Mirla Miranda",
-      "tema": "Campanha Eleitoral / Agenda no Interior",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Candidata a deputada federal Mirla Miranda cumpre agenda de campanha em quatro municípios do interior do Acre durante o fim de semana.",
-      "por_que_importa": "Movimentação de concorrente direta na disputa pelas vagas de representação federal no estado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-22T14:56:41-05:00",
-      "publicado_em": "2026-09-22T18:42:09+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Imprensa nacional repercute operação da PF que teve Gladson Camelí com um dos alvos",
-      "url": "https://portalacre.com.br/2026/09/imprensa-nacional-repercute-operacao-da-pf-que-teve-gladson-cameli-com-um-dos-alvos/",
-      "ator_principal": "Gladson Cameli",
-      "tema": "Operação policial e impactos na eleição",
-      "tom": "CRITICO",
-      "nivel": "CRITICO",
-      "resumo": "Veículos de imprensa nacional repercutem as operações Ptolomeu IV e Umbra da PF que tiveram o ex-governador Gladson Cameli entre os alvos de busca.",
-      "por_que_importa": "Nacionalização do desgaste investigativo do ex-governador amplia crise reputacional da base governista estadual em pleno período eleitoral.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
