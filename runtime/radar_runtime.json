@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-24T14:05:48-05:00",
+    "gerado_em": "2026-09-24T17:15:45-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 9,
-    "ocorrencias_7d": 109,
+    "ocorrencias_24h": 8,
+    "ocorrencias_7d": 101,
     "alertas_24h": 0,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 8,
     "pesquisas_24h": 0,
-    "total_base": 1219
+    "total_base": 1220
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-24T14:28:44-05:00",
+      "publicado_em": "2026-09-24T19:05:48+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Ao lado da governadora Mailza e de Correinha, Samir Bestene reforça aliança política na reta final da eleição: “A luta continua”",
+      "url": "https://noticiasdahora.com.br/politica/ao-lado-da-governadora-mailza-e-de-correinha-samir-bestene-reforca-alianca-politica-na-reta-final-da-eleicao-a-luta-continua/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Ao lado da governadora Mailza e de Correinha, Samir Bestene reforça aliança política na reta final da eleição: “A luta continua”",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-24T00:31:28-05:00",
       "publicado_em": "2026-09-23T16:33:47+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Esporte e setor produtivo destacam atuação de Samir Bestene e defendem ampliação de seu espaço político na Aleac",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-23T10:34:26-05:00",
-      "publicado_em": "2026-09-22T22:04:00+00:00",
-      "fonte": "NOTíCIAS DA HORA",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "Esporte e setor produtivo destacam atuação de Samir Bestene e defendem ampliação de seu espaço político na Aleac - NOTíCIAS DA HORA",
-      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNT1B3VHlrR2JJOU0xcE11T0tSOC00OHFTWm5FMDVTbDdiX0NPZzZzX25GNHBCbmRPU2ZZQUo0alhVbjZEQU9IV0NZRWt0aGllSzltM2ppSVUzRHoyT3FKMmpGb1dOSEIzYkdCOEl2Y0hNa3JGV2dkeWQ4UmxqbUhpa0VaQU5wMHJEUnIxa2VORFFpbUxGb2pva3lJekZ5MkFDMGJGUEpqM0d1alRaVTlLTlFtV09mdnpQdTRiWkgtUXkxYUhDX3NyYWlyaXFpcjdiN2JBcWdURkRTZGdhMTFGRHlkQlVQS28?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Esporte e setor produtivo destacam atuação de Samir Bestene e defendem ampliação de seu espaço político na Aleac - NOTíCIAS DA HORA",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
