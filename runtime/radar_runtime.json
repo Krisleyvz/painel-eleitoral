@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-26T12:47:19-05:00",
+    "gerado_em": "2026-09-26T15:10:36-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 14,
-    "ocorrencias_7d": 147,
+    "ocorrencias_24h": 16,
+    "ocorrencias_7d": 141,
     "alertas_24h": 1,
-    "samir_direto_24h": 8,
+    "samir_direto_24h": 10,
     "pesquisas_24h": 0,
-    "total_base": 1285
+    "total_base": 1287
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-26T13:44:45-05:00",
+      "publicado_em": "2026-09-26T15:55:10+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene destaca campanha em 19 municípios e reforça apoio a Mailza na reta final - Portal Acre",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPX1NxRVpwNXFaR2xmQ0x3UV9rbzdPLVJFbTBGUWNhX2ozNWl4aWJWWWtvVTdSY25ENWFaQjFIV1B3WG55bkpZMXlJM3ZVb0d6RFZkZmZsTUhualpzYi1tbjlWbUNnTEhZMWNhWDFLdHRITHRSWlVweVp6SFFMLWRZcHhQWWNLQUxlOUpjSjNaQmVVSklMbndVaHh5NC1DZnVnX3RHUlVhZmI3OEJucENESVYtcmhqZE1YUXNFdmdR?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca campanha em 19 municípios e reforça apoio a Mailza na reta final - Portal Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-26T13:44:35-05:00",
+      "publicado_em": "2026-09-26T15:55:10+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene destaca campanha em 19 municípios e reforça apoio a Mailza na reta final",
+      "url": "https://portalacre.com.br/2026/09/samir-bestene-destaca-campanha-em-19-municipios-e-reforca-apoio-a-mailza-na-reta-final/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca campanha em 19 municípios e reforça apoio a Mailza na reta final",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-26T10:42:53-05:00",
       "publicado_em": "2026-09-26T12:05:00+00:00",
@@ -298,38 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Alan Rick reuniu-se com empresários do transporte de cargas e defendeu investimentos em infraestrutura logística para reduzir custos operacionais no Acre.",
       "por_que_importa": "Mostra aproximação de Alan Rick com o empresariado e foco em pautas de desenvolvimento econômico na campanha.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T10:57:43-05:00",
-      "publicado_em": "2026-09-25T15:20:56+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Ao lado de Vanda Milani, Velloso propõe ampliar opções de lazer e cultura no Acre: “O jovem precisa ter motivo pra querer ficar aqui”",
-      "url": "https://portalacre.com.br/2026/09/ao-lado-de-vanda-milani-velloso-propoe-ampliar-opcoes-de-lazer-e-cultura-no-acre-o-jovem-precisa-ter-motivo-pra-querer-ficar-aqui/",
-      "ator_principal": "Eduardo Velloso",
-      "tema": "Eleições 2026 - Senado / Juventude",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Ao lado da candidata a deputada federal Vanda Milani, Eduardo Velloso defendeu a criação de mais opções de lazer e cultura para conter o êxodo de jovens no Acre.",
-      "por_que_importa": "Articulação de dobradinha eleitoral entre candidatos ao Senado e à Câmara dos Deputados em Rio Branco.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T10:57:43-05:00",
-      "publicado_em": "2026-09-25T14:49:53+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Bocalom promete auditar ponte que desabou em Sena e construir nova travessia",
-      "url": "https://portalacre.com.br/2026/09/bocalom-promete-auditar-ponte-que-desabou-em-sena-e-construir-nova-travessia/",
-      "ator_principal": "Tião Bocalom",
-      "tema": "Eleições 2026 - Governo / Infraestrutura",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Tião Bocalom prometeu realizar auditoria na ponte desabada em Sena Madureira e construir uma nova travessia no município caso seja eleito governador.",
-      "por_que_importa": "Exploração política de gargalos de infraestrutura no interior e confronto indireto com obras da atual gestão estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
