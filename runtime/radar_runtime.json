@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-26T00:27:41-05:00",
+    "gerado_em": "2026-09-26T05:02:46-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 39,
+    "ocorrencias_24h": 23,
     "ocorrencias_7d": 156,
-    "alertas_24h": 5,
-    "samir_direto_24h": 9,
+    "alertas_24h": 3,
+    "samir_direto_24h": 5,
     "pesquisas_24h": 0,
-    "total_base": 1280
+    "total_base": 1282
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-26T01:41:20-05:00",
+      "publicado_em": "2026-09-24T23:30:37+00:00",
+      "fonte": "contilnetnoticias.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Na Limpebras, Bittar e Samir debatem com trabalhadores sobre custo de vida e obras no Acre - contilnetnoticias.com.br",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxNZ25KWnNXVGVkUjdFOFF1V3JQeHFqYjVuOWlUOERMdDdfRDVtR2R6aWN1YTdUR3NaclNhN2ZJc1IyS1lCMmhRRUVfNGp5VUdxZUpNOFdyOW1FZENTeEhGdWQydWRSVGJRZWsxSEoza0hRYVdMS3hnRGQ5T1pXRHQtQ0RNazhfWl91YnZQMmk2RFVhaGhIMHFVUlpnZ0ZNd2JSSUQtNnpKeDl5djYxbVRiZUJfdm5EMUxmendIdjlldzlFXzRsemJ3X3lubTnSAdIBQVVfeXFMTjI5MFNfZF9UNk5aS2JhLU9DTGpSbm5ZNng2am9GeGVxOW9COU41N2JTdGlCeE44d3ZKb3JUS0xoNVpFeThTOUdCVmZvLWV5TjBRMEx3enBNVklYbnVhVjhOWDF1RVNwNU1rS3pDV29IR1NJMG9ZclNlRDd1c3E4bmpGNC11aE0xUG9Kb2k5VTJpRFhuT0RHQUxUZkZMbXY2dC1xclBDeGR4dWNGdXY1YldtbWFTbGRnUmp0RFp6VGZoS0o3T1dibGVpc3l1X1pEdE5R?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Na Limpebras, Bittar e Samir debatem com trabalhadores sobre custo de vida e obras no Acre - contilnetnoticias.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-26T01:41:16-05:00",
+      "publicado_em": "2026-09-24T23:30:37+00:00",
+      "fonte": "contilnetnoticias.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Na Limpebras, Bittar e Samir debatem com trabalhadores sobre custo de vida e obras no Acre - contilnetnoticias.com.br",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxOMjkwU19kX1Q2TlpLYmEtT0NMalJublk2eDZqb0Z4ZXE5b0I5TjU3YlN0aUJ4Tjh3dkpvclRLTGg1WkV5OFM5R0JWZm8tZXlOMFEwTHd6cE1WSVhudWFWOE5YMXVFU3A1TWtLekNXb0hHU0kwb1lyU2VEN3VzcThuakY0LXVoTTFQb0pvaTlVMmlEWG5PREdBTFRmRkxtdjZ0LXFyUEN4ZHh1Y0Z1djViV21tYVNsZGdSanREWnpUZmhLSjdPV2JsZWlzeXVfWkR0TlHSAdIBQVVfeXFMTjI5MFNfZF9UNk5aS2JhLU9DTGpSbm5ZNng2am9GeGVxOW9COU41N2JTdGlCeE44d3ZKb3JUS0xoNVpFeThTOUdCVmZvLWV5TjBRMEx3enBNVklYbnVhVjhOWDF1RVNwNU1rS3pDV29IR1NJMG9ZclNlRDd1c3E4bmpGNC11aE0xUG9Kb2k5VTJpRFhuT0RHQUxUZkZMbXY2dC1xclBDeGR4dWNGdXY1YldtbWFTbGRnUmp0RFp6VGZoS0o3T1dibGVpc3l1X1pEdE5R?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Na Limpebras, Bittar e Samir debatem com trabalhadores sobre custo de vida e obras no Acre - contilnetnoticias.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-25T20:42:30-05:00",
       "publicado_em": "2026-09-24T23:30:37+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Em entrevista a podcast, Eduardo Velloso afirmou que optou por disputar o Senado por gostar de desafios, abrindo mão de uma reeleição tranquila na Câmara Federal.",
       "por_que_importa": "Reforça a narrativa de posicionamento e desprendimento construída por Velloso para a corrida ao Senado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T10:57:42-05:00",
-      "publicado_em": "2026-09-25T15:22:02+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Eduardo Velloso afirma que vai vencer eleição ao Senado e promete ampliar investimentos na saúde do Acre",
-      "url": "https://noticiasdahora.com.br/politica/eduardo-velloso-afirma-que-vai-vencer-eleicao-ao-senado-e-promete-ampliar-investimentos-na-saude-do-acre/",
-      "ator_principal": "Eduardo Velloso",
-      "tema": "Eleições 2026 - Senado / Propostas",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Eduardo Velloso declarou ter certeza de sua vitória para o Senado e prometeu ampliar aportes financeiros e projetos na área de saúde no Acre.",
-      "por_que_importa": "Discurso padrão de campanha e otimismo eleitoral veiculado em entrevista de rádio/podcast.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T10:57:39-05:00",
-      "publicado_em": "2026-09-25T15:32:01+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Justiça determina prisão definitiva do ex-prefeito de Brasileia, Everaldo Gomes",
-      "url": "https://ac24horas.com/2026/09/25/justica-determina-prisao-definitiva-do-ex-prefeito-de-brasileia-everaldo-gomes/",
-      "ator_principal": "Everaldo Gomes",
-      "tema": "Justiça / Política Municipal",
-      "tom": "CRITICO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "A Vara Criminal de Brasileia determinou a prisão definitiva do ex-prefeito Everaldo Gomes para cumprimento de pena transitada em julgado de mais de 7 anos.",
-      "por_que_importa": "Decisão judicial envolvendo ex-gestor municipal que pode ter repercussões locais no cenário político do interior do estado.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
