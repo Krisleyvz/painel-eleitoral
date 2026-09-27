@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-26T17:45:03-05:00",
+    "gerado_em": "2026-09-26T19:53:40-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 16,
-    "ocorrencias_7d": 141,
+    "ocorrencias_24h": 17,
+    "ocorrencias_7d": 142,
     "alertas_24h": 1,
-    "samir_direto_24h": 10,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 0,
-    "total_base": 1287
+    "total_base": 1288
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-26T18:55:18-05:00",
+      "publicado_em": "2026-09-26T21:40:56+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Acreana fecha prova do Mundial de Triatlo na Espanha em mais de 3 horas",
+      "url": "https://ac24horas.com/2026/09/26/acreana-fecha-prova-do-mundial-de-triatlo-na-espanha-em-mais-de-3-horas/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Acreana fecha prova do Mundial de Triatlo na Espanha em mais de 3 horas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-26T13:44:45-05:00",
       "publicado_em": "2026-09-26T15:55:10+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "A governadora e candidata à reeleição Mailza propôs ampliar mutirões de cirurgias e atendimento especializado no interior do Acre durante sabatina na Rádio CBN.",
       "por_que_importa": "Apresentação de propostas prioritárias na área de saúde por parte da principal candidata governista na disputa estadual.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T10:57:43-05:00",
-      "publicado_em": "2026-09-25T15:26:04+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick ouve empresários do setor logístico e defende infraestrutura para reduzir custos e fortalecer a economia do Acre",
-      "url": "https://portalacre.com.br/2026/09/alan-rick-ouve-empresarios-do-setor-logistico-e-defende-infraestrutura-para-reduzir-custos-e-fortalecer-a-economia-do-acre/",
-      "ator_principal": "Alan Rick",
-      "tema": "Eleições 2026 - Governo / Infraestrutura",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Alan Rick reuniu-se com empresários do transporte de cargas e defendeu investimentos em infraestrutura logística para reduzir custos operacionais no Acre.",
-      "por_que_importa": "Mostra aproximação de Alan Rick com o empresariado e foco em pautas de desenvolvimento econômico na campanha.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
