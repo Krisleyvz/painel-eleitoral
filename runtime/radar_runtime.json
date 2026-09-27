@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-09-27T00:53:34-05:00",
+    "gerado_em": "2026-09-27T05:51:22-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
     "ocorrencias_24h": 13,
-    "ocorrencias_7d": 146,
+    "ocorrencias_7d": 148,
     "alertas_24h": 0,
     "samir_direto_24h": 13,
     "pesquisas_24h": 0,
-    "total_base": 1293
+    "total_base": 1295
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-27T05:33:07-05:00",
+      "publicado_em": "2026-09-26T12:05:00+00:00",
+      "fonte": "noticiasdahora.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“Saímos ainda mais motivados após sermos recebidos de braços abertos em Acrelândia e Plácido de Castro”, destaca Samir Bestene - noticiasdahora.com.br",
+      "url": "https://news.google.com/rss/articles/CBMi9gFBVV95cUxNMDBBb2xhS01WYkhfemZmQkZHMVpfV082cl9xSVhMSjZfWnhWZXVTRVlMc2JiRzhjdHNuVlVGUW9HVy1IcWNoU0dPNjBfRk56bi1BUFVoLVQ4ZmRSWkhRelh6Rk9BNzZ2bkZvRWtVa1lBYzVjamFhaHNVcnFxTXNyeGkxLTZNNW9raGs5VTN3TWNocUIzaTR1QWFSQ1FnLW5aM002TFZMY21EanVidzJldlB4OHJxVnJMWk1KeWoyWi1WTWJTN0EwZzE3VjhVd3A4WDRGaEFaR3Vod3YxbFRESkNDR0t1UzZ3eFRoWDdfdzd1c2xIZWc?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Saímos ainda mais motivados após sermos recebidos de braços abertos em Acrelândia e Plácido de Castro”, destaca Samir Bestene - noticiasdahora.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-09-27T05:33:07-05:00",
+      "publicado_em": "2026-09-24T17:05:00+00:00",
+      "fonte": "noticiasdahora.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Ao lado da governadora Mailza e de Correinha, Samir Bestene reforça aliança política na reta final da eleição: “A luta continua” - noticiasdahora.com.br",
+      "url": "https://news.google.com/rss/articles/CBMi9wFBVV95cUxNT2xpZWdiVUdLX3NvZjlNUlBVWWVTdkk4ZVduNFFjX0ozNnZRVThMY3E2ZHBsODdmY0Q2N05DRTU3Yzc5MHloakZTWmVieDJGWGhfd0Z6bDhIT3FwS0NuaDlmRG9FcFMyY0xtZllia2tBXzZMNHlTcVI5MmprUlcwOFQtOXBlZHdFYWdaR0tDdG92X2R0c1J4dHloeXdGaXhRWUpYcGoxdENKUzExNWlSZ3ZjdG5CUnEtRGF5X01iWXVHT29ESHIyYTEzSTc2SHVhUlpmSjFIOGRpTGxiUXVlQ3NtRVRDSWp4dmxhRlVXejB3eFFHVm5N?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Ao lado da governadora Mailza e de Correinha, Samir Bestene reforça aliança política na reta final da eleição: “A luta continua” - noticiasdahora.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-27T00:03:54-05:00",
       "publicado_em": "2026-09-26T21:40:56+00:00",
@@ -298,38 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Levantamento do UNICEF aponta que o plano de governo de Mailza Assis é o que mais cita crianças e adolescentes entre candidatos do Acre.",
       "por_que_importa": "Gera narrativa positiva para a campanha de reeleição da governadora frente a seus adversários diretos.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T20:42:12-05:00",
-      "publicado_em": "2026-09-25T22:05:44+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick pede que faculdade comprove autenticidade de diploma de Mailza Assis em até 48 horas",
-      "url": "https://agazetadoacre.com/2026/09/noticias/politica/alan-rick-pede-que-faculdade-comprove-autenticidade-de-diploma-de-mailza-assis-em-ate-48-horas/",
-      "ator_principal": "Alan Rick",
-      "tema": "Disputa Eleitoral Majoritária / Questionamento de Documentação",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "IMPORTANTE",
-      "resumo": "Alan Rick solicitou formalmente a faculdade em Goiás que confirme em até 48 horas a autenticidade do diploma de Pedagogia de Mailza Assis.",
-      "por_que_importa": "Intensifica a disputa direta entre os principais concorrentes ao governo do Acre, podendo gerar repercussões jurídicas e de imagem na reta final.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-25T20:42:12-05:00",
-      "publicado_em": "2026-09-25T21:41:04+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Circo em Rio Branco terá sessão especial com renda destinada aos irmãos Pedro e Tiago",
-      "url": "https://agazetadoacre.com/2026/09/noticias/geral/circo-em-rio-branco-tera-sessao-especial-com-renda-destinada-aos-irmaos-pedro-e-tiago/",
-      "ator_principal": "Circo Garcez",
-      "tema": "Ação Social / Saúde Comunitária",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Sessão especial de circo em Rio Branco arrecadará fundos para o tratamento de irmãos diagnosticados com distrofia muscular rara.",
-      "por_que_importa": "Pauta estritamente social e comunitária, sem relação direta ou impacto no cenário eleitoral de 2026.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
