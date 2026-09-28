@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-28T13:47:37-05:00",
+    "gerado_em": "2026-09-28T18:32:44-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 7,
-    "ocorrencias_7d": 138,
+    "ocorrencias_24h": 8,
+    "ocorrencias_7d": 126,
     "alertas_24h": 0,
-    "samir_direto_24h": 7,
+    "samir_direto_24h": 8,
     "pesquisas_24h": 0,
-    "total_base": 1302
+    "total_base": 1303
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-28T15:17:26-05:00",
+      "publicado_em": "2026-09-28T15:57:43+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "“O produtor rural é fundamental para o desenvolvimento do Acre”, afirma Samir Bestene durante agenda na zona rural de Rio Branco",
+      "url": "https://noticiasdahora.com.br/politica/o-produtor-rural-e-fundamental-para-o-desenvolvimento-do-acre-afirma-samir-bestene-durante-agenda-na-zona-rural-de-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“O produtor rural é fundamental para o desenvolvimento do Acre”, afirma Samir Bestene durante agenda na zona rural de Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-28T01:00:19-05:00",
       "publicado_em": "2026-09-27T18:55:20+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Dirigente do PP, Raimundinho Costa faz festa na Baixada para Samir Bestene e Zezinho Barbary - acrenews.com.br",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-26T10:42:42-05:00",
-      "publicado_em": "2026-09-26T14:05:03+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "“Saímos ainda mais motivados após sermos recebidos de braços abertos em Acrelândia e Plácido de Castro”, destaca Samir Bestene",
-      "url": "https://noticiasdahora.com.br/politica/saimos-ainda-mais-motivados-apos-sermos-recebidos-de-bracos-abertos-em-acrelandia-e-placido-de-castro-destaca-samir-bestene/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Saímos ainda mais motivados após sermos recebidos de braços abertos em Acrelândia e Plácido de Castro”, destaca Samir Bestene",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
