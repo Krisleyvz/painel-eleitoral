@@ -1,14 +1,14 @@
 {
   "meta": {
-    "gerado_em": "2026-09-28T21:41:30-05:00",
+    "gerado_em": "2026-09-29T04:01:58-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 7,
-    "ocorrencias_7d": 126,
+    "ocorrencias_24h": 1,
+    "ocorrencias_7d": 125,
     "alertas_24h": 0,
-    "samir_direto_24h": 7,
+    "samir_direto_24h": 1,
     "pesquisas_24h": 0,
     "total_base": 1303
   },
