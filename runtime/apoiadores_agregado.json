@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-09-29T04:02:04-05:00",
+    "gerado_em": "2026-09-29T10:36:02-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -11,12 +11,12 @@
     }
   },
   "resumo": {
-    "total": 735,
-    "com_municipio": 685,
+    "total": 736,
+    "com_municipio": 686,
     "sem_municipio": 50,
     "territorializados_pct": 93.2,
-    "novos_7d": 0,
-    "novos_30d": 49,
+    "novos_7d": 1,
+    "novos_30d": 50,
     "bairros": 256,
     "municipios": 15,
     "reunioes": 263,
@@ -29,9 +29,9 @@
       "texto": "23 apoiador(es) cadastrados nesse bairro. Isso mede organização da campanha, não intenção de voto."
     },
     {
-      "titulo": "Sem crescimento recente identificado",
-      "status": "VERIFICAR",
-      "texto": "Nenhum cadastro com data reconhecida nos últimos 7 dias; confirme se a coluna de data foi localizada corretamente."
+      "titulo": "Crescimento recente da base",
+      "status": "ACOMPANHAR",
+      "texto": "1 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
     }
   ],
   "bairros": [
@@ -103,6 +103,12 @@
     },
     {
       "municipio": "RIO BRANCO",
+      "bairro": "Glória",
+      "total": 10,
+      "novos_7d": 1
+    },
+    {
+      "municipio": "RIO BRANCO",
       "bairro": "Ivete Vargas",
       "total": 10,
       "novos_7d": 0
@@ -110,14 +116,14 @@
     {
       "municipio": "AGREGADO",
       "bairro": "Outros bairros (menos de 10 cadastros cada)",
-      "total": 556,
+      "total": 547,
       "novos_7d": 0
     }
   ],
   "municipios": [
     {
       "municipio": "RIO BRANCO",
-      "total": 561
+      "total": 562
     },
     {
       "municipio": "CRUZEIRO DO SUL",
