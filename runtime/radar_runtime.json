@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-30T10:19:10-05:00",
+    "gerado_em": "2026-09-30T15:06:03-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 16,
-    "ocorrencias_7d": 120,
+    "ocorrencias_24h": 13,
+    "ocorrencias_7d": 108,
     "alertas_24h": 0,
-    "samir_direto_24h": 16,
+    "samir_direto_24h": 13,
     "pesquisas_24h": 0,
-    "total_base": 1319
+    "total_base": 1320
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-30T14:16:06-05:00",
+      "publicado_em": "2026-09-30T18:00:11+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha",
+      "url": "https://oaltoacre.com/samir-bestene-destaca-trajetoria-como-vereador-e-defende-desenvolvimento-economico-na-reta-final-da-campanha/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-29T20:31:31-05:00",
       "publicado_em": "2026-09-27T18:55:18+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Alan Rick defende incentivos para garantir professores em áreas de difícil acesso de Tarauacá/Envira - O - O Alto Acre",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-28T01:00:19-05:00",
-      "publicado_em": "2026-09-27T17:56:25+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Ministério Público cobra Prefeitura de Envira por descumprimento de prazos e descarte ilegal de lixo em - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxPZmREblM2bXJlQlFKSjk2OWNDRXd1YlB5X3hVeWNLLU9xNDdRbkxzTmJZZjRkd0daQjREVTZ6MlhHSFBPRmVVOE1FMkVfNXAwM0xNMUtJWlNUYk1HaS1vOU9ycU5CUTFtcTFnSkRyLXhrWkllR180RVFNcmJ0VGFscmRxNnZadFRxZk1yTlVSUkVCTFlRYlU5VVZGNVVNV1RPd1Fva05HT2dNc0VfUHFDejFNVTJLNi00NlE3eGZPaXNIcTIyMVpMdFQ1NnBnRjZHSmlHU2NuWFVXc1RCYUNoN1dYY9IB4wFBVV95cUxPZmREblM2bXJlQlFKSjk2OWNDRXd1YlB5X3hVeWNLLU9xNDdRbkxzTmJZZjRkd0daQjREVTZ6MlhHSFBPRmVVOE1FMkVfNXAwM0xNMUtJWlNUYk1HaS1vOU9ycU5CUTFtcTFnSkRyLXhrWkllR180RVFNcmJ0VGFscmRxNnZadFRxZk1yTlVSUkVCTFlRYlU5VVZGNVVNV1RPd1Fva05HT2dNc0VfUHFDejFNVTJLNi00NlE3eGZPaXNIcTIyMVpMdFQ1NnBnRjZHSmlHU2NuWFVXc1RCYUNoN1dYYw?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Ministério Público cobra Prefeitura de Envira por descumprimento de prazos e descarte ilegal de lixo em - O Alto Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
