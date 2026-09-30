@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-09-30T15:06:03-05:00",
+    "gerado_em": "2026-09-30T18:41:05-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 13,
-    "ocorrencias_7d": 108,
+    "ocorrencias_24h": 7,
+    "ocorrencias_7d": 109,
     "alertas_24h": 0,
-    "samir_direto_24h": 13,
+    "samir_direto_24h": 7,
     "pesquisas_24h": 0,
-    "total_base": 1320
+    "total_base": 1321
   },
   "itens": [
+    {
+      "coletado_em": "2026-09-30T18:05:39-05:00",
+      "publicado_em": "2026-09-30T20:54:22+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene percorre Polo Industrial ao lado de Mailza Assis e Zé Adriano: “Nosso compromisso é com quem produz, gera emprego e renda”",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-percorre-polo-industrial-ao-lado-de-mailza-assis-e-ze-adriano-nosso-compromisso-e-com-quem-produz-gera-emprego-e-renda/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene percorre Polo Industrial ao lado de Mailza Assis e Zé Adriano: “Nosso compromisso é com quem produz, gera emprego e renda”",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-30T14:16:06-05:00",
       "publicado_em": "2026-09-30T18:00:11+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Bombeiros encerram buscas por menino de 2 anos desaparecido no Acre - O Alto Acre",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-28T01:00:19-05:00",
-      "publicado_em": "2026-09-27T18:55:18+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Alan Rick defende incentivos para garantir professores em áreas de difícil acesso de Tarauacá/Envira - O - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNSUFFdV9UQzRZZ25Ha1hmRmR6d0tDNF9QdU1hRk1mMjY2ZmE2OFNzc1RGOVFXNTdTdmpHUVJ4RDNzMWRRc3pSUXoydXFUSVFFMGVadnctV3BTUXotcW94ZERZNjVtT09Jc2h2ZFEtQU11aGV2YWxpbFN0NjRhUlBUTXBHYXFKaThsLWR4ODBmSGJtUi02Z24zWVlwZFRUeWdNYjZxeThoVTZBc3ByYXluQUx5bFpGSWF0MWFORkM1QnZnNmhVekHSAcYBQVVfeXFMTUlBRXVfVEM0WWduR2tYZkZkendLQzRfUHVNYUZNZjI2NmZhNjhTc3NURjlRVzU3U3ZqR1FSeEQzczFkUXN6UlF6MnVxVElRRTBlWnZ3LVdwU1F6LXFveGREWTY1bU9PSXNodmRRLUFNdWhldmFsaWxTdDY0YVJQVE1wR2FxSmk4bC1keDgwZkhibVItNmduM1lZcGRUVHlnTWI2cXk4aFU2QXNwcmF5bkFMeWxaRklhdDFhTkZDNUJ2ZzZoVXpB?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Alan Rick defende incentivos para garantir professores em áreas de difícil acesso de Tarauacá/Envira - O - O Alto Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
