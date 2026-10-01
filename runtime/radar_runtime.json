@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-01T04:07:05-05:00",
+    "gerado_em": "2026-10-01T11:20:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 2,
-    "ocorrencias_7d": 102,
+    "ocorrencias_24h": 3,
+    "ocorrencias_7d": 103,
     "alertas_24h": 0,
-    "samir_direto_24h": 2,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 1321
+    "total_base": 1322
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-01T11:19:57-05:00",
+      "publicado_em": "2026-09-30T18:00:11+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha",
+      "url": "https://oaltoacre.com/samir-bestene-destaca-trajetoria-como-vereador-e-defende-desenvolvimento-economico-na-reta-final-da-campanha/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-09-30T18:05:39-05:00",
       "publicado_em": "2026-09-30T20:54:22+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "“O produtor rural é fundamental para o desenvolvimento do Acre”, afirma Samir Bestene durante agenda na zona rural de Rio Branco",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-09-28T01:00:19-05:00",
-      "publicado_em": "2026-09-27T18:55:20+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Bombeiros encerram buscas por menino de 2 anos desaparecido no Acre - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQR3Z4WUJPdDdwRENPXzE0R0lBTndBbFlYQnNUdDJ1MDQwdlpSMVhORjVDdEdoVDlyTWRTekVJR0dycUF4WXJGZk1UdTA3SURndGJsWTNsT2NiaGhkbmIxR2QzVVRoTThOU3doY2ZZX2RVSFR3d1RjcEF3b3JQS0Z0a3p5SFhSOU1TcVlhVXR0d0g4UlZRbFRtZF9B0gGaAUFVX3lxTFBHdnhZQk90N3BEQ09fMTRHSUFOd0FsWVhCc1R0MnUwNDB2WlIxWE5GNUN0R2hUOXJNZFN6RUlHR3JxQXhZckZmTVR1MDdJRGd0YmxZM2xPY2JoaGRuYjFHZDNVVGhNOE5Td2hjZllfZFVIVHd3VGNwQXdvclBLRnRrenlIWFI5TVNxWWFVdHR3SDhSVlFsVG1kX0E?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Bombeiros encerram buscas por menino de 2 anos desaparecido no Acre - O Alto Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
