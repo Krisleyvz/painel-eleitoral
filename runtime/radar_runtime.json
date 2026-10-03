@@ -1,18 +1,66 @@
 {
   "meta": {
-    "gerado_em": "2026-10-02T19:43:02-05:00",
+    "gerado_em": "2026-10-03T00:45:09-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 53,
-    "ocorrencias_7d": 116,
-    "alertas_24h": 7,
+    "ocorrencias_24h": 41,
+    "ocorrencias_7d": 110,
+    "alertas_24h": 5,
     "samir_direto_24h": 13,
     "pesquisas_24h": 1,
-    "total_base": 1387
+    "total_base": 1390
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-02T20:22:32-05:00",
+      "publicado_em": "2026-10-01T14:58:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir reúne 500 pessoas na Baixada da Sobral e destaca força da campanha rumo à Aleac: “Motivação para trabalhar mais pelo nosso povo” - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMigAJBVV95cUxQYzNYYVh4cWZZeGFieVVwUXhreEotbklVRVJxYlRwM0FlWlBqZzg0Q2RmT2tXSmdHeTJrNnVWZGhWVzFUeEFDbVZtb0FPazR5dkhJa1VJUUhERzctaDY4SndMekdLeDRRY2RSVWthOEJQcFFLamtsSzJxMGhlbXQyc2dJNFloUVc1b1YzTWhBMmtwT19fRVUzeWtqb1NoQllmTjk3WFA5bGxfRzNCaXhLcnVuU1loQ203NWlrcTdfcDVXOWxISWRUWUdUVjhkVnpSczJQVHhTZk1pZTdKZ2JhcXlJN3VjMHV1bkVnNEJZenBuZmNSVEh0QjAzOS1MTW02?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir reúne 500 pessoas na Baixada da Sobral e destaca força da campanha rumo à Aleac: “Motivação para trabalhar mais pelo nosso povo” - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-02T20:22:29-05:00",
+      "publicado_em": "2026-10-02T19:17:24+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene - ac24horas",
+      "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxQS2NfU2h4em5UMFB3UE9zdi1BSFlJUTZWYUJEeHk0SWdxeWtDY09SU0NIZkFVZ1ZUTWxvdGJEUTlxZlJQemRjTmVlVDBUVFhFWnhRVnhLS2k5UG1NVnpwZXhjRkx6dHhPMHhJS01JV2VURzhXWVNEYTJsVnJfckpISEJMTlloYVV6SXFucWVNSGpRd0IzMHZIQmVGM0tnckpKZzAxd0VXRTVkTXdqRUpscVVJRjNEOWNE0gG-AUFVX3lxTE9rMVd6SFh1VlQxaVl6Tm4tTUhFaGdNeVFfVU5ESndfcC02eTdxcS05UHdzVDJaWWNGLVEtZFhCUWoyazdPV2E5WHZwU0lrTlRlbkEzQUE3X2RxMDVobEw3amwxNS1Ra3RITXMyM1pMTEs3c3JNV3Uyc3NfNG1RTTV2eUlHWTFxam1sS055bDVMX1Raa2hmSnFmclRFSmdPSVVmc0NoY1dxV2NxZlk0Ty1PWW45cTk2Z0oza2RXb1E?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene - ac24horas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-02T20:22:29-05:00",
+      "publicado_em": "2026-10-01T23:43:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir encerra movimento de rua com 1.500 pessoas que invadem a Avenida Ceará no berço da família Bestene - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxQX0tTU1FBUWVBcWI1NVdOeVd4dklGWkU2dk5pN1JHS2JsQVFHQ3FNd2ZIazdjVzdrNjF6a1p0WThaLXR3b0Y4bjFCS1lGVHFhZ1p2cENlYWFQVDg0WU41UExuUnVXcS1VQjA0RlVPRzJkajRvS1BOSk1zWXBLdmxsRWRTSWtwU3paYVhSV1VoQWhrZ0t0ZmZ4VTJrRlo1UEtORkRMNG1pZkRveW9vRGpIaGJYV19TUzNKQnB2ZmNMN0hyUFl4OUZQR1Nmd2V0MGhBUmdQWndQSGRjMlZh?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir encerra movimento de rua com 1.500 pessoas que invadem a Avenida Ceará no berço da família Bestene - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-02T17:27:19-05:00",
       "publicado_em": "2026-10-02T20:10:10+00:00",
@@ -283,54 +331,6 @@
       "resumo": "Acre utilizará cerca de 800 câmeras de videomonitoramento para segurança e fiscalização no dia da eleição.",
       "por_que_importa": "Mapeia a estrutura de vigilância contra crimes eleitorais e tumultos no estado.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-02T13:22:54-05:00",
-      "publicado_em": "2026-10-02T18:03:06+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Campanha eleitoral no Acre é marcada por ataques e troca de acusações",
-      "url": "https://ac24horas.com/2026/10/02/campanha-eleitoral-no-acre-e-marcada-por-ataques-e-troca-de-acusacoes/",
-      "ator_principal": "Comentaristas Políticos (Bar do Vaz)",
-      "tema": "Análise de Cenário Eleitoral",
-      "tom": "CRITICO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Comentaristas debatem a prevalência de ataques e acusações mútuas entre candidatos em detrimento de debates programáticos.",
-      "por_que_importa": "Retrata o clima de acirramento e a percepção pública sobre o nível da campanha no Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-02T13:22:54-05:00",
-      "publicado_em": "2026-10-02T17:49:06+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Comentaristas questionam excesso de pesquisas na reta final das eleições",
-      "url": "https://ac24horas.com/2026/10/02/comentaristas-questionam-excesso-de-pesquisas-na-reta-final-das-eleicoes/",
-      "ator_principal": "Comentaristas Políticos (Bar do Vaz) e Gladson Cameli",
-      "tema": "Pesquisa Eleitoral / Situação Jurídica",
-      "tom": "CRITICO",
-      "nivel": "IMPORTANTE",
-      "resumo": "Analistas discutem proliferação de pesquisas e pontuam que Gladson Cameli não constará na totalização em tempo real por estar sub judice.",
-      "por_que_importa": "Destaca a situação de instabilidade jurídica na disputa ao Senado e a repercussão da divulgação de pesquisas.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": true
-    },
-    {
-      "coletado_em": "2026-10-02T08:04:59-05:00",
-      "publicado_em": "2026-10-02T01:43:18+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "Samir encerra movimento de rua com 1.500 pessoas que invadem a Avenida Ceará no berço da família Bestene",
-      "url": "https://noticiasdahora.com.br/politica/samir-encerra-movimento-de-rua-com-1-500-pessoas-que-invadem-a-avenida-ceara-no-berco-da-familia-bestene/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir encerra movimento de rua com 1.500 pessoas que invadem a Avenida Ceará no berço da família Bestene",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
