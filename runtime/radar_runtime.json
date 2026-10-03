@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-03T00:45:09-05:00",
+    "gerado_em": "2026-10-03T05:38:32-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 41,
-    "ocorrencias_7d": 110,
-    "alertas_24h": 5,
+    "ocorrencias_24h": 30,
+    "ocorrencias_7d": 109,
+    "alertas_24h": 2,
     "samir_direto_24h": 13,
     "pesquisas_24h": 1,
-    "total_base": 1390
+    "total_base": 1391
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-03T01:52:19-05:00",
+      "publicado_em": "2026-09-30T18:00:11+00:00",
+      "fonte": "oaltoacre.com",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha - oaltoacre.com",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxQZmFZaUpxZ3lWcW9CekEzNGd2WHNfX0RuX3lpcnpOc3NvejcwN1ZzZVp1UTBlWU43ZkZzaE5nVjRHVl9xbkZ3bVhqUHNOd3ZiLVlxMi1ZbGVMRDByR2RyQkVKbmRYUFhjRWwzbllLc20tX2pHWjN3ZkdiekExOHp4YXQtMEZONVFIeU1QT3dyb0pPMjNMUjhzRko3WktESGVTaDY1RzNpdU5tMWd2QUZiTDBjdzZUTzhNU2tKOVlQSEpfOW14LW5EMzM4SdIB0AFBVV95cUxPUW0tNlV0TFJtWnhkdmtoc0JlaGdKcnN5eFBZZ0x5b012dEYwcXhUYmgxVXlFaDV5T1ZvTU95Z0tic0JnSU5rSWxHVExWUjhqODMzSE02LUVRTG5GRWRYb3hUcFhudV94WUNvbkFUeHpCSGprM29uMVRyQlJYeUQ1YmFieDhiVU5nNVBWSjZhb2lCUTdDRFluMHdVck44dGVXd3BNX09haVBrWHN5cjlhZUpkU2paaHBwa1FWcHF1TGNzOUtvM09xaHhNUlVRQlB6?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca trajetória como vereador e defende desenvolvimento econômico na reta final da campanha - oaltoacre.com",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-02T20:22:32-05:00",
       "publicado_em": "2026-10-01T14:58:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "TRE-AC confirma sorteio público de 20 urnas eletrônicas para auditoria de funcionamento na véspera do pleito.",
       "por_que_importa": "Informa sobre os ritos oficiais de fiscalização das urnas para a eleição.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-02T13:22:55-05:00",
-      "publicado_em": "2026-10-02T17:50:26+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Eleições 2026: Acre terá 800 câmeras para monitorar municípios",
-      "url": "https://contilnetnoticias.com.br/destaque-2/eleicoes-2026-acre-tera-800-cameras-para-monitorar-municipios/",
-      "ator_principal": "Segurança Pública / Justiça Eleitoral",
-      "tema": "Segurança / Monitoramento",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Acre utilizará cerca de 800 câmeras de videomonitoramento para segurança e fiscalização no dia da eleição.",
-      "por_que_importa": "Mapeia a estrutura de vigilância contra crimes eleitorais e tumultos no estado.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
