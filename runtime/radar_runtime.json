@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-03T13:20:37-05:00",
+    "gerado_em": "2026-10-03T16:26:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 35,
+    "ocorrencias_24h": 25,
     "ocorrencias_7d": 118,
-    "alertas_24h": 8,
-    "samir_direto_24h": 13,
-    "pesquisas_24h": 2,
-    "total_base": 1403
+    "alertas_24h": 6,
+    "samir_direto_24h": 14,
+    "pesquisas_24h": 1,
+    "total_base": 1405
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-03T14:23:18-05:00",
+      "publicado_em": "2026-10-03T12:40:00+00:00",
+      "fonte": "noticiasdahora.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém” - noticiasdahora.com.br",
+      "url": "https://news.google.com/rss/articles/CBMigwJBVV95cUxPa0ZhZXJ5a2JSQ0NQLVIta2h2OUw1TTZ5MTRPaW42bzlBSTdQYmxNa3FybGh0eEs2SXBQbEVSLW1fMHdfMW54TEdLMGkxTER1b1ZsTXExX00tQTdSZ1hCT25VS2FMMnhwZlpCaVZCLVpBSU85RVlueC1RSlFxN1B5R3hBbjAzMXIyOGdYN2RPWTFYeTRpSXlaS3FNdk9jQW1zYlBTUVFmb0FpZENPbjAzMHZqazBvbnhFLTF1WHhlS0MwSGpPdVZRejRSVmV4bnFwVXJFX01IbWtSUDdKbUJJMVYzd1J5VXkzdkx6eHVNUVEwZjg4UXJRd3lQZ1c1ZjNMV3NJ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém” - noticiasdahora.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-03T14:23:18-05:00",
+      "publicado_em": "2026-10-02T19:17:24+00:00",
+      "fonte": "ac24horas.com",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene - ac24horas.com",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxPazFXekhYdVZUMWlZek5uLU1IRWhnTXlRX1VOREp3X3AtNnk3cXEtOVB3c1QyWlljRi1RLWRYQlFqMms3T1dhOVh2cFNJa05UZW5BM0FBN19kcTA1aGxMN2psMTUtUWt0SE1zMjNaTExLN3NyTVd1MnNzXzRtUU01dnlJR1kxcWptbEtOeWw1TF9UWmtoZkpxZnJURUpnT0lVZnNDaGNXcVdjcWZZNE8tT1luOXE5NmdKM2tkV29R0gG-AUFVX3lxTE9rMVd6SFh1VlQxaVl6Tm4tTUhFaGdNeVFfVU5ESndfcC02eTdxcS05UHdzVDJaWWNGLVEtZFhCUWoyazdPV2E5WHZwU0lrTlRlbkEzQUE3X2RxMDVobEw3amwxNS1Ra3RITXMyM1pMTEs3c3JNV3Uyc3NfNG1RTTV2eUlHWTFxam1sS055bDVMX1Raa2hmSnFmclRFSmdPSVVmc0NoY1dxV2NxZlk0Ty1PWW45cTk2Z0oza2RXb1E?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene - ac24horas.com",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-03T11:31:51-05:00",
       "publicado_em": "2026-10-02T19:37:23+00:00",
@@ -299,38 +331,6 @@
       "resumo": "Prefeito de Acrelândia, Graia, declara apoio à candidatura de Eduardo Velloso ao Senado durante visita institucional.",
       "por_que_importa": "Mapeia a consolidação de apoios municipais de prefeitos do interior na disputa pela vaga no Senado Federal.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-02T17:27:16-05:00",
-      "publicado_em": "2026-10-02T20:00:49+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Resultados das eleições no Acre devem sair entre 17h e 18h deste domingo, estima TRE-AC",
-      "url": "https://agazetadoacre.com/2026/10/destaques/6o-destaque/resultados-das-eleicoes-no-acre-devem-sair-entre-17h-e-18h-deste-domingo-estima-tre-ac/",
-      "ator_principal": "TRE-AC (Lois Arruda)",
-      "tema": "JUSTICA_ELEITORAL",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "TRE-AC prevê que a apuração dos votos no Acre esteja avançada e traga resultados consolidados entre 17h e 18h de domingo.",
-      "por_que_importa": "Informa a estimativa oficial de tempo para totalização da votação e acompanhamento das urnas no dia do pleito.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-02T17:27:15-05:00",
-      "publicado_em": "2026-10-02T19:17:24+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene",
-      "url": "https://ac24horas.com/2026/10/02/justica-proibe-gestores-da-sesacre-de-coagir-terceirizados-em-prol-de-samir-bestene/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Justiça proíbe gestores da Sesacre de coagir terceirizados em prol de Samir Bestene",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
