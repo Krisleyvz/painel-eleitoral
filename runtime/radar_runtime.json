@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-03T18:57:23-05:00",
+    "gerado_em": "2026-10-03T22:44:17-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 24,
-    "ocorrencias_7d": 123,
+    "ocorrencias_24h": 22,
+    "ocorrencias_7d": 124,
     "alertas_24h": 6,
-    "samir_direto_24h": 13,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 1,
-    "total_base": 1411
+    "total_base": 1412
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-03T20:47:28-05:00",
+      "publicado_em": "2026-10-03T14:40:43+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém”",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-diz-que-sua-campanha-conquistou-apoio-pelo-trabalho-e-rebate-acusacao-nao-e-o-nosso-feitio-nao-estamos-coagindo-ninguem/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém”",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-03T17:20:16-05:00",
       "publicado_em": "2026-10-03T17:55:19+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Senador Márcio Bittar faz balanço positivo da campanha durante carreata na véspera da eleição em Rio Branco.",
       "por_que_importa": "Registro do encerramento de campanha de figura central da chapa majoritária governista no estado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-03T11:31:26-05:00",
-      "publicado_em": "2026-10-03T16:10:37+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Sena Madureira terá quase 31 mil eleitores aptos a votar nas Eleições 2026",
-      "url": "https://contilnetnoticias.com.br/politica/sena-madureira-tera-quase-31-mil-eleitores-aptos-a-votar-nas-eleicoes-2026/",
-      "ator_principal": "Justiça Eleitoral",
-      "tema": "Eleições 2026 / Dados Eleitorais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Sena Madureira contabiliza quase 31 mil eleitores aptos a votar no pleito de 2026, segundo a 3ª Zona Eleitoral.",
-      "por_que_importa": "Dado estatístico informativo sobre o eleitorado de um dos principais colégios eleitorais do interior.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
