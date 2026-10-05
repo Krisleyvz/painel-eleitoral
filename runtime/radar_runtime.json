@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-04T16:54:34-05:00",
+    "gerado_em": "2026-10-04T19:14:58-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 25,
-    "ocorrencias_7d": 135,
+    "ocorrencias_24h": 20,
+    "ocorrencias_7d": 136,
     "alertas_24h": 0,
-    "samir_direto_24h": 7,
+    "samir_direto_24h": 8,
     "pesquisas_24h": 1,
-    "total_base": 1430
+    "total_base": 1431
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-04T18:34:45-05:00",
+      "publicado_em": "2026-10-04T15:30:26+00:00",
+      "fonte": "tmc.com.br",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Apuração da Eleição 2026 para Deputados Estaduais no Acre; acompanhe - tmc.com.br",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE5UVmQxckZ0cGNHR0N6WF9fb29Ial9jTERCT21xbFJMNGY5RTVCbUhCNHA1cExxVEFhYzNwN0E0dFBKVENaQVgtVzdVVW4ydy1nbXVzcFdHb05XX1ZEM0xncV9vNlVnZUNfMWlWYlRVaC1UQUk?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Apuração da Eleição 2026 para Deputados Estaduais no Acre; acompanhe - tmc.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-04T15:30:54-05:00",
       "publicado_em": "2026-10-02T20:06:43+00:00",
@@ -315,22 +331,6 @@
       "resumo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém”",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-03T17:20:16-05:00",
-      "publicado_em": "2026-10-03T17:55:19+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza lidera carreata com mais de 3 mil veículos em Rio Branco e celebra apoio popular",
-      "url": "https://diariodoacre.com.br/mailza-lidera-carreata-com-mais-de-3-mil-veiculos-em-rio-branco-e-celebra-apoio-popular/?utm_source=rss&utm_medium=rss&utm_campaign=mailza-lidera-carreata-com-mais-de-3-mil-veiculos-em-rio-branco-e-celebra-apoio-popular",
-      "ator_principal": "Mailza Assis",
-      "tema": "Mobilização de rua e encerramento de campanha",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Mailza lidera grande carreata de encerramento de campanha em Rio Branco, reunindo mais de 3 mil veículos nas principais avenidas e bairros da capital.",
-      "por_que_importa": "Demonstra a capacidade de mobilização de rua da chapa governista em Rio Branco na véspera da votação.",
-      "samir_direto": false,
       "pesquisa_eleitoral": false
     }
   ]
