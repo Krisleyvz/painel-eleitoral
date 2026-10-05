@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-10-04T19:14:58-05:00",
+    "gerado_em": "2026-10-05T00:41:04-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
@@ -10,9 +10,25 @@
     "alertas_24h": 0,
     "samir_direto_24h": 8,
     "pesquisas_24h": 1,
-    "total_base": 1431
+    "total_base": 1432
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-04T21:23:40-05:00",
+      "publicado_em": "2026-10-04T23:46:29+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene transforma trajetória na Câmara de Rio Branco em vitória nas urnas e chega à Aleac com mais de 11mil votos",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-transforma-trajetoria-na-camara-de-rio-branco-em-vitoria-nas-urnas-e-chega-a-aleac-com-mais-de-11mil-votos/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene transforma trajetória na Câmara de Rio Branco em vitória nas urnas e chega à Aleac com mais de 11mil votos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-04T18:34:45-05:00",
       "publicado_em": "2026-10-04T15:30:26+00:00",
@@ -315,22 +331,6 @@
       "resumo": "Aldeia Laranjal, do povo Arara, em Altamira (PA), recebe secao eleitoral propria pela primeira vez nas eleicoes de 2026.",
       "por_que_importa": "Noticia sobre organizacao eleitoral no estado do Para, sem impacto direto na disputa politica do Acre.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-03T20:47:28-05:00",
-      "publicado_em": "2026-10-03T14:40:43+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém”",
-      "url": "https://noticiasdahora.com.br/politica/samir-bestene-diz-que-sua-campanha-conquistou-apoio-pelo-trabalho-e-rebate-acusacao-nao-e-o-nosso-feitio-nao-estamos-coagindo-ninguem/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene diz que sua campanha conquistou apoio pelo trabalho e rebate acusação: “não é o nosso feitio. Não estamos coagindo ninguém”",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
