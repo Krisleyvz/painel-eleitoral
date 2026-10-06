@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-10-06T02:49:28-05:00",
+    "gerado_em": "2026-10-06T09:30:20-05:00",
     "aba_origem": "Samir Bestene - Apoiadores (Respostas)",
     "privacidade": "Somente agregados; sem PII; territórios com menos de 10 cadastros são suprimidos.",
     "colunas_detectadas": {
@@ -15,7 +15,7 @@
     "com_municipio": 686,
     "sem_municipio": 50,
     "territorializados_pct": 93.2,
-    "novos_7d": 1,
+    "novos_7d": 0,
     "novos_30d": 43,
     "bairros": 256,
     "municipios": 15,
@@ -29,9 +29,9 @@
       "texto": "23 apoiador(es) cadastrados nesse bairro. Isso mede organização da campanha, não intenção de voto."
     },
     {
-      "titulo": "Crescimento recente da base",
-      "status": "ACOMPANHAR",
-      "texto": "1 novo(s) cadastro(s) nos últimos 7 dias. A tendência territorial deve ser comparada semana a semana."
+      "titulo": "Sem crescimento recente identificado",
+      "status": "VERIFICAR",
+      "texto": "Nenhum cadastro com data reconhecida nos últimos 7 dias; confirme se a coluna de data foi localizada corretamente."
     }
   ],
   "bairros": [
@@ -105,7 +105,7 @@
       "municipio": "RIO BRANCO",
       "bairro": "Glória",
       "total": 10,
-      "novos_7d": 1
+      "novos_7d": 0
     },
     {
       "municipio": "RIO BRANCO",
