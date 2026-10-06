@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-06T09:30:16-05:00",
+    "gerado_em": "2026-10-06T14:44:03-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 20,
-    "ocorrencias_7d": 154,
+    "ocorrencias_24h": 19,
+    "ocorrencias_7d": 151,
     "alertas_24h": 1,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 8,
     "pesquisas_24h": 0,
-    "total_base": 1457
+    "total_base": 1458
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-06T14:07:34-05:00",
+      "publicado_em": "2026-10-06T17:15:05+00:00",
+      "fonte": "A Gazeta do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Após eleição, vereadores que disputaram vaga na Aleac agradecem votos e relembram campanha na Câmara de Rio Branco",
+      "url": "https://agazetadoacre.com/2026/10/noticias/politica/apos-eleicao-vereadores-que-disputaram-vaga-na-aleac-agradecem-votos-e-relembram-campanha-na-camara-de-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Após eleição, vereadores que disputaram vaga na Aleac agradecem votos e relembram campanha na Câmara de Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-06T08:42:26-05:00",
       "publicado_em": "2026-10-05T01:16:43+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Samir Bestene transforma trajetória na Câmara de Rio Branco em vitória nas urnas e chega à Aleac com mais de 11mil votos",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-05T13:48:32-05:00",
-      "publicado_em": "2026-10-05T14:49:20+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Gabriela Câmara e Degmar Kinpara assumem mandatos de vereadora em Rio Branco; vaga de Raimundo Neném pode virar alvo de disputa",
-      "url": "https://portalacre.com.br/2026/10/gabriela-camara-e-degmar-kinpara-assumem-como-vereadores-em-rio-branco-vaga-de-raimundo-nenem-pode-virar-alvo-de-disputa/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Gabriela Câmara e Degmar Kinpara assumem mandatos de vereadora em Rio Branco; vaga de Raimundo Neném pode virar alvo de disputa",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
