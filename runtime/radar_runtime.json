@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-07T03:55:40-05:00",
+    "gerado_em": "2026-10-07T10:53:03-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 36,
-    "ocorrencias_7d": 169,
+    "ocorrencias_24h": 32,
+    "ocorrencias_7d": 170,
     "alertas_24h": 7,
-    "samir_direto_24h": 24,
+    "samir_direto_24h": 20,
     "pesquisas_24h": 0,
-    "total_base": 1488
+    "total_base": 1489
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-07T04:00:55-05:00",
+      "publicado_em": "2026-10-07T01:07:23+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene agradece 11 mil votos e fala sobre seu novo desafio na Aleac",
+      "url": "https://oaltoacre.com/samir-bestene-agradece-11-mil-votos-e-fala-sobre-seu-novo-desafio-na-aleac/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene agradece 11 mil votos e fala sobre seu novo desafio na Aleac",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-06T21:20:32-05:00",
       "publicado_em": "2026-10-07T01:16:01+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Eleição para a Aleac abre três vagas na Câmara de Rio Branco; veja quem pode assumir - Agazeta.net",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T18:04:11-05:00",
-      "publicado_em": "2026-10-06T17:15:05+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Após eleição, vereadores que disputaram vaga na Aleac agradecem votos e relembram campanha na Câmara de Rio Branco - A Gazeta do Acre",
-      "url": "https://news.google.com/rss/articles/CBMi-gFBVV95cUxPbHF1R1E2UWY4VlBXbFRoU3Y1LVNEb0N2U01VRWdWdzlNeDhrSWRkLWdfQmRfemRPV1EtZEJkNjVOUkdKUWI5RUNid0h3QVo4dExiRE1OR1p5WXlOZElsekFFOXNnVDZoXzJNcm40UjM3VkpQTmJibjdOZS16U3FPTXVZeTloZlVJd1F2eGxrT3llZFJSLXZUa1JaNGp0YlVJS2RwMEFoZlNkVlh5eVJSMGpoVmMtWTVDUl9tUlpYUzZlcHVwal9yWEIybnd6UC1NRDM0b182RlFkMDczQlhiZ1FZZmNoZER3REhSZ2VLZ3FkNmlIelRIU01n?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Após eleição, vereadores que disputaram vaga na Aleac agradecem votos e relembram campanha na Câmara de Rio Branco - A Gazeta do Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
