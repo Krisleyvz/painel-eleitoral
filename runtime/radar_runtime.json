@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-07T10:53:03-05:00",
+    "gerado_em": "2026-10-07T15:49:49-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 32,
-    "ocorrencias_7d": 170,
+    "ocorrencias_24h": 33,
+    "ocorrencias_7d": 171,
     "alertas_24h": 7,
-    "samir_direto_24h": 20,
+    "samir_direto_24h": 21,
     "pesquisas_24h": 0,
-    "total_base": 1489
+    "total_base": 1491
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-07T11:23:00-05:00",
+      "publicado_em": "2026-10-05T00:36:38+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene transforma a Avenida Ceará em palco da vitória e confirma força nas urnas - O Alto Acre - O Alto Acre",
+      "url": "https://news.google.com/rss/articles/CBMirwFBVV95cUxQNlBsbWlkajFNTWZvV3RzaHN0blR6SElRaGJBc0ZtSE5QQy1hQ0EwUEZLdWpnUTF5MlU0TXlpQUEyQzFCcUprVk1YTVQ5WVFLcWpWQ2F2S3AxSFhDS2ZDWmZ3UkduZEYzWGROeHNWc05uMm9ucEhYeW9HYTY4YTlCN25KcnROc1ZNTXkzSTQwNll1VzloNllXSXcxa3NBQThxMThLeXI1aElSMmJBcGYw0gG0AUFVX3lxTE8yWlF2N1VScHhPeWlDc2xDaXlORmkzZUpiWVF4YlNYbnM4N3JiRWpkZWF0S05hczN5ZW0wMDNMWE1ZRXVBbkFvOVBYQ2lrR2VMMGE5cm9LR0JJS2JEMVBFNEJOYVByN1NnbjZ4dk1DXzFwYW9EcGVTQVRuUXpJNEVrN0dvNDZrVnBGWXZ3QWZjemx3VFp1dmdoSV96eldjWGE5QTdJOUI0VXNhVjRFcElJZjBIRQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene transforma a Avenida Ceará em palco da vitória e confirma força nas urnas - O Alto Acre - O Alto Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-07T11:22:56-05:00",
+      "publicado_em": "2026-10-07T13:41:27+00:00",
+      "fonte": "Conexão Política",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Eleições 2026: Samir Bestene, do PP, é eleito deputado estadual no AC com 11.335 votos - Conexão Política",
+      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxQbWpQbVQxdzliOWF6WE1YbDRJM3dheFRtNmhhazdQNWNzSGctNk9ha3JHZzJ2c0N4dGVFQ3FralFsVFAxNTBsdVh0Vmkzb3hPTHZhVTFmQlJVaEtoZjZoOTdlZlZ5cW11aFBJcHlhVWExaEQ5aHp5bGZWN3B0SnZwLXY2Vm1MVHdwM0NpRzRuQURaVkVsSGNKYUlfZTZVOWxYNHZ3N3lQNk1DdlBaU2xMVll2bl8zdE56SnVodjZqVUhuYjVwem1jeGdKNjYtSnp1MFBxUGdJb2JJODE3Qnl3?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Eleições 2026: Samir Bestene, do PP, é eleito deputado estadual no AC com 11.335 votos - Conexão Política",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-07T04:00:55-05:00",
       "publicado_em": "2026-10-07T01:07:23+00:00",
@@ -297,38 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Quem são os novos deputados que chegam à Aleac em 2027? - ContilNet",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T18:04:11-05:00",
-      "publicado_em": "2026-10-06T20:53:05+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Após eleição, Bocalom segue como empresário e anuncia expansão do Café Bocalom - ac24horas",
-      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNRGUzaU9NeUJiOG5FNkQ0RkEyU25fdDg4VEw4UXowUVlRNWRSVUpiTWtUQ0xkR1J1dU1nQkxsc3RnNjlSQzgwR29pZElobkR6ZGJ1NjM5NnVEWW9YS3B1OGU5UVpPSzU0R0VUUUg0TmxoQlZHLVJsZVd5ampONklpZXViSDJNdThnRUhyZ3g0YXl1cERVTDBVWllkTVhGZ182RmZXQm5MbHIyQW9sTUc3cTdpRXI3QdIBtgFBVV95cUxNRGUzaU9NeUJiOG5FNkQ0RkEyU25fdDg4VEw4UXowUVlRNWRSVUpiTWtUQ0xkR1J1dU1nQkxsc3RnNjlSQzgwR29pZElobkR6ZGJ1NjM5NnVEWW9YS3B1OGU5UVpPSzU0R0VUUUg0TmxoQlZHLVJsZVd5ampONklpZXViSDJNdThnRUhyZ3g0YXl1cERVTDBVWllkTVhGZ182RmZXQm5MbHIyQW9sTUc3cTdpRXI3QQ?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Após eleição, Bocalom segue como empresário e anuncia expansão do Café Bocalom - ac24horas",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T18:04:11-05:00",
-      "publicado_em": "2026-10-06T17:59:24+00:00",
-      "fonte": "Agazeta.net",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Eleição para a Aleac abre três vagas na Câmara de Rio Branco; veja quem pode assumir - Agazeta.net",
-      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxQeTNjOVh2cVR3WUFPMzAxV2dzN3kydHAzMmg5SE12RW9ncUlVQkg4X0NRVzJWemwyaU5EcHZZeDllVFRwbjloRmVuNnQ3dFB4cmF6QmdFM24yN2l1bnlvVEdaNUFVY3NLTU1pOVJWVlJFWWVDM29xZVVHS0gwYWllVnBEWVI2NWFwVnNkVnlKYllDVmJ2Q1E1Ym1PeHppczlYaGlMcGkzbw?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Eleição para a Aleac abre três vagas na Câmara de Rio Branco; veja quem pode assumir - Agazeta.net",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
