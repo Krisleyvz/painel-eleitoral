@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-08T14:28:59-05:00",
+    "gerado_em": "2026-10-08T18:50:50-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 2,
-    "ocorrencias_7d": 171,
+    "ocorrencias_24h": 4,
+    "ocorrencias_7d": 161,
     "alertas_24h": 0,
-    "samir_direto_24h": 2,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 1493
+    "total_base": 1495
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-08T15:36:54-05:00",
+      "publicado_em": "2026-10-08T17:04:57+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene propõe concurso para escolher o melhor aplicativo de transporte com acompanhamento de ônibus em tempo real",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-propoe-concurso-para-escolher-o-melhor-aplicativo-de-transporte-com-acompanhamento-de-onibus-em-tempo-real/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene propõe concurso para escolher o melhor aplicativo de transporte com acompanhamento de ônibus em tempo real",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-08T15:36:50-05:00",
+      "publicado_em": "2026-10-08T17:02:53+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Gabriela Câmara evita confirmar ida à Câmara e diz que decisão será após eleição",
+      "url": "https://ac24horas.com/2026/10/08/gabriela-camara-evita-confirmar-ida-a-camara-e-diz-que-decisao-sera-apos-eleicao/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Gabriela Câmara evita confirmar ida à Câmara e diz que decisão será após eleição",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-08T09:54:51-05:00",
       "publicado_em": "2026-10-08T14:32:58+00:00",
@@ -298,38 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Mailza Assis participa em Brasília de ato da Federação União Progressista que oficializou apoio a Flávio Bolsonaro no segundo turno.",
       "por_que_importa": "Demonstra a articulação da governadora do Acre com cúpulas nacionais partidárias no cenário do segundo turno.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:19-05:00",
-      "publicado_em": "2026-10-07T00:36:36+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Flávio Bolsonaro cita maioria no Congresso e fala em mudar a Constituição",
-      "url": "https://ac24horas.com/2026/10/06/flavio-bolsonaro-cita-maioria-no-congresso-e-fala-em-mudar-a-constituicao/",
-      "ator_principal": "Flávio Bolsonaro",
-      "tema": "Eleições Presidenciais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Flávio Bolsonaro afirma que, se eleito presidente, terá maioria no Congresso Nacional para aprovar alterações na Constituição Federal.",
-      "por_que_importa": "Trata-se de declaração de candidato à presidência sobre governabilidade e reformas, com baixo impacto direto imediato na disputa estadual do Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:19-05:00",
-      "publicado_em": "2026-10-07T00:02:38+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "TSE desmente fraude e explica pausa na divulgação de votos por 50 minutos",
-      "url": "https://ac24horas.com/2026/10/06/tse-desmente-fraude-e-explica-pausa-na-divulgacao-de-votos-por-50-minutos/",
-      "ator_principal": "TSE",
-      "tema": "Justiça Eleitoral",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "TSE desmente boatos de fraude e esclarece que pausa de 50 minutos na divulgação da apuração presidencial decorreu de contenção no processamento.",
-      "por_que_importa": "Esclarece o funcionamento do sistema eleitoral e combate desinformação sobre a apuração nacional das eleições.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
