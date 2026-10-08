@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-08T08:46:40-05:00",
+    "gerado_em": "2026-10-08T14:28:59-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 3,
+    "ocorrencias_24h": 2,
     "ocorrencias_7d": 171,
     "alertas_24h": 0,
-    "samir_direto_24h": 3,
+    "samir_direto_24h": 2,
     "pesquisas_24h": 0,
-    "total_base": 1492
+    "total_base": 1493
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-08T09:54:51-05:00",
+      "publicado_em": "2026-10-08T14:32:58+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Com Samir na Aleac e possível permanência de Gabriela Câmara no Iteracre, N. Lima pode ganhar mandato na Câmara",
+      "url": "https://portalacre.com.br/2026/10/com-samir-na-aleac-e-possivel-permanencia-de-gabriela-camara-no-iteracre-n-lima-pode-ganhar-mandato-na-camara/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Com Samir na Aleac e possível permanência de Gabriela Câmara no Iteracre, N. Lima pode ganhar mandato na Câmara",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-08T02:33:06-05:00",
       "publicado_em": "2026-10-06T20:38:34+00:00",
@@ -314,22 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "TSE desmente boatos de fraude e esclarece que pausa de 50 minutos na divulgação da apuração presidencial decorreu de contenção no processamento.",
       "por_que_importa": "Esclarece o funcionamento do sistema eleitoral e combate desinformação sobre a apuração nacional das eleições.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:19-05:00",
-      "publicado_em": "2026-10-06T23:12:38+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick pede união de eleitores para “mudar o Acre” no segundo turno",
-      "url": "https://ac24horas.com/2026/10/06/alan-rick-pede-uniao-de-eleitores-para-mudar-o-acre-no-segundo-turno/",
-      "ator_principal": "Alan Rick",
-      "tema": "Eleições Governamentais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "IMPORTANTE",
-      "resumo": "Alan Rick convoca eleitores para união visando mudar o Acre no segundo turno contra a governadora Mailza Assis.",
-      "por_que_importa": "Estruturação do discurso de oposição e mudança para o confronto direto do segundo turno estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
