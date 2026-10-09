@@ -1,18 +1,66 @@
 {
   "meta": {
-    "gerado_em": "2026-10-08T22:08:34-05:00",
+    "gerado_em": "2026-10-09T05:25:59-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 9,
-    "ocorrencias_7d": 151,
+    "ocorrencias_24h": 11,
+    "ocorrencias_7d": 142,
     "alertas_24h": 0,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 0,
-    "total_base": 1500
+    "total_base": 1503
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-09T01:48:07-05:00",
+      "publicado_em": "2026-10-08T19:54:02+00:00",
+      "fonte": "Na Hora da Notícia",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Gabriela Câmara não define ida para a Câmara e diz que decisão sai após o segundo turno",
+      "url": "https://nahoradanoticia.com.br/politica/gabriela-camara-nao-define-ida-para-a-camara-e-diz-que-decisao-sai-apos-o-segundo-turno/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Gabriela Câmara não define ida para a Câmara e diz que decisão sai após o segundo turno",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-09T01:48:04-05:00",
+      "publicado_em": "2026-10-08T17:04:57+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene propõe concurso para escolher o melhor aplicativo de transporte com acompanhamento de ônibus em tempo real",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-propoe-concurso-para-escolher-o-melhor-aplicativo-de-transporte-com-acompanhamento-de-onibus-em-tempo-real/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene propõe concurso para escolher o melhor aplicativo de transporte com acompanhamento de ônibus em tempo real",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-09T01:48:04-05:00",
+      "publicado_em": "2026-10-08T14:32:58+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Com Samir na Aleac e possível permanência de Gabriela Câmara no Iteracre, N. Lima pode ganhar mandato na Câmara",
+      "url": "https://portalacre.com.br/2026/10/com-samir-na-aleac-e-possivel-permanencia-de-gabriela-camara-no-iteracre-n-lima-pode-ganhar-mandato-na-camara/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Com Samir na Aleac e possível permanência de Gabriela Câmara no Iteracre, N. Lima pode ganhar mandato na Câmara",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-08T19:40:11-05:00",
       "publicado_em": "2026-10-08T15:04:00+00:00",
@@ -283,54 +331,6 @@
       "resumo": "Samir Bestene agradece 11 mil votos e fala sobre seu novo desafio na Aleac",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:24-05:00",
-      "publicado_em": "2026-10-06T23:29:48+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick agradece votos e chama eleitores à união: “Temos o mesmo amor pelo Acre e chegou a hora do nosso abraço”",
-      "url": "https://portalacre.com.br/2026/10/alan-rick-agradece-votos-e-chama-eleitores-a-uniao-temos-o-mesmo-amor-pelo-acre-e-chegou-a-hora-do-nosso-abraco/",
-      "ator_principal": "Alan Rick",
-      "tema": "Eleições Governamentais",
-      "tom": "FAVORAVEL",
-      "nivel": "IMPORTANTE",
-      "resumo": "Em vídeo publicado, Alan Rick agradece a votação recebida e pede união aos eleitores de todas as correntes no segundo turno no Acre.",
-      "por_que_importa": "Registra a continuidade da estratégia discursiva de unificação e atração de votos do candidato a governador.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:23-05:00",
-      "publicado_em": "2026-10-06T23:59:24+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Quando a derrota nas urnas procura um culpado",
-      "url": "https://noticiasdahora.com.br/blogs-e-colunas/cafe-sem-acucar-com-dora-monteiro/quando-a-derrota-nas-urnas-procura-um-culpado/",
-      "ator_principal": "Michelle Melo",
-      "tema": "Eleições Estaduais",
-      "tom": "CRITICO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Artigo de opinião analisa o pós-eleição e critica a postura de Michelle Melo ao buscar culpados pela derrota nas urnas.",
-      "por_que_importa": "Mapeia as reações e o ambiente político estadual no rescaldo do primeiro turno das eleições no Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-06T21:20:23-05:00",
-      "publicado_em": "2026-10-06T23:37:48+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick agradece votos e chama eleitores à união: “Temos o mesmo amor pelo Acre e chegou a hora do nosso abraço”",
-      "url": "https://noticiasdahora.com.br/politica/alan-rick-agradece-votos-e-chama-eleitores-a-uniao-temos-o-mesmo-amor-pelo-acre-e-chegou-a-hora-do-nosso-abraco/",
-      "ator_principal": "Alan Rick",
-      "tema": "Eleições Governamentais",
-      "tom": "FAVORAVEL",
-      "nivel": "IMPORTANTE",
-      "resumo": "Alan Rick divulga vídeo agradecendo os votos do 1º turno e conclama eleitores de outros candidatos à união no 2º turno pelo Governo do Acre.",
-      "por_que_importa": "Sinaliza a estratégia de captação de votos de adversários e ampliação de alianças para a disputa final pelo Palácio Rio Branco.",
-      "samir_direto": false,
       "pesquisa_eleitoral": false
     }
   ]
