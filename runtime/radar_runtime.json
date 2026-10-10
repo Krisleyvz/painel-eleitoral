@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-10T12:56:27-05:00",
+    "gerado_em": "2026-10-10T15:54:44-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 56,
+    "ocorrencias_24h": 52,
     "ocorrencias_7d": 156,
-    "alertas_24h": 12,
-    "samir_direto_24h": 8,
+    "alertas_24h": 10,
+    "samir_direto_24h": 10,
     "pesquisas_24h": 0,
-    "total_base": 1559
+    "total_base": 1561
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-10T14:22:58-05:00",
+      "publicado_em": "2026-10-10T15:54:52+00:00",
+      "fonte": "PáginaNET",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Mailza amplia campanha em Rio Branco com novo comitê e adesivação de 400 veículos",
+      "url": "https://paginanet.com.br/mailza-amplia-campanha-em-rio-branco-com-novo-comite-e-adesivacao-de-400-veiculos/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Mailza amplia campanha em Rio Branco com novo comitê e adesivação de 400 veículos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-10T14:22:56-05:00",
+      "publicado_em": "2026-10-10T16:10:10+00:00",
+      "fonte": "Diário do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Mailza amplia campanha em Rio Branco com novo comitê e adesivação de 400 veículos",
+      "url": "https://diariodoacre.com.br/mailza-amplia-campanha-em-rio-branco-com-novo-comite-e-adesivacao-de-400-veiculos/?utm_source=rss&utm_medium=rss&utm_campaign=mailza-amplia-campanha-em-rio-branco-com-novo-comite-e-adesivacao-de-400-veiculos",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Mailza amplia campanha em Rio Branco com novo comitê e adesivação de 400 veículos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-10T10:18:12-05:00",
       "publicado_em": "2026-10-09T21:38:42+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Conselho Tutelar acompanha caso de criança de 9 anos filmada com suposta arma de fogo em comemoração política pró-Flávio Bolsonaro no Rio Grande do Norte.",
       "por_que_importa": "Fato ocorrido fora do Acre e sem conexão direta com os atores locais ou com Samir Bestene.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-10T10:18:02-05:00",
-      "publicado_em": "2026-10-10T15:11:59+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Motociclista tenta fazer o ’22’ em ato pró-Lula, perde o equilíbrio e cai em rotatória de Rio Branco",
-      "url": "https://agazetadoacre.com/2026/10/destaques/3o-destaque/motociclista-tenta-fazer-o-22-em-ato-pro-lula-perde-o-equilibrio-e-cai-em-rotatoria-de-rio-branco/",
-      "ator_principal": "Eleitor não identificado",
-      "tema": "Eleições Presidenciais / Campanha de Rua",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Motociclista cai de moto na rotatória do Horto Florestal, em Rio Branco, ao tentar fazer o sinal do número 22 ao passar por ato político 'Sextou com Lula'.",
-      "por_que_importa": "Incidente pontual de trânsito em ato de rua sem desdobramentos políticos relevantes ou conexão direta com a disputa local prioritária.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-10T10:18:02-05:00",
-      "publicado_em": "2026-10-10T14:55:51+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza reúne prefeitos de 18 municípios e consolida apoio de ex-opositores no 2º turno",
-      "url": "https://agazetadoacre.com/2026/10/noticias/politica/mailza-reune-prefeitos-de-18-municipios-e-consolida-apoio-de-ex-opositores-no-2o-turno/",
-      "ator_principal": "Mailza Assis",
-      "tema": "Eleição Estadual / Alianças Políticas",
-      "tom": "FAVORAVEL",
-      "nivel": "IMPORTANTE",
-      "resumo": "Mailza reúne gestores de 18 municípios em Rio Branco e consolida frente ampla municipalista com adesão de prefeitos que atuaram na oposição no 1º turno.",
-      "por_que_importa": "Sinaliza grande capilarização política e atração de bases do interior cruciais para a disputa do segundo turno governamental.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
