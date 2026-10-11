@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-11T04:16:03-05:00",
+    "gerado_em": "2026-10-11T10:43:11-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 88,
-    "ocorrencias_7d": 205,
-    "alertas_24h": 20,
-    "samir_direto_24h": 4,
+    "ocorrencias_24h": 59,
+    "ocorrencias_7d": 194,
+    "alertas_24h": 13,
+    "samir_direto_24h": 5,
     "pesquisas_24h": 0,
-    "total_base": 1617
+    "total_base": 1618
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-11T09:24:50-05:00",
+      "publicado_em": "2026-10-10T17:24:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Depois de votação expressiva, Samir Bestene põe sua tropa em campo por Mailza e Jéssica - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQRzRWaGpkV3M3YTQ4ZHkzSHFSeXhpaXlHUUkwd093MDhzV2hXZGx1Mm1KTkxtaE5kaXBLR25zbUpCTHBlazFJRjFwUnF3ZWp5V01PdFlBcGctTExydlZFeEpzMHdfNS1aTURyMEpuTXBKNndyUXpHakpjclRnclZ0aHg3bmRpckRPOFM1MzRScGJzTG9jS0tNUTctWWNzVGtiVE5yQk9vZmx2b3BkUGkzX0liOUNBNWJ6YlhValVLUERSdnNH?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Depois de votação expressiva, Samir Bestene põe sua tropa em campo por Mailza e Jéssica - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-10T20:25:57-05:00",
       "publicado_em": "2026-10-10T22:59:26+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "O deputado estadual reeleito Eduardo Ribeiro agradeceu os votos recebidos nas eleições e reafirmou seu apoio à candidatura de Alan Rick para o governo do Acre no segundo turno.",
       "por_que_importa": "Confirma a coesão e manutenção da base de sustentação parlamentar de Alan Rick para a reta final da campanha eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-10T20:25:48-05:00",
-      "publicado_em": "2026-10-11T00:56:27+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza recebe apoio de vereadores de Feijó para o segundo turno",
-      "url": "https://contilnetnoticias.com.br/politica/mailza-recebe-apoio-de-vereadores-de-feijo-para-o-segundo-turno/",
-      "ator_principal": "Mailza Assis",
-      "tema": "Alianças e Apoios Eleitorais",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "A governadora Mailza Assis manteve e recebeu declarações de apoio de vereadores do município de Feijó no comitê central de campanha para a disputa do segundo turno.",
-      "por_que_importa": "Sinaliza a consolidação de apoios do interior estadual na coligação governista no segundo turno.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
