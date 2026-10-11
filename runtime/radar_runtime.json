@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-11T10:43:11-05:00",
+    "gerado_em": "2026-10-11T14:43:23-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 59,
+    "ocorrencias_24h": 58,
     "ocorrencias_7d": 194,
     "alertas_24h": 13,
-    "samir_direto_24h": 5,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 1618
+    "total_base": 1619
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-11T14:07:48-05:00",
+      "publicado_em": "2026-10-11T18:00:24+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Nova composição da Aleac mantém 16 deputados e renova oito cadeiras",
+      "url": "https://ac24horas.com/2026/10/11/nova-composicao-da-aleac-mantem-16-deputados-e-renova-oito-cadeiras/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Nova composição da Aleac mantém 16 deputados e renova oito cadeiras",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-11T09:24:50-05:00",
       "publicado_em": "2026-10-10T17:24:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "O ex-prefeito de Cruzeiro do Sul, Ilderlei Cordeiro, anunciou rompimento político com Alan Rick para declarar apoio à governadora Mailza Assis no segundo turno das eleições estaduais.",
       "por_que_importa": "Representa uma dissidência política relevante no Vale do Juruá contra a campanha de Alan Rick, fortalecendo a chapa adversária.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-10T20:25:48-05:00",
-      "publicado_em": "2026-10-11T01:01:26+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Após reeleição, Eduardo Ribeiro agradece votos e reafirma apoio a Alan Rick",
-      "url": "https://contilnetnoticias.com.br/politica/apos-reeleicao-eduardo-ribeiro-agradece-votos-e-reafirma-apoio-a-alan-rick/",
-      "ator_principal": "Eduardo Ribeiro",
-      "tema": "Alianças e Apoios Eleitorais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "O deputado estadual reeleito Eduardo Ribeiro agradeceu os votos recebidos nas eleições e reafirmou seu apoio à candidatura de Alan Rick para o governo do Acre no segundo turno.",
-      "por_que_importa": "Confirma a coesão e manutenção da base de sustentação parlamentar de Alan Rick para a reta final da campanha eleitoral.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
