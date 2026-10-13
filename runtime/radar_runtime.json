@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-13T10:17:42-05:00",
+    "gerado_em": "2026-10-13T15:42:47-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 24,
-    "ocorrencias_7d": 198,
+    "ocorrencias_24h": 26,
+    "ocorrencias_7d": 199,
     "alertas_24h": 5,
-    "samir_direto_24h": 0,
+    "samir_direto_24h": 2,
     "pesquisas_24h": 0,
-    "total_base": 1655
+    "total_base": 1657
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-13T11:13:12-05:00",
+      "publicado_em": "2026-10-13T12:29:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“Viemos agradecer a Nossa Senhora por todas as bênçãos e pedir proteção para esta nova caminhada”, diz Samir Bestene durante visita à Vila Pia - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMiiwJBVV95cUxOdF9IQVdYQk83bGphNkxmTl9vbDdJUlRqZklmM3EwMjhXaVpQczU3Q0ljcFN2SHBIeFZzY1Rqak5ROHVGX19ENmVuVzV3TjlURlM3VzhVQWFTRXJNbHFQTk1YemhzQ250VTlJZm02LWthMFZTakdrS29BeWt6T0MxQ0tTWkp3aTlteDdubV9MUWQxcUdQSDl5N1Z2RWxmSkZRa1JRNm93cTNVVVlPOTFZS0tDQlg4VmtLX3FsTHdqOXFVV0JPZVl1M2tLdVRaNXJhTVB5WjZ1Q01XUVpMQ01mNUpEUlJrVlg1bGFMb0U2Nmh0eThwLTFaRzVWRTh0V3NLUXIwbDRLMmtObW8?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Viemos agradecer a Nossa Senhora por todas as bênçãos e pedir proteção para esta nova caminhada”, diz Samir Bestene durante visita à Vila Pia - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-13T11:13:01-05:00",
+      "publicado_em": "2026-10-13T14:29:56+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“Viemos agradecer a Nossa Senhora por todas as bênçãos e pedir proteção para esta nova caminhada”, diz Samir Bestene durante visita à Vila Pia",
+      "url": "https://noticiasdahora.com.br/politica/viemos-agradecer-a-nossa-senhora-por-todas-as-bencaos-e-pedir-protecao-para-esta-nova-caminhada-diz-samir-bestene-durante-visita-a-vila-pia/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Viemos agradecer a Nossa Senhora por todas as bênçãos e pedir proteção para esta nova caminhada”, diz Samir Bestene durante visita à Vila Pia",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-13T03:21:10-05:00",
       "publicado_em": "2026-10-13T00:48:39+00:00",
@@ -298,38 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Coluna política destaca votação de Inácio Moreira ao Senado, possível ausência de Mailza em debates e entrada de Gladson Cameli na campanha de segundo turno.",
       "por_que_importa": "Traça o cenário de rearranjo das forças governistas e estratégias de debates no segundo turno da disputa estadual.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-12T20:25:54-05:00",
-      "publicado_em": "2026-10-12T21:44:49+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza participa de tradicional festa de Nossa Senhora Aparecida na Vila Pia",
-      "url": "https://portalacre.com.br/2026/10/mailza-participa-de-tradicional-festa-de-nossa-senhora-aparecida-na-vila-pia/",
-      "ator_principal": "Mailza Assis",
-      "tema": "Agenda Política e Religiosa",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Governadora Mailza participa da tradicional celebração de Nossa Senhora Aparecida na Vila Pia, reunindo fiéis em ato de fé.",
-      "por_que_importa": "Mostra movimentação de campanha e aproximação comunitária e religiosa da governadora durante o período eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-12T20:25:54-05:00",
-      "publicado_em": "2026-10-12T21:31:50+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Aulão Enem Solidário é realizado em prol de Pedro e Tiago; veja como se inscrever",
-      "url": "https://portalacre.com.br/2026/10/aulao-enem-solidario-e-realizado-em-prol-de-pedro-e-tiago-veja-como-se-inscrever/",
-      "ator_principal": "Professores voluntários",
-      "tema": "Ação Social",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Aulão Enem Solidário é organizado por professores particulares para arrecadar recursos para o tratamento de saúde de duas crianças.",
-      "por_que_importa": "Pauta de cunho comunitário e beneficente sem conexão com a disputa eleitoral estadual ou com Samir Bestene.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
