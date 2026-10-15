@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-15T01:34:05-05:00",
+    "gerado_em": "2026-10-15T06:59:27-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 68,
+    "ocorrencias_24h": 69,
     "ocorrencias_7d": 267,
     "alertas_24h": 17,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 10,
     "pesquisas_24h": 2,
-    "total_base": 1758
+    "total_base": 1759
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-15T05:18:59-05:00",
+      "publicado_em": "2026-10-14T19:49:10+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene pede cobertura na Praça do Relógio para proteger trabalhadores e frequentadores do sol e da chuva",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-pede-cobertura-na-praca-do-relogio-para-proteger-trabalhadores-e-frequentadores-do-sol-e-da-chuva/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene pede cobertura na Praça do Relógio para proteger trabalhadores e frequentadores do sol e da chuva",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-15T00:36:32-05:00",
       "publicado_em": "2026-10-14T19:16:01+00:00",
@@ -314,22 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Reportagem contrasta a ausência de Bittar com os votos favoráveis de Flávio Bolsonaro, Alan Rick e Sérgio Petecão na PEC do 6x1.",
       "por_que_importa": "Aprofunda desgaste político sobre Bittar ao contrastar sua postura com o alinhamento de seus pares e da própria liderança bolsonarista.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-15T00:36:26-05:00",
-      "publicado_em": "2026-10-15T01:10:53+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Em vitória de Lula, Senado aprova PEC do fim da escala 6×1 e trabalhador terá dois dias de folga por semana",
-      "url": "https://noticiasdahora.com.br/politica/em-vitoria-de-lula-senado-aprova-pec-do-fim-da-escala-6x1-e-trabalhador-tera-dois-dias-de-folga-por-semana/",
-      "ator_principal": "Senado Federal",
-      "tema": "Trabalho / Legislação",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Senado aprova proposta de emenda à Constituição que encerra a escala 6x1 e estabelece dois dias de descanso semanal remunerado.",
-      "por_que_importa": "Pauta nacional de impacto trabalhista geral, sem foco específico na conjuntura política interna do Acre ou em Samir Bestene.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
