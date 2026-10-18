@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-18T04:06:39-05:00",
+    "gerado_em": "2026-10-18T08:11:34-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 107,
-    "ocorrencias_7d": 377,
+    "ocorrencias_24h": 109,
+    "ocorrencias_7d": 379,
     "alertas_24h": 17,
     "samir_direto_24h": 4,
     "pesquisas_24h": 8,
-    "total_base": 1994
+    "total_base": 1996
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-18T06:41:10-05:00",
+      "publicado_em": "2026-10-18T11:18:30+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Aliados fazem atos pelo país, e Lula e Flávio se enfrentam em debate na TV",
+      "url": "https://ac24horas.com/2026/10/18/aliados-fazem-atos-pelo-pais-e-lula-e-flavio-se-enfrentam-em-debate-na-tv/",
+      "ator_principal": "Luiz Inácio Lula da Silva e Flávio Bolsonaro",
+      "tema": "Eleições Presidenciais 2026",
+      "tom": "NEUTRO_INFORMATIVO",
+      "nivel": "INFORMATIVO",
+      "resumo": "Candidatos à presidência intensificam atos pelo país no último domingo antes do segundo turno e se preparam para confronto em debate na TV.",
+      "por_que_importa": "Trata do cenário eleitoral nacional, com impacto indireto na dinâmica política local e alinhamentos partidários no Acre.",
+      "samir_direto": false,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-18T06:41:10-05:00",
+      "publicado_em": "2026-10-18T10:18:33+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Os caminhos tortuosos e insondáveis da política",
+      "url": "https://ac24horas.com/2026/10/18/os-caminhos-tortuosos-e-insondaveis-da-politica/",
+      "ator_principal": "Alan Rick",
+      "tema": "Eleição para o governo do Acre",
+      "tom": "CRITICO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Coluna analisa a reta final da disputa pelo governo do Acre, apontando que o senador Alan Rick não manteve o favoritismo inicial e sofreu queda na campanha.",
+      "por_que_importa": "Avalia o desempenho de um dos principais concorrentes ao governo estadual na semana decisiva da votação, influenciando o tabuleiro político local.",
+      "samir_direto": false,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-18T01:33:30-05:00",
       "publicado_em": "2026-10-17T23:14:11+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Reportagem anuncia a divulgação de cinco pesquisas eleitorais para presidente e governadores no sábado.",
       "por_que_importa": "Panorama geral de pesquisas nacionais e estaduais, sem menção direta ao cenário específico do Acre ou a Samir Bestene.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": true
-    },
-    {
-      "coletado_em": "2026-10-18T01:33:29-05:00",
-      "publicado_em": "2026-10-17T08:00:53+00:00",
-      "fonte": "Portal VV8",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Ausência no primeiro turno das eleições de 2026 não impede participação no segundo turno - Portal VV8",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPV293VVBsNXdKM19kWFYtTUFPZUY3VHEtdVN3aktyS2lTTkZpT2RjUTlOanZBQXQwcEQyd3c4bEhRa2FlcTRLdXNPYklsMWNiNlY2WmZtUXl4ZXZuYXFhWi1UcmtRdWNndlJ5Tk4ycDNaOTkzQzdSOGFJM1NGQ05UaVRBQWZHaXZHTUd2Z0lZQ2p4MFNsQTRfYnRyTUdJX015VXRlT1ZaZDNMWklBeDBqUzA1c0ROS2NCbE9sM1RqdmhsUnVwdFE?oc=5",
-      "ator_principal": "Justiça Eleitoral / Eleitores",
-      "tema": "Regras eleitorais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Publicação esclarece que a ausência no primeiro turno não impede a participação do eleitor no segundo turno.",
-      "por_que_importa": "Informação de serviço geral sobre direito ao voto, de caráter educativo e sem impacto direto nas articulações locais.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-18T01:33:28-05:00",
-      "publicado_em": "2026-10-17T15:26:57+00:00",
-      "fonte": "Acreaovivo.com",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Pesquisa CNT/MDA mostra Flávio Bolsonaro com 46,8% e Lula com 45,9% - Acreaovivo.com",
-      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOWENISElsVnV3ekFhQzh3MVhna0IxWE42NmtjV1FoYXlXNmF0dGd4TV9hT0h1RUlJWE1VNUlhSk93eFhBY3JUMkNJUm9RUE1udFVmVGxXakd3SWFxeWZCdnE4UkNHTFhnR3dEVi0wRmgyU01SbWtOZEJqdk0yR3ZvNXM2NmJ3QlFzNnR1QlliN2JOV1JtU2ZyVml4V0l5XzlSdXFoRzBINlR4NEE?oc=5",
-      "ator_principal": "Flávio Bolsonaro e Lula",
-      "tema": "Eleição Presidencial",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Pesquisa CNT/MDA para a Presidência aponta Flávio Bolsonaro com 46,8% e Lula com 45,9%.",
-      "por_que_importa": "O cenário nacional influencia alianças e o palanque de lideranças estaduais no Acre.",
       "samir_direto": false,
       "pesquisa_eleitoral": true
     }
