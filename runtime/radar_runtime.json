@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-17T17:43:15-05:00",
+    "gerado_em": "2026-10-17T19:19:56-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 124,
-    "ocorrencias_7d": 394,
-    "alertas_24h": 25,
-    "samir_direto_24h": 2,
+    "ocorrencias_24h": 96,
+    "ocorrencias_7d": 366,
+    "alertas_24h": 17,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 5,
-    "total_base": 1955
+    "total_base": 1957
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-17T18:30:24-05:00",
+      "publicado_em": "2026-10-17T18:28:22+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Custo de campanha não define votação: eleitos no Acre vão de R$ 23 mil a mais de R$ 1 milhão - O Alto Acre - O Alto Acre",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQcDR0NjNsSFFjYzJ3MFNUUmZwZU9OcGwzbDV2N2lweE95eE9ydGdJTWJHSGVNYVpqR1lLUkktbmRQRVF4ZlpBYVRReXRvQ21zR3lIUWc2d0p3c3l6WU9yZk5OR3VlYzlVNXc5TXUwamsyWDhKUFNLZ2xLWlJDWXZuUEJhT09GV19OYzg0cXBZb1hmbUJMOEtucXZoclZvNzVORzNRV29MeFZ4T2VjUV9QaXpCZHVUczTSAbcBQVVfeXFMUHA0dDYzbEhRY2MydzBTVFJmcGVPTnBsM2w1djdpcHhPeXhPcnRnSU1iR0hlTWFaakdZS1JJLW5kUEVReGZaQWFUUXl0b0Ntc0d5SFFnNndKd3N5ellPcmZOTkd1ZWM5VTV3OU11MGprMlg4SlBTS2dsS1pSQ1l2blBCYU9PRldfTmM4NHFwWW9YZm1CTDhLbnF2aHJWbzc1TkczUVdvTHhWeE9lY1FfUGl6QmR1VHM0?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Custo de campanha não define votação: eleitos no Acre vão de R$ 23 mil a mais de R$ 1 milhão - O Alto Acre - O Alto Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-17T18:30:24-05:00",
+      "publicado_em": "2026-10-15T19:40:24+00:00",
+      "fonte": "ContilNet",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Se eleita, Mailza terá Aleac nas mãos; Já Alan, não terá vida fácil - ContilNet",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPdWZXUDNnMVNsNENWR09KMGVsMUhETVNIbUdGNUFnclU3QU4zbm4ydkwxUVMzRXZyOEFOZGxNelhTek1XdnBfUndfZ1ZBbVNBbDJGWUI5ZHJaazF1V09BZjhIejFsbUpVUEo4NmZIWEhvNXhvVkFJZXBXeVgtYnNnV1VSdll1NjR0bWl4THllbDd5S3dsQVRBeWRPRmtyRE1obUYxUVBZTFZPM2s?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Se eleita, Mailza terá Aleac nas mãos; Já Alan, não terá vida fácil - ContilNet",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-17T16:42:14-05:00",
       "publicado_em": "2026-10-17T20:28:54+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Operação policial em município do interior do Acre resulta na prisão de indivíduo condenado a 22 anos de reclusão.",
       "por_que_importa": "Fato policial comum, sem vínculo com as articulações políticas ou candidatos monitorados.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-17T14:30:21-05:00",
-      "publicado_em": "2026-10-17T16:18:06+00:00",
-      "fonte": "o rio branco",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Equipe do AcreCap Legal sobrevive a pouso forçado em rio após falha mecânica no Acre - o rio branco",
-      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPMkNXWE1vcWZOdGhMWHRHei1LRG9ZOXV4SXFwS0xuWjU1NmVRV25abWhxaGZXLWpvV1dJOVFsdzA3cmo4VlpfY0szT0I5XzJWRkdTSFFvNF8ycVdBTWVmTFVnaGJaRXg2UHYzM2JveXM5c1cyZ3FOZVdwS0F6eTJlOGFMbkVEdG4xY3FzLVBQdzZnbTExTTd4N2hlRHRsX2s2UUpZMjV4TkhIMnpx?oc=5",
-      "ator_principal": "Equipe AcreCap Legal",
-      "tema": "Acidente",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Equipe do AcreCap Legal sobrevive a pouso forçado de aeronave em rio acreano após falha mecânica.",
-      "por_que_importa": "Notícia de ocorrência de transporte aéreo privado local, sem relação com a disputa eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-17T14:30:20-05:00",
-      "publicado_em": "2026-10-17T17:13:55+00:00",
-      "fonte": "G1",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Pais e filhos se vacinam durante ação em Rio Branco: 'Proteção para o resto da vida' - G1",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxPZWp5NG1PV192SDhfSTZhejJNU0VyQldwREpiVWhXOHhiQWx4NFdDZWp3dDF4elEtSFAtXzI2UjE4R294bm5tbkxGbU9aT1JFNEs3eUtPQWg1SE9KTmpmZGs0cERzQ1F0Vk1Wc3pvY19TZ2FsUFA3Wlo3cENFcDZ1MGszLW4xWTFPbWpyMXF2SXRsbERMRnROcmdhQ29VZmV4Zi1iUUtZMWpJNUI5dlBWbFBHNEMtM0UyTjc1c2lvTmVVZjZvWlJiN3J0TFRQZmJZVzlWUXhHSUhSa01vNXZZ0gHfAUFVX3lxTE9lank0bU9XX3ZIOF9JNmF6Mk1TRXJCV3BESmJVaFc4eGJBbHg0V0Nland0MXh6US1IUC1fMjZSMThHb3hubm1uTEZtT1pPUkU0Szd5S09BaDVIT0pOamZkazRwRHNDUXRWTVZzem9jX1NnYWxQUDdaWjdwQ0VwNnUwazMtbjFZMU9tanIxcXZJdGxsRExGdE5yZ2FDb1VmZXhmLWJRS1kxakk1Qjl2UFZsUEc0Qy0zRTJONzVzaW9OZVVmNm9aUmI3cnRMVFBmYllXOVZReEdJSFJrTW81dlk?oc=5",
-      "ator_principal": "População de Rio Branco",
-      "tema": "Saúde Pública",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Ação de vacinação para pais e filhos é realizada em Rio Branco com foco na imunização familiar.",
-      "por_que_importa": "Matéria de rotina de saúde pública municipal sem relevância para a triagem política estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
