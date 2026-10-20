@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-20T05:00:21-05:00",
+    "gerado_em": "2026-10-20T09:45:40-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 87,
-    "ocorrencias_7d": 499,
-    "alertas_24h": 23,
-    "samir_direto_24h": 4,
-    "pesquisas_24h": 5,
-    "total_base": 2154
+    "ocorrencias_24h": 79,
+    "ocorrencias_7d": 500,
+    "alertas_24h": 22,
+    "samir_direto_24h": 5,
+    "pesquisas_24h": 3,
+    "total_base": 2155
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-20T05:16:34-05:00",
+      "publicado_em": "2026-10-20T10:00:12+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "A cobiçada",
+      "url": "https://ac24horas.com/2026/10/20/a-cobicada/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "A cobiçada",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-20T00:21:26-05:00",
       "publicado_em": "2026-10-19T23:52:40+00:00",
@@ -316,22 +332,6 @@
       "por_que_importa": "Trata do cenário eleitoral nacional sem menção direta a candidaturas ou aos desdobramentos específicos da disputa local no Acre.",
       "samir_direto": false,
       "pesquisa_eleitoral": true
-    },
-    {
-      "coletado_em": "2026-10-20T00:21:18-05:00",
-      "publicado_em": "2026-10-20T03:23:05+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mailza Assis nega irregularidades em vídeo e defende sua formação",
-      "url": "https://oaltoacre.com/mailza-assis-nega-irregularidades-em-video-e-defende-sua-formacao/",
-      "ator_principal": "Mailza Assis",
-      "tema": "Disputa Eleitoral / Judicialização",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "IMPORTANTE",
-      "resumo": "Governadora Mailza Assis divulga vídeo negando acusações de falsidade ideológica e pagamento a agente de aeroporto contra Alan Rick.",
-      "por_que_importa": "Mostra o acirramento das acusações e tensões no segundo turno da eleição majoritária estadual envolvendo seu grupo político.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
     }
   ]
 }
