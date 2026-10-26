@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-10-26T12:24:16-05:00",
+    "gerado_em": "2026-10-26T16:41:35-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 47,
-    "ocorrencias_7d": 407,
-    "alertas_24h": 16,
-    "samir_direto_24h": 5,
+    "ocorrencias_24h": 13,
+    "ocorrencias_7d": 390,
+    "alertas_24h": 5,
+    "samir_direto_24h": 1,
     "pesquisas_24h": 0,
-    "total_base": 2483
+    "total_base": 2484
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-26T14:50:15-05:00",
+      "publicado_em": "2026-10-24T09:03:16+00:00",
+      "fonte": "Metrópoles",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene: candidato a Deputado Estadual - Metrópoles",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNX0RObHpsa29WRVVMZEFtYVlwOWxSZXB3SVgwV1Z0TVdYZ0p2QWdPaHJ4TGtxQWxHWWh0VUFzemhYcTZ3MnhmRnFyd0pJNFpkc0FzZjl2d245WEszdWVDQzE0MFlZOFliRzM3dlRfcmszUjRfbXZ1V19DT2RVUWxST1o3QzhCVzVJeXlrSktqUXg3bVNsVUhKUXR3?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene: candidato a Deputado Estadual - Metrópoles",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-25T20:27:25-05:00",
       "publicado_em": "2026-10-26T01:25:49+00:00",
@@ -314,22 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Ministro Cristiano Zanin, do STF, determina prorrogação da votação do segundo turno até as 19h (horário de Brasília) em todo o país após relatos de problemas no transporte público.",
       "por_que_importa": "Decisão judicial de impacto nacional altera a dinâmica dos horários de encerramento das urnas e o início da apuração oficial dos votos.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-25T16:13:34-05:00",
-      "publicado_em": "2026-10-25T19:17:14+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Fredson Camargo e Leônidas Badaró avaliam cenário político de Alysson Bestene e Bocalom após eleições",
-      "url": "https://portalacre.com.br/2026/10/fredson-camargo-e-leonidas-badaro-avaliam-cenario-politico-de-alysson-bestene-e-bocalom-apos-eleicoes/",
-      "ator_principal": "Fredson Camargo e Leônidas Badaró",
-      "tema": "Cenário Político Pós-Eleições",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Jornalistas analisam reflexos das eleições de 2026 para o prefeito Alysson Bestene e o futuro político de Tião Bocalom.",
-      "por_que_importa": "Debate impactos no grupo político de Alysson Bestene e na correlação de forças da capital após o pleito estadual.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
