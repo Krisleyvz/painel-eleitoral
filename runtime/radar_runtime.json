@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-28T05:14:41-05:00",
+    "gerado_em": "2026-10-28T11:37:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 2,
-    "ocorrencias_7d": 278,
+    "ocorrencias_24h": 4,
+    "ocorrencias_7d": 268,
     "alertas_24h": 0,
-    "samir_direto_24h": 2,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 2495
+    "total_base": 2497
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-28T10:48:23-05:00",
+      "publicado_em": "2026-10-28T15:25:32+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Cadê os vereadores? Só sete comparecem, e sessão da Câmara de Rio Branco não acontece nesta quarta",
+      "url": "https://noticiasdahora.com.br/politica/cade-os-vereadores-so-sete-comparecem-e-sessao-da-camara-de-rio-branco-nao-acontece-nesta-quarta/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Cadê os vereadores? Só sete comparecem, e sessão da Câmara de Rio Branco não acontece nesta quarta",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-28T10:48:21-05:00",
+      "publicado_em": "2026-10-28T14:53:19+00:00",
+      "fonte": "A Gazeta do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Pelo segundo dia seguido, Câmara de Rio Branco não tem sessão por falta de quórum",
+      "url": "https://agazetadoacre.com/2026/10/noticias/politica/pelo-segundo-dia-seguido-camara-de-rio-branco-nao-tem-sessao-por-falta-de-quorum/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Pelo segundo dia seguido, Câmara de Rio Branco não tem sessão por falta de quórum",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-27T18:15:16-05:00",
       "publicado_em": "2026-10-27T15:54:49+00:00",
@@ -298,38 +330,6 @@
       "nivel": "IMPORTANTE",
       "resumo": "Reeleita governadora do Acre, Mailza Assis afirma que manterá relação institucional com o presidente Lula, também reeleito no segundo turno.",
       "por_que_importa": "Sinaliza a estratégia de relacionamento institucional e articulação de repasses federais para o novo mandato no Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-25T20:27:18-05:00",
-      "publicado_em": "2026-10-26T01:23:16+00:00",
-      "fonte": "A Gazeta do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Com Lula reeleito, Mailza diz que Acre precisa do governo federal: “Buscarei apoio, sim”",
-      "url": "https://agazetadoacre.com/2026/10/noticias/politica/com-lula-reeleito-mailza-diz-que-acre-precisa-do-governo-federal-buscarei-apoio-sim/",
-      "ator_principal": "Mailza Assis",
-      "tema": "RELACOES_INSTITUCIONAIS",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "IMPORTANTE",
-      "resumo": "Mailza Assis destaca a necessidade de o Acre buscar apoio e recursos do governo federal com a reeleição de Lula, superando diferenças partidárias.",
-      "por_que_importa": "Indica a condução política e administrativa do governo estadual perante o Executivo federal, impactando obras e convênios no estado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-25T20:27:18-05:00",
-      "publicado_em": "2026-10-26T01:19:27+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Rio Grande do Norte elege Cadu de Lula governador do estado",
-      "url": "https://contilnetnoticias.com.br/politica/rio-grande-do-norte-elege-cadu-de-lula-governador-do-estado/",
-      "ator_principal": "Cadu de Lula",
-      "tema": "ELEICOES_ESTADUAIS_OUTROS_ESTADOS",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Cadu de Lula é eleito governador do Rio Grande do Norte com 50,71% dos votos com 98,76% das urnas apuradas.",
-      "por_que_importa": "Notícia sobre eleição em outro estado, sem relevância prática para o cenário eleitoral do Acre.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
