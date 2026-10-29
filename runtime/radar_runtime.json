@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-10-29T14:14:54-05:00",
+    "gerado_em": "2026-10-29T18:18:05-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 26,
-    "ocorrencias_7d": 243,
+    "ocorrencias_24h": 28,
+    "ocorrencias_7d": 233,
     "alertas_24h": 0,
-    "samir_direto_24h": 8,
+    "samir_direto_24h": 10,
     "pesquisas_24h": 0,
-    "total_base": 2523
+    "total_base": 2525
   },
   "itens": [
+    {
+      "coletado_em": "2026-10-29T14:11:13-05:00",
+      "publicado_em": "2026-10-29T15:11:37+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Vereador Samir Bestene apresenta projeto que permite servidores municipais venderem produtos em repartições públicas de Rio Branco - Portal Acre",
+      "url": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxObGQ2R2hlQ1M4c2phcVd2ODV4UDBkUW5LNG93NjZGZlF0Y0l4SEZFV0NWRmVnd1g2eG02RjRrY09yWlhVQ3g3MElQNC1pYi1XT1dlbDFjRWhLOEdrb1ZkaGxmejBSQlVfSW1aOWIyR0VIc0JQemNkcmtETnJxTU5XV1ZiQzRVQ3N2Qk5fSnFmNWwwX2VrYTBtLTR3QWhBX20yY3NPVUpBR1pPYkNpWkJfMlN4Umd3LTkwSmdDek42ekszMDBmc1BJMHd3N09xbE4yLXQxQWc2Mm55Z3VHVzgzUUI5bV9UV1BZb2xRbU15MUxiSEJRZldNUg?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Vereador Samir Bestene apresenta projeto que permite servidores municipais venderem produtos em repartições públicas de Rio Branco - Portal Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-10-29T14:11:13-05:00",
+      "publicado_em": "2026-10-29T13:56:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene apresenta projeto para incentivar empreendedorismo entre servidores públicos de Rio Branco - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxQMHBmVG5YSF8yUElleWt4YXljYmZEUFhXOUwyTWJPRTJSX244RWVzazFSNjg5YW9yRzEwd2g5UHdOcHhyWGdOaUVQalpuQjZXdjloT1VzTm1kWDR2aWV1SjhRRTcyaTFzSVZQZGtjU0duUnFuUXVBVGlwMnZPOW5yc0MySFhGUHpMaDNjaGY2S3FsWFViNHpubTFEZDdKSlFJb2ZMNzhTek9rSmczcHlXUS0xVEY3bkJVWmMtQTd2ekRRM1ZWbkpha2J1djhfVmR1NnhrcUhObFh6bGQy?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene apresenta projeto para incentivar empreendedorismo entre servidores públicos de Rio Branco - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-10-29T08:30:18-05:00",
       "publicado_em": "2026-10-29T10:00:31+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Líder da oposição no Senado, Rogério Marinho admite não haver provas de fraude em eleição presidencial ao comentar carta divulgada.",
       "por_que_importa": "Trata de dinâmica política nacional sem conexão direta com o cenário estadual do Acre ou com a pré-campanha de Samir Bestene.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-28T19:26:50-05:00",
-      "publicado_em": "2026-10-29T00:11:47+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick celebra aprovação de adicional de fronteira para mais categorias de servidores públicos",
-      "url": "https://ac24horas.com/2026/10/28/alan-rick-celebra-aprovacao-de-adicional-de-fronteira-para-mais-categorias-de-servidores-publicos/",
-      "ator_principal": "Alan Rick",
-      "tema": "Atuação Parlamentar",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Alan Rick destaca aprovação no Senado de PLV que amplia benefício e prevê aumento do adicional de fronteira para R$ 191 ao dia.",
-      "por_que_importa": "Fortalece a imagem legislativa do senador perante categorias federais no estado do Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-10-28T19:26:50-05:00",
-      "publicado_em": "2026-10-28T23:57:58+00:00",
-      "fonte": "ContilNet Notícias",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alan Rick celebra aprovação de adicional de fronteira para mais categorias de servidores públicos",
-      "url": "https://contilnetnoticias.com.br/politica/alan-rick-celebra-aprovacao-de-adicional-de-fronteira-para-mais-categorias-de-servidores-publicos/",
-      "ator_principal": "Alan Rick",
-      "tema": "Atuação Parlamentar",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Senador Alan Rick comemora avanço no Senado da medida que estende adicional de fronteira a mais servidores públicos federais.",
-      "por_que_importa": "Repercussão positiva da atuação do parlamentar em portais de notícias locais do Acre.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
