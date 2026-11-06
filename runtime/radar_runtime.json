@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-05T17:15:12-05:00",
+    "gerado_em": "2026-11-05T21:26:42-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 0,
-    "ocorrencias_7d": 128,
+    "ocorrencias_24h": 2,
+    "ocorrencias_7d": 118,
     "alertas_24h": 0,
-    "samir_direto_24h": 0,
+    "samir_direto_24h": 2,
     "pesquisas_24h": 0,
-    "total_base": 2653
+    "total_base": 2655
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-05T20:45:27-05:00",
+      "publicado_em": "2026-11-04T03:07:35+00:00",
+      "fonte": "O Palaciano",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene quer que serviços em vias movimentadas sejam realizados à noite ou nos fins de semana",
+      "url": "https://opalaciano.com.br/acre/samir-bestene-quer-que-servicos-em-vias-movimentadas-sejam-realizados-a-noite-ou-nos-fins-de-semana/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene quer que serviços em vias movimentadas sejam realizados à noite ou nos fins de semana",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-05T20:45:21-05:00",
+      "publicado_em": "2026-11-04T17:41:28+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "“Espero que Bocalom não queira exonerar Alysson do cargo”, ironiza Samir Bestene ao relembrar postura do ex-prefeito sobre Guarda Municipal",
+      "url": "https://noticiasdahora.com.br/politica/espero-que-bocalom-nao-queira-exonerar-alysson-do-cargo-ironiza-samir-bestene-ao-relembrar-postura-do-ex-prefeito-sobre-guarda-municipal/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Espero que Bocalom não queira exonerar Alysson do cargo”, ironiza Samir Bestene ao relembrar postura do ex-prefeito sobre Guarda Municipal",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-04T13:45:07-05:00",
       "publicado_em": "2026-11-03T19:53:56+00:00",
@@ -298,38 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Empresa Trans Acreana anuncia suspensão das linhas intermunicipais entre Rio Branco, Bujari e Senador Guiomard.",
       "por_que_importa": "Pauta de mobilidade urbana com potencial de gerar cobranças populares e desgaste a órgãos gestores.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-01T15:40:07-05:00",
-      "publicado_em": "2026-11-01T19:06:55+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mâncio Lima inaugura Praça João Nogueira de Lima com espaço de lazer e apoio aos taxistas",
-      "url": "https://ac24horas.com/2026/11/01/mancio-lima-inaugura-praca-joao-nogueira-de-lima-e-entrega-novo-espaco-de-lazer-convivencia-e-valorizacao-dos-taxistas/",
-      "ator_principal": "Zé Luis",
-      "tema": "GESTAO_MUNICIPAL",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Prefeito Zé Luis inaugura a Praça João Nogueira de Lima em Mâncio Lima, com espaço de lazer e apoio a taxistas.",
-      "por_que_importa": "Ato rotineiro de gestão municipal no interior do Acre sem interferência na dinâmica eleitoral estadual.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-01T15:40:07-05:00",
-      "publicado_em": "2026-11-01T19:01:44+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Tio Pablo promove Dia das Crianças histórico com mais de 4 mil crianças",
-      "url": "https://ac24horas.com/2026/11/01/multidao-de-alegria-tio-pablo-promove-dia-das-criancas-historico-com-mais-de-4-mil-criancas-em-sena-madureira/",
-      "ator_principal": "Pablo Bregense",
-      "tema": "LEGISLATIVO_ESTADUAL",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Deputado estadual Pablo Bregense reúne milhares em evento do Dia das Crianças com distribuição de brinquedos em Sena Madureira.",
-      "por_que_importa": "Demonstra movimentação de base e força comunitária de liderança parlamentar em colégio eleitoral do interior.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
