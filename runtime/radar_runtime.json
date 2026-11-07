@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-11-07T02:14:58-05:00",
+    "gerado_em": "2026-11-07T09:02:14-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 12,
+    "ocorrencias_24h": 13,
     "ocorrencias_7d": 86,
     "alertas_24h": 1,
-    "samir_direto_24h": 0,
+    "samir_direto_24h": 1,
     "pesquisas_24h": 0,
-    "total_base": 2667
+    "total_base": 2668
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-07T02:20:18-05:00",
+      "publicado_em": "2026-11-04T14:57:29+00:00",
+      "fonte": "Acre Jornal",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene: uma trajetória que ganhou força junto ao povo acreano - Acre Jornal",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNTFhRajdVWC1HM1ZhZzJxVE5UalB5dVFHdzBvaHpEMk1jblNCWURDTlh6cVpMQnF2WnRmSXZTTm5pR1BkQWZCYlRybGpOek52ajM2bHNVSnpMdGlhUGJUZERqblkzNUZsSm1ZVlB2TFZUVHdDWFN5SFlYLWVlSVJwV1poVFROZjB6RHlYZVR3UFcycDM1WHdoelRR?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene: uma trajetória que ganhou força junto ao povo acreano - Acre Jornal",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-06T20:15:26-05:00",
       "publicado_em": "2026-11-06T15:25:38+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "“É um dia histórico para Rio Branco”: Samir Bestene celebra anúncio da Guarda Municipal após defender implantação da corporação na Capital - NOTíCIAS DA HORA",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-03T18:41:00-05:00",
-      "publicado_em": "2026-11-03T19:53:56+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Samir Bestene e a sacola de votos que atravessou o Acre",
-      "url": "https://noticiasdahora.com.br/blogs-e-colunas/cafe-sem-acucar-com-dora-monteiro/samir-bestene-e-a-sacola-de-votos-que-atravessou-o-acre/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene e a sacola de votos que atravessou o Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
