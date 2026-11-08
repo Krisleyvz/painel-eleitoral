@@ -1,18 +1,66 @@
 {
   "meta": {
-    "gerado_em": "2026-11-07T17:15:10-05:00",
+    "gerado_em": "2026-11-07T20:26:43-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 32,
-    "ocorrencias_7d": 99,
-    "alertas_24h": 1,
-    "samir_direto_24h": 2,
+    "ocorrencias_24h": 23,
+    "ocorrencias_7d": 84,
+    "alertas_24h": 0,
+    "samir_direto_24h": 5,
     "pesquisas_24h": 0,
-    "total_base": 2687
+    "total_base": 2690
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-07T17:30:51-05:00",
+      "publicado_em": "2026-11-06T10:00:18+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "O Triunfo da Esperança - ac24horas",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9YZGc4Umw4NjlJeDJZT2RiOXR3NXE5WTJybmd5MlQ5NTlZdmoya04zOTlVZ2tDMFViWVpEaEJWZ1l5SFA2eHd4X2hLMUV6ZnppbGJhRnc2UlJvaElQZXBsdU52QjBHVTZuS2tHStIBbEFVX3lxTE9YZGc4Umw4NjlJeDJZT2RiOXR3NXE5WTJybmd5MlQ5NTlZdmoya04zOTlVZ2tDMFViWVpEaEJWZ1l5SFA2eHd4X2hLMUV6ZnppbGJhRnc2UlJvaElQZXBsdU52QjBHVTZuS2tHSg?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "O Triunfo da Esperança - ac24horas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-07T17:30:51-05:00",
+      "publicado_em": "2026-11-05T12:13:02+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "O jogo de cintura de Mailza para conter a “gulodice” dos aliados - Portal Acre",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxNTEczdHFuYmdjTGE5UzV4ZDdsTjJ5MGtnSTIzT0hlYW5pc2ZWeFZuYmlES2huWHhpSTh6c21YZDJJUlBYb1ZDWHVjSWFlem1RRWZIRUctaXBGR20zRkFjNV9KVXFKaFhVX3BPbVNPU3c3QzhGLThta1J4SmF4cE5jeEpNZkVuS0Fwa2l5bUNiUEdHODVBbmJtRHVOR0FxUQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "O jogo de cintura de Mailza para conter a “gulodice” dos aliados - Portal Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-07T17:30:51-05:00",
+      "publicado_em": "2026-11-05T10:00:42+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "GOOGLE_NEWS",
+      "titulo": "Discursos de Vitrine - ac24horas",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1iSXJEc01zdzZJZDFPUGtQeFVheFJxdFk3RzFiVGpNZmFJOFhRTVFGVllNcW5kRXNrRU1kV0NvLVFpTjM5Y2w4TDdwenA1aHBsZF9oOWhUWGpTdFM3MTU2Vkp5dnLSAWpBVV95cUxPT0dEWEJFQ0tQdWFteWh3QVVXYzlIaTZxdXRmRXU0THhRZTdvejljWWZ6c04zYXdKMXN4c2p6VlRwTVBBVlhWck1yM2JKWTFYd1N4SXgyQUN2MlViTzJXQTRTNVM4WWFHN1JR?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Discursos de Vitrine - ac24horas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-07T13:53:20-05:00",
       "publicado_em": "2026-11-04T15:41:00+00:00",
@@ -283,54 +331,6 @@
       "resumo": "Operação de segurança apreende drogas, cigarros e roupas ilegais em posto de fiscalização em Senador Guiomard.",
       "por_que_importa": "Pauta de segurança e fiscalização de fronteiras no estado, sem impacto direto na dinâmica política eleitoral.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-07T09:15:26-05:00",
-      "publicado_em": "2026-11-07T11:03:54+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Após vitória de Lula, PT do Acre tem 181 filiações; 70% abaixo de 29 anos",
-      "url": "https://ac24horas.com/2026/11/07/apos-vitoria-de-lula-pt-do-acre-tem-181-filiacoes-70-abaixo-de-29-anos/",
-      "ator_principal": "PT do Acre",
-      "tema": "Partidos Políticos",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "PT registra 181 novas filiações no Acre após vitória presidencial, com grande proporção de jovens, segundo dirigente partidário.",
-      "por_que_importa": "Indica mobilização e reorganização partidária da oposição de esquerda no estado visando ciclos eleitorais.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-07T09:15:26-05:00",
-      "publicado_em": "2026-11-07T10:00:20+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "A dama promete e cumpre!",
-      "url": "https://ac24horas.com/2026/11/07/a-dama-promete-e-cumpre/",
-      "ator_principal": "Mailza Assis",
-      "tema": "Gestão Estadual",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Coluna comenta em tom irônico e elogioso o cumprimento de promessa da governadora Mailza referente ao edital da Polícia Civil.",
-      "por_que_importa": "Avaliação de imagem e entrega de compromissos da gestão governamental perante servidores e opinião pública.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-07T02:20:18-05:00",
-      "publicado_em": "2026-11-04T14:57:29+00:00",
-      "fonte": "Acre Jornal",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "Samir Bestene: uma trajetória que ganhou força junto ao povo acreano - Acre Jornal",
-      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNTFhRajdVWC1HM1ZhZzJxVE5UalB5dVFHdzBvaHpEMk1jblNCWURDTlh6cVpMQnF2WnRmSXZTTm5pR1BkQWZCYlRybGpOek52ajM2bHNVSnpMdGlhUGJUZERqblkzNUZsSm1ZVlB2TFZUVHdDWFN5SFlYLWVlSVJwV1poVFROZjB6RHlYZVR3UFcycDM1WHdoelRR?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene: uma trajetória que ganhou força junto ao povo acreano - Acre Jornal",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
