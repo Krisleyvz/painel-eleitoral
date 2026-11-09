@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-09T03:50:56-05:00",
+    "gerado_em": "2026-11-09T14:14:11-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 19,
-    "ocorrencias_7d": 63,
+    "ocorrencias_24h": 20,
+    "ocorrencias_7d": 65,
     "alertas_24h": 1,
-    "samir_direto_24h": 4,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 2709
+    "total_base": 2711
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-09T05:25:28-05:00",
+      "publicado_em": "2026-11-08T01:34:47+00:00",
+      "fonte": "PáginaNET",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Sem posição do Senado, regras sobre Flávio seguem indefinidas",
+      "url": "https://paginanet.com.br/sem-posicao-do-senado-regras-sobre-flavio-seguem-indefinidas/",
+      "ator_principal": "Flávio Bolsonaro",
+      "tema": "Congresso Nacional / Política Nacional",
+      "tom": "NEUTRO_INFORMATIVO",
+      "nivel": "INFORMATIVO",
+      "resumo": "Senado Federal mantém indefinição e silêncio regimental sobre questões funcionais, faltas e remuneração do senador Flávio Bolsonaro (PL-RJ) após viagem ao exterior.",
+      "por_que_importa": "Trata-se de tema estritamente federal e do Congresso Nacional, sem impacto direto ou menção ao cenário eleitoral do Acre ou a Samir Bestene.",
+      "samir_direto": false,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-09T05:25:26-05:00",
+      "publicado_em": "2026-11-07T18:20:17+00:00",
+      "fonte": "Diário do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Confederação defende redução do ‘Imposto do Pecado’ para pequenos produtores de bebidas",
+      "url": "https://diariodoacre.com.br/confederacao-defende-reducao-do-imposto-do-pecado-para-pequenos-produtores-de-bebidas/?utm_source=rss&utm_medium=rss&utm_campaign=confederacao-defende-reducao-do-imposto-do-pecado-para-pequenos-produtores-de-bebidas",
+      "ator_principal": "Confederação da Agricultura e Pecuária do Brasil (CNA)",
+      "tema": "Economia / Tributação",
+      "tom": "NEUTRO_INFORMATIVO",
+      "nivel": "INFORMATIVO",
+      "resumo": "CNA manifesta apoio à redução de alíquotas do Imposto Seletivo para pequenos produtores de bebidas alcoólicas, conforme previsto na Medida Provisória 1.399/2026.",
+      "por_que_importa": "Pauta de política tributária nacional com impacto no agronegócio, sem conexão direta com o contexto eleitoral acreano ou menção a Samir Bestene.",
+      "samir_direto": false,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-08T21:43:53-05:00",
       "publicado_em": "2026-11-08T19:16:56+00:00",
@@ -299,38 +331,6 @@
       "resumo": "Jovem chega atrasado ao local de aplicação em Rio Branco por conta do trabalho e não faz o Enem.",
       "por_que_importa": "Relato individual de candidato atrasado, matéria típica de cobertura factual do exame nacional.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-08T10:09:16-05:00",
-      "publicado_em": "2026-11-08T15:07:07+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Lei do vereador Samir Bestene garante 30% dos espaços em feiras e eventos da Capital para mulheres empreendedoras",
-      "url": "https://noticiasdahora.com.br/politica/lei-do-vereador-samir-bestene-garante-30-dos-espacos-em-feiras-e-eventos-da-capital-para-mulheres-empreendedoras/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Lei do vereador Samir Bestene garante 30% dos espaços em feiras e eventos da Capital para mulheres empreendedoras",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-07T17:30:51-05:00",
-      "publicado_em": "2026-11-06T10:00:18+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "O Triunfo da Esperança - ac24horas",
-      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9YZGc4Umw4NjlJeDJZT2RiOXR3NXE5WTJybmd5MlQ5NTlZdmoya04zOTlVZ2tDMFViWVpEaEJWZ1l5SFA2eHd4X2hLMUV6ZnppbGJhRnc2UlJvaElQZXBsdU52QjBHVTZuS2tHStIBbEFVX3lxTE9YZGc4Umw4NjlJeDJZT2RiOXR3NXE5WTJybmd5MlQ5NTlZdmoya04zOTlVZ2tDMFViWVpEaEJWZ1l5SFA2eHd4X2hLMUV6ZnppbGJhRnc2UlJvaElQZXBsdU52QjBHVTZuS2tHSg?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "O Triunfo da Esperança - ac24horas",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
