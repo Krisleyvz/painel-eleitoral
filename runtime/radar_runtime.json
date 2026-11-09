@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-11-08T17:37:43-05:00",
+    "gerado_em": "2026-11-08T20:55:57-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 13,
-    "ocorrencias_7d": 63,
+    "ocorrencias_24h": 14,
+    "ocorrencias_7d": 58,
     "alertas_24h": 1,
-    "samir_direto_24h": 2,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 2703
+    "total_base": 2704
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-08T18:11:55-05:00",
+      "publicado_em": "2026-11-08T19:16:56+00:00",
+      "fonte": "O Alto Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Lei do vereador Samir Bestene garante 30% dos espaços em feiras e eventos da Capital para mulheres empreendedoras",
+      "url": "https://oaltoacre.com/lei-do-vereador-samir-bestene-garante-30-dos-espacos-em-feiras-e-eventos-da-capital-para-mulheres-empreendedoras/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Lei do vereador Samir Bestene garante 30% dos espaços em feiras e eventos da Capital para mulheres empreendedoras",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-08T14:43:13-05:00",
       "publicado_em": "2026-11-08T13:07:00+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Comissão da Câmara aprova projeto da deputada Socorro Neri para reforçar conselhos de fiscalização da merenda escolar.",
       "por_que_importa": "Mostra desempenho de figura de proa do Progressistas no Acre, partido central no xadrez político do estado.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-07T09:15:32-05:00",
-      "publicado_em": "2026-11-06T14:30:16+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Nove profissionais são chamados para reforçar a Saúde em Tarauacá; veja quem foi convocado",
-      "url": "https://diariodoacre.com.br/nove-profissionais-sao-chamados-para-reforcar-a-saude-em-tarauaca-veja-quem-foi-convocado/?utm_source=rss&utm_medium=rss&utm_campaign=nove-profissionais-sao-chamados-para-reforcar-a-saude-em-tarauaca-veja-quem-foi-convocado",
-      "ator_principal": "Prefeitura de Tarauacá",
-      "tema": "Administração Pública",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Prefeitura de Tarauacá convoca nove profissionais de processo seletivo para atuar na rede municipal de saúde.",
-      "por_que_importa": "Ato administrativo municipal rotineiro de contratação de profissionais para o setor de saúde.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
