@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado_em": "2026-11-10T12:16:24-05:00",
+    "gerado_em": "2026-11-10T17:23:17-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
@@ -10,9 +10,25 @@
     "alertas_24h": 0,
     "samir_direto_24h": 1,
     "pesquisas_24h": 0,
-    "total_base": 2712
+    "total_base": 2713
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-10T13:52:25-05:00",
+      "publicado_em": "2026-11-10T18:46:16+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“Precisamos transformar o potencial turístico de Rio Branco em oportunidades”, defende Samir após aprovação de comissão na Câmara",
+      "url": "https://noticiasdahora.com.br/politica/precisamos-transformar-o-potencial-turistico-de-rio-branco-em-oportunidades-defende-samir-apos-aprovacao-de-comissao-na-camara/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Precisamos transformar o potencial turístico de Rio Branco em oportunidades”, defende Samir após aprovação de comissão na Câmara",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-09T15:59:39-05:00",
       "publicado_em": "2026-11-09T17:01:08+00:00",
@@ -314,22 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Candidato chega dois minutos após fechamento dos portões em Cruzeiro do Sul e perde prova do Enem.",
       "por_que_importa": "Episódio corriqueiro de atraso de candidatos no Enem, sem efeito na política regional.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-08T14:43:00-05:00",
-      "publicado_em": "2026-11-08T16:24:45+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Aos 75 anos, acreana faz o Enem pela primeira vez: “nunca é tarde para os sonhos”",
-      "url": "https://ac24horas.com/2026/11/08/aos-75-anos-acreana-faz-o-enem-pela-primeira-vez-nunca-e-tarde-para-os-sonhos/",
-      "ator_principal": "Eliete Cruz",
-      "tema": "EDUCACAO",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Idosa de 75 anos realiza o Enem pela primeira vez com apoio da família em Rio Branco.",
-      "por_que_importa": "História de superação de interesse humano na cobertura jornalística do Enem.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
