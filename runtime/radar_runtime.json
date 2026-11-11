@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-11-10T17:23:17-05:00",
+    "gerado_em": "2026-11-10T20:59:44-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 1,
-    "ocorrencias_7d": 66,
+    "ocorrencias_24h": 2,
+    "ocorrencias_7d": 64,
     "alertas_24h": 0,
-    "samir_direto_24h": 1,
+    "samir_direto_24h": 2,
     "pesquisas_24h": 0,
-    "total_base": 2713
+    "total_base": 2714
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-10T18:54:56-05:00",
+      "publicado_em": "2026-11-10T22:14:15+00:00",
+      "fonte": "PáginaNET",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Câmara aprova comissão de Turismo proposta por Samir para impulsionar Rio Branco",
+      "url": "https://paginanet.com.br/camara-aprova-comissao-de-turismo-proposta-por-samir-para-impulsionar-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Câmara aprova comissão de Turismo proposta por Samir para impulsionar Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-10T13:52:25-05:00",
       "publicado_em": "2026-11-10T18:46:16+00:00",
@@ -314,22 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Influenciador registra em redes sociais entrega de kits com alimentos e água para estudantes no Enem.",
       "por_que_importa": "Ação de visibilidade individual de criador de conteúdo digital, sem repercussão política direta aparente.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-08T14:43:00-05:00",
-      "publicado_em": "2026-11-08T16:26:18+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "No AC, candidato chega 2 minutos após fechamento dos portões e perde 1° dia de Enem",
-      "url": "https://ac24horas.com/2026/11/08/no-ac-candidato-chega-2-minutos-apos-fechamento-dos-portoes-e-perde-1-dia-de-enem/",
-      "ator_principal": "Bruno Vinícius",
-      "tema": "EDUCACAO",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Candidato chega dois minutos após fechamento dos portões em Cruzeiro do Sul e perde prova do Enem.",
-      "por_que_importa": "Episódio corriqueiro de atraso de candidatos no Enem, sem efeito na política regional.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
