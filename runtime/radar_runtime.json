@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-11-11T18:01:44-05:00",
+    "gerado_em": "2026-11-11T22:41:45-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
     "ocorrencias_24h": 31,
-    "ocorrencias_7d": 91,
+    "ocorrencias_7d": 92,
     "alertas_24h": 1,
     "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 2744
+    "total_base": 2745
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-11T20:54:54-05:00",
+      "publicado_em": "2026-11-11T21:02:15+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco",
+      "url": "https://noticiasdahora.com.br/politica/esporte-pode-salvar-vidas-samir-bestene-leva-tenis-e-beach-tennis-para-escolas-de-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-11T00:42:51-05:00",
       "publicado_em": "2026-11-10T19:08:39+00:00",
@@ -314,22 +330,6 @@
       "nivel": "ACOMPANHAR",
       "resumo": "Sob presidência do deputado Nicolau Júnior, Aleac conquista pela segunda vez o Selo Ouro de Transparência Pública no Programa Nacional de Transparência Pública.",
       "por_que_importa": "Fortalece politicamente o presidente da Aleac, Nicolau Júnior, liderança influente nas articulações legislativas e estaduais para 2026.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-11T00:42:42-05:00",
-      "publicado_em": "2026-11-10T23:04:51+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "“Hoje sou uma mulher feliz”, diz paciente após cirurgia de endometriose viabilizada por emenda de Alan Rick",
-      "url": "https://portalacre.com.br/2026/11/hoje-sou-uma-mulher-feliz-diz-paciente-apos-cirurgia-de-endometriose-viabilizada-por-emenda-de-alan-rick/",
-      "ator_principal": "Alan Rick",
-      "tema": "Saúde Pública e Emendas Parlamentares",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Mais um veículo repercute depoimento de paciente beneficiada por cirurgia de endometriose financiada por emenda do senador Alan Rick.",
-      "por_que_importa": "Multiplicação da pauta favorável a Alan Rick em diversos portais locais, demonstrando capilaridade da assessoria de imprensa do senador.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
