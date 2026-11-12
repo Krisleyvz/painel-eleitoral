@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-12T06:49:59-05:00",
+    "gerado_em": "2026-11-12T14:11:33-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 1,
-    "ocorrencias_7d": 92,
+    "ocorrencias_24h": 3,
+    "ocorrencias_7d": 94,
     "alertas_24h": 0,
-    "samir_direto_24h": 1,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 2745
+    "total_base": 2747
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-12T12:44:52-05:00",
+      "publicado_em": "2026-11-12T01:06:17+00:00",
+      "fonte": "Olhar Direto",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "SAMIR FIGUEIREDO BESTENE (PP) — Deputado Estadual · Acre - Olhar Direto",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOc19HRUpFdU1EQkE1amF5NG04MDdPY1ZuSmZ5WFNZRXZPd2JuVHVVWmtjcGdWWDZtRG1RWDBhbWNvcHVwVjB3REtVMEZUR0VMSVR3U045Sm5ScUtaTE1ieWtkcU9zMk5rT2p5UlFfNFJDTTV2VUQ3MzRLWnZfSkdkYzQtc0Q?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "SAMIR FIGUEIREDO BESTENE (PP) — Deputado Estadual · Acre - Olhar Direto",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-12T12:44:52-05:00",
+      "publicado_em": "2026-11-11T19:02:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxPOGY0ZWFUZGFEUUNPLUFBTnlBbkFFYXdLaHFKUmxKcGE1TktjX1M1eFlGLUJ0OVhrNWhPNUNBV25LdWRhNUU0SklVYkZaNTNDRWpHRFJHSlNIZndzYmhVMEZnV2c3YlN5M3Z4VHMzb0ZxM0I3ZzI0bXVlSnJGU0VaSE1IRXpITktzUXZtc0xNR0YxMG5BcnEyVS1Ed0s5QTZBbl9JWEswTkctLVpqSU5iY2pXQ0szcmJFaklEQ29GalcxUndBMHQxZjRFdWk?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-11T20:54:54-05:00",
       "publicado_em": "2026-11-11T21:02:15+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Maternidade Bárbara Heliodora, em Rio Branco, sediou capacitação em reanimação neonatal promovida pela Sesacre durante a campanha Novembro Roxo.",
       "por_que_importa": "Pauta de rotina da gestão estadual de saúde pública, sem impacto na disputa política de 2026.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-11T00:42:42-05:00",
-      "publicado_em": "2026-11-10T23:35:53+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "“Hoje sou uma mulher feliz”, diz paciente após cirurgia de endometriose viabilizada por emenda de Alan Rick",
-      "url": "https://oaltoacre.com/hoje-sou-uma-mulher-feliz-diz-paciente-apos-cirurgia-de-endometriose-viabilizada-por-emenda-de-alan-rick/",
-      "ator_principal": "Alan Rick",
-      "tema": "Saúde Pública e Emendas Parlamentares",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Paciente relata impacto positivo após cirurgia de endometriose viabilizada por emenda parlamentar do senador Alan Rick em parceria com a Prefeitura de Rio Branco.",
-      "por_que_importa": "Reforça o capital político e a imagem pública de Alan Rick no estado por meio de entregas na saúde, ator relevante no tabuleiro de 2026.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-11T00:42:42-05:00",
-      "publicado_em": "2026-11-10T23:13:58+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Sob a presidência de Nicolau Júnior, Aleac conquista Selo Ouro de Transparência Pública pela segunda vez",
-      "url": "https://oaltoacre.com/sob-a-presidencia-de-nicolau-junior-aleac-conquista-selo-ouro-de-transparencia-publica-pela-segunda-vez/",
-      "ator_principal": "Nicolau Júnior",
-      "tema": "Gestão Pública e Transparência",
-      "tom": "FAVORAVEL",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Sob presidência do deputado Nicolau Júnior, Aleac conquista pela segunda vez o Selo Ouro de Transparência Pública no Programa Nacional de Transparência Pública.",
-      "por_que_importa": "Fortalece politicamente o presidente da Aleac, Nicolau Júnior, liderança influente nas articulações legislativas e estaduais para 2026.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
