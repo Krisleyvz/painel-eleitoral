@@ -1,18 +1,34 @@
 {
   "meta": {
-    "gerado_em": "2026-11-13T20:24:41-05:00",
+    "gerado_em": "2026-11-14T02:41:24-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 22,
+    "ocorrencias_24h": 16,
     "ocorrencias_7d": 102,
     "alertas_24h": 2,
-    "samir_direto_24h": 10,
+    "samir_direto_24h": 4,
     "pesquisas_24h": 0,
-    "total_base": 2769
+    "total_base": 2770
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-14T00:12:07-05:00",
+      "publicado_em": "2026-11-13T21:35:31+00:00",
+      "fonte": "ac24horas",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Alysson cancela nomeação de influenciadora indicada por Samir Bestene - ac24horas",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQbWNiemdpeDBhNFEzZmFKZEZHMGk3VjBUVnJEN3Vuc2M0MUNhV0gzOHdqQlE4LWVFSF9jd0VJdzNjcUlKTlN6cURKVkxCUEtja1lGYVBaQ28tclcxbzZfVTVPWGxxNmhBeDJXcEZkZkpxZG5FU28wTlBTRDhDekN1MDhGYndyLUtuQzdBRlpHMmlGR0dQRS1ISXdHYnZjTVhlVVM1RVhR0gH6AkFVX3lxTE1wVWdENDlpbVdNTjVfblVlVm85em9zQTNaSmoxbmsyaGJoLWRUbzNjR1NSNXNoWk5XQ3laZTFydDFKaUYzMi1fZVJZQk8xeDlwMzlwTjdMeVQzVnJZR2gxTU5aTEVNV2FIcWR1NlVVSW5xQ3BNWjdmYjZmX3FwU3Vwd25SaUVXSExBVGViNl93XzNfOU51aDdzbE9jclVFczlsOEFOZlMyYXI4LUpnZzdUYjlHLUppbTZZbEFnSWdROUdHNnRkNXpRa2VWc0JoMjZqVXB6TEFvMmtJTXJPZVo0RTROZVhQSHdvX3RZb3BBNUtPTmdzQVpPZ0t2bk01X3JDQlUxeDh4VXN0TnNBVEVSLW9ZQ3BReTRncDgyekI5UnBRb29hLU16bkdnVndMLWtkMUN5bXNKQ1FLWHFEN1lSYWxOUjk0bmhYRXEtUFRQbEF5YmRDUm9ULTNrMzBNSVlnMVRXaTBNb1FENDFPR2YyVFlBTWNyd1p5QQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Alysson cancela nomeação de influenciadora indicada por Samir Bestene - ac24horas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-13T18:52:43-05:00",
       "publicado_em": "2026-11-13T21:35:31+00:00",
@@ -313,22 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-12T22:17:34-05:00",
-      "publicado_em": "2026-11-10T18:46:16+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "“Precisamos transformar o potencial turístico de Rio Branco em oportunidades”, defende Samir após aprovação de comissão na Câmara",
-      "url": "https://noticiasdahora.com.br/politica/precisamos-transformar-o-potencial-turistico-de-rio-branco-em-oportunidades-defende-samir-apos-aprovacao-de-comissao-na-camara/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Precisamos transformar o potencial turístico de Rio Branco em oportunidades”, defende Samir após aprovação de comissão na Câmara",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
