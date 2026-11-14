@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-14T09:30:10-05:00",
+    "gerado_em": "2026-11-14T14:23:41-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 16,
-    "ocorrencias_7d": 84,
+    "ocorrencias_24h": 18,
+    "ocorrencias_7d": 85,
     "alertas_24h": 2,
-    "samir_direto_24h": 4,
+    "samir_direto_24h": 6,
     "pesquisas_24h": 0,
-    "total_base": 2770
+    "total_base": 2772
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-14T13:19:05-05:00",
+      "publicado_em": "2026-11-14T12:45:52+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir visita APAE e reafirma parceria com instituição que atende mais de 300 alunos",
+      "url": "https://portalacre.com.br/2026/11/samir-visita-apae-e-reafirma-parceria-com-instituicao-que-atende-mais-de-300-alunos/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir visita APAE e reafirma parceria com instituição que atende mais de 300 alunos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-14T13:19:03-05:00",
+      "publicado_em": "2026-11-14T14:38:17+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir confirma recursos para APAE Rio Branco, reforça apoio à inclusão e recebe reconhecimento por atender mais de 300 alunos",
+      "url": "https://noticiasdahora.com.br/politica/samir-confirma-recursos-para-apae-rio-branco-reforca-apoio-a-inclusao-e-recebe-reconhecimento-por-atender-mais-de-300-alunos/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir confirma recursos para APAE Rio Branco, reforça apoio à inclusão e recebe reconhecimento por atender mais de 300 alunos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-14T00:12:07-05:00",
       "publicado_em": "2026-11-13T21:35:31+00:00",
@@ -297,38 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Lei do vereador Samir Bestene garante 30% dos espaços em feiras e eventos da Capital para mulheres empreendedoras",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-12T22:17:35-05:00",
-      "publicado_em": "2026-11-10T19:08:39+00:00",
-      "fonte": "Portal Acre",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "Câmara Municipal de Rio Branco aprova criação da Comissão Permanente de Turismo proposta por Samir Bestene",
-      "url": "https://portalacre.com.br/2026/11/camara-municipal-de-rio-branco-aprova-criacao-da-comissao-permanente-de-turismo-proposta-por-samir-bestene/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Câmara Municipal de Rio Branco aprova criação da Comissão Permanente de Turismo proposta por Samir Bestene",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-12T22:17:34-05:00",
-      "publicado_em": "2026-11-11T21:02:15+00:00",
-      "fonte": "Notícias da Hora",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco",
-      "url": "https://noticiasdahora.com.br/politica/esporte-pode-salvar-vidas-samir-bestene-leva-tenis-e-beach-tennis-para-escolas-de-rio-branco/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Esporte pode salvar vidas”: Samir Bestene leva tênis e beach tennis para escolas de Rio Branco",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
