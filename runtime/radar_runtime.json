@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-15T16:14:16-05:00",
+    "gerado_em": "2026-11-15T20:01:31-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 21,
-    "ocorrencias_7d": 90,
+    "ocorrencias_24h": 23,
+    "ocorrencias_7d": 91,
     "alertas_24h": 0,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 0,
-    "total_base": 2793
+    "total_base": 2795
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-15T16:15:25-05:00",
+      "publicado_em": "2026-11-14T14:38:17+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir confirma recursos para APAE Rio Branco, reforça apoio à inclusão e recebe reconhecimento por atender mais de 300 alunos",
+      "url": "https://noticiasdahora.com.br/politica/samir-confirma-recursos-para-apae-rio-branco-reforca-apoio-a-inclusao-e-recebe-reconhecimento-por-atender-mais-de-300-alunos/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir confirma recursos para APAE Rio Branco, reforça apoio à inclusão e recebe reconhecimento por atender mais de 300 alunos",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-15T16:15:13-05:00",
+      "publicado_em": "2026-11-15T18:48:35+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 crianças autistas",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-mantem-compromisso-com-causas-sociais-e-garante-atendimento-especializado-a-mais-de-300-criancas-autistas/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 crianças autistas",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-15T11:33:31-05:00",
       "publicado_em": "2026-11-15T16:14:46+00:00",
@@ -298,38 +330,6 @@
       "nivel": "INFORMATIVO",
       "resumo": "Portões são abertos na Faculdade Estácio Unimeta em Rio Branco para o segundo dia de aplicação do Enem 2026.",
       "por_que_importa": "Cobertura jornalística cotidiana sobre aplicação de provas na capital, sem conteúdo político.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-15T11:33:05-05:00",
-      "publicado_em": "2026-11-15T15:26:01+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Voluntários distribuem água, canetas e oferecem orações a estudantes no segundo dia do Enem",
-      "url": "https://ac24horas.com/2026/11/15/voluntarios-distribuem-agua-canetas-e-oferecem-oracoes-a-estudantes-no-segundo-dia-do-enem/",
-      "ator_principal": "Voluntários da CB Vida",
-      "tema": "Cidadania / Comunidade",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Grupo voluntário distribui canetas, água e faz orações com candidatos do Enem em frente a faculdade em Rio Branco.",
-      "por_que_importa": "Iniciativa voluntária de apoio a estudantes, sem vínculo partidário explícito ou relevância eleitoral.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-15T11:33:05-05:00",
-      "publicado_em": "2026-11-15T15:22:20+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Na Estácio, estudantes se aglomeram em frente para o segundo dia do Enem",
-      "url": "https://ac24horas.com/2026/11/15/na-estacio-estudantes-se-aglomeram-em-frente-para-o-segundo-dia-do-enem/",
-      "ator_principal": "Candidatos do Enem",
-      "tema": "Educação",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Estudantes se reúnem na entrada da Estácio em Rio Branco aguardando a abertura dos portões do Enem 2026.",
-      "por_que_importa": "Relato puramente descritivo de movimentação em local de prova na capital acreana.",
       "samir_direto": false,
       "pesquisa_eleitoral": false
     }
