@@ -1,18 +1,66 @@
 {
   "meta": {
-    "gerado_em": "2026-11-17T12:52:50-05:00",
+    "gerado_em": "2026-11-17T19:01:55-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 12,
-    "ocorrencias_7d": 106,
+    "ocorrencias_24h": 9,
+    "ocorrencias_7d": 107,
     "alertas_24h": 0,
-    "samir_direto_24h": 6,
+    "samir_direto_24h": 9,
     "pesquisas_24h": 0,
-    "total_base": 2818
+    "total_base": 2821
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-17T14:21:22-05:00",
+      "publicado_em": "2026-11-17T15:40:00+00:00",
+      "fonte": "diariodoacre.com.br",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco - diariodoacre.com.br",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPRE90QUI1RkZoSW5hWWxZZ0FpemVPOXhwTzlmZklTTF91R0ctalNWdnRQZFROWGNYSUo1dGFreWUxS08tOFJWMEV2TmdnM0tCR3ZzSEdtbVlPbGdZQnJ1MDQyR3k2VGZuQkdUTnZJcVpuY1R2TE9wREs2LUNXbzZCQlB4M2d6XzFZNUVkanRwSWIyalM2eWJ1LU5KSktJZFlhS0hscC1DQQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco - diariodoacre.com.br",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-17T14:21:22-05:00",
+      "publicado_em": "2026-11-17T14:17:00+00:00",
+      "fonte": "NOTíCIAS DA HORA",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco - NOTíCIAS DA HORA",
+      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNdEVmV2ZLWHdRalFSMzJSazJDVEgtVkVYbUF5SlgyRzdvek9Welh0OGloeXpUbVVGZTl2X0NCaUplMDNzbDU0R0pCR3JGSDY3OGRId3l6Vm9xem93enBDczRwaWpOVjFlcHZEejk3RE1QTXYxQUM1RU9ZdnJXZ0VhdjFFTmdXX25MUWdFYWpwNFFYeldWb1I2U1JQUG5JV0VpLXhTQUdFWmE0dUZqQmhPcWZvSGd3cHg4X1NDYnRJT1o0YkpGajdfb2ZfekttSlE2REotb3lZSkFrSjNtbkZZeGdqa0pQODN6d1hYdzAwV3k?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco - NOTíCIAS DA HORA",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-17T14:21:14-05:00",
+      "publicado_em": "2026-11-17T17:40:51+00:00",
+      "fonte": "Diário do Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
+      "url": "https://diariodoacre.com.br/samir-bestene-solicita-prorrogacao-do-refis-2026-ate-dezembro-em-rio-branco/?utm_source=rss&utm_medium=rss&utm_campaign=samir-bestene-solicita-prorrogacao-do-refis-2026-ate-dezembro-em-rio-branco",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-17T05:31:45-05:00",
       "publicado_em": "2026-11-16T12:50:23+00:00",
@@ -283,54 +331,6 @@
       "resumo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 - O Alto Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-15T20:09:00-05:00",
-      "publicado_em": "2026-11-15T01:10:25+00:00",
-      "fonte": "PáginaNET",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Mulheres privadas de liberdade são atendidas em mutirão ginecológico na Fundhacre",
-      "url": "https://paginanet.com.br/mulheres-privadas-de-liberdade-sao-atendidas-em-mutirao-ginecologico-na-fundhacre/",
-      "ator_principal": "Fundhacre / Governo do Estado do Acre",
-      "tema": "Saúde Pública",
-      "tom": "FAVORAVEL",
-      "nivel": "INFORMATIVO",
-      "resumo": "Fundhacre realiza mutirão inédito de atendimento ginecológico destinado a mulheres privadas de liberdade no Acre.",
-      "por_que_importa": "Registro de ação administrativa do Executivo estadual na área da saúde, sem conexão com embates eleitorais diretos.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-15T20:08:59-05:00",
-      "publicado_em": "2026-11-15T13:20:37+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Trump: investidores de todo o mundo odiaram ver o que aconteceu no dia da eleição",
-      "url": "https://diariodoacre.com.br/trump-investidores-de-todo-o-mundo-odiaram-ver-o-que-aconteceu-no-dia-da-eleicao/?utm_source=rss&utm_medium=rss&utm_campaign=trump-investidores-de-todo-o-mundo-odiaram-ver-o-que-aconteceu-no-dia-da-eleicao",
-      "ator_principal": "Donald Trump",
-      "tema": "Política Internacional",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Donald Trump afirma que investidores internacionais reagiram mal ao resultado das eleições legislativas de meio de mandato nos EUA.",
-      "por_que_importa": "Matéria de política internacional sem impacto direto na disputa eleitoral ou no cenário político do Acre.",
-      "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-15T20:08:59-05:00",
-      "publicado_em": "2026-11-15T13:00:52+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Alckmin, Haddad, Bolsonaros, Tarcísio e Renan: quem larga na frente para as eleições 2030",
-      "url": "https://diariodoacre.com.br/alckmin-haddad-bolsonaros-tarcisio-e-renan-quem-larga-na-frente-para-as-eleicoes-2030/?utm_source=rss&utm_medium=rss&utm_campaign=alckmin-haddad-bolsonaros-tarcisio-e-renan-quem-larga-na-frente-para-as-eleicoes-2030",
-      "ator_principal": "Lideranças Políticas Nacionais",
-      "tema": "Eleições Presidenciais Nacionais",
-      "tom": "NEUTRO_INFORMATIVO",
-      "nivel": "INFORMATIVO",
-      "resumo": "Reportagem analisa nomes cotados da base governista e da oposição de direita para a sucessão presidencial de 2030 após reeleição de Lula.",
-      "por_que_importa": "Discussão de conjuntura política nacional de longo prazo, sem reflexos práticos imediatos na corrida local de 2026.",
-      "samir_direto": false,
       "pesquisa_eleitoral": false
     }
   ]
