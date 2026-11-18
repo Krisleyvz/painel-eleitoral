@@ -1,18 +1,66 @@
 {
   "meta": {
-    "gerado_em": "2026-11-18T11:00:05-05:00",
+    "gerado_em": "2026-11-18T17:52:03-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
     "ocorrencias_24h": 5,
-    "ocorrencias_7d": 79,
+    "ocorrencias_7d": 82,
     "alertas_24h": 0,
     "samir_direto_24h": 5,
     "pesquisas_24h": 0,
-    "total_base": 2823
+    "total_base": 2826
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-18T13:13:55-05:00",
+      "publicado_em": "2026-11-18T16:54:56+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene destaca sensação de dever cumprido e projeta atuação nos 22 municípios do Acre - Portal Acre",
+      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxNai1DTmk2ZWsyZlhNekx2NE5ScmdRU0hReno1dmZOYXdCRVVDY0hYOGM2SnpLYUdRTzB1dTE3Q2tQQ3JNbUphMkZ4V1RMM1NqSmgyUHJRelJvQ0pScU1IX2NTbzR6YkJWcVRodFI1V0t2OXZrQXNlSXZqVUhua0taUlp0OVBSR29wcWxaM0FIVEJuRlFKMkwtQi1yOVdXbVJ2SnI2VDR4dENVbEp6YTZNcUJKeTlIRmxiel84ei1aYXB4MmMtS1E?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca sensação de dever cumprido e projeta atuação nos 22 municípios do Acre - Portal Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-18T13:13:55-05:00",
+      "publicado_em": "2026-11-17T15:40:00+00:00",
+      "fonte": "Diário do Acre",
+      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
+      "titulo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco - Diário do Acre",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPRE90QUI1RkZoSW5hWWxZZ0FpemVPOXhwTzlmZklTTF91R0ctalNWdnRQZFROWGNYSUo1dGFreWUxS08tOFJWMEV2TmdnM0tCR3ZzSEdtbVlPbGdZQnJ1MDQyR3k2VGZuQkdUTnZJcVpuY1R2TE9wREs2LUNXbzZCQlB4M2d6XzFZNUVkanRwSWIyalM2eWJ1LU5KSktJZFlhS0hscC1DQQ?oc=5",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco - Diário do Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-18T13:13:03-05:00",
+      "publicado_em": "2026-11-18T16:54:56+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "Samir Bestene destaca sensação de dever cumprido e projeta atuação nos 22 municípios do Acre",
+      "url": "https://portalacre.com.br/2026/11/samir-bestene-destaca-sensacao-de-dever-cumprido-e-projeta-atuacao-nos-22-municipios-do-acre/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene destaca sensação de dever cumprido e projeta atuação nos 22 municípios do Acre",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-17T20:45:54-05:00",
       "publicado_em": "2026-11-17T17:40:51+00:00",
@@ -283,54 +331,6 @@
       "resumo": "Publicação com perguntas e respostas sobre a divulgação de gabaritos e resultados após o segundo dia de aplicação do Enem 2026.",
       "por_que_importa": "Pauta de utilidade pública e educação de alcance nacional, sem relação com a disputa eleitoral do Acre ou com Samir Bestene.",
       "samir_direto": false,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-16T03:00:51-05:00",
-      "publicado_em": "2026-11-16T03:12:38+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOUlFkNU5iZ2tGclczV3lUamZodXdDeUhNbnItaF9XMmg1bWgyV21IN2JRelFUdVZ5dVI4eFpFcjdqd2wyb2dJMUpSY2pNWWwxUFNSTDRMbzZmMTZXWlJwRGw4UjN0SlZPdHRueEt0aDBOYTUxUmlJRUl4QUZ0X01yUk1hYjRHUlV5cUVhVXV1R2htcnMtU1lzNXFZdDlzY3hQenFGd2FkcENYb25UQ3pleDZKQ3V0Zk52aUZMaDczZ1Z1ckVCYnNmWHFNbUxZUG5HMXRQV1FORjdkd9IB3wFBVV95cUxQdnVpeFRWbXJSVzR1Ukt1T1ZOWVp4OUg1ajN3X1A0WUQ5VWlJVUF2ejZGcGUwOHUtcXFCSUEwWGJEeUNLdHNRU001NzhES2tybThfNEd0TWw5MXYyekJoN0E1a0ZucHQwYXRzOUNPUUdoV3pxdzhTNnI1Q0Q1MGlkLUM4LTlDdU5TU29LS3QtYjNUSWlXWXlBQ0NjTnpPOE9NdlVDT3JnZV9zLVhaVFVlNUlENzBjcVdialYxRTBmam9zM1pCcFhEVUlIbGxzZHhVa2FvdEZaaHVSZGxuZjBV?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 - O Alto Acre",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-16T03:00:50-05:00",
-      "publicado_em": "2026-11-16T04:14:50+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "Acidente entre motocicleta e carro da Energisa reacende debate sobre sinalização e organização do trânsito em Brasiléia - O Alto Acre - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxPeHAwSGpGU1U1SmIxaWZEd3NQb19Ja2oxS1ZhZFFtQWJJT3B6NE5FMUtLa0NSeVZOTm12S1RFU19fQzFfcEVuRmd4YnJ3eEJuUEZTUXkzeU5xRVVoRzFIZGRTS0sxQnk2TDZFZDF4SDRQd09kOV9uTHNwNG84V1Y1OV8xbXlfb09ZOG4tckhPM0hDaDBERjg5UVFiTk5FSF94d3RJaEtDd056OVI5ZXpicUxFVjdmOEEwZTEzZFpoMnlRRzNnYjB2NUVtbXFwUkQ3MlRaSFVhWEl2Wmd5aG1B0gHfAUFVX3lxTE94cDBIakZTVTVKYjFpZkR3c1BvX0lrajFLVmFkUW1BYklPcHo0TkUxS0trQ1J5Vk5ObXZLVEVTX19DMV9wRW5GZ3hicnd4Qm5QRlNReTN5TnFFVWhHMUhkZFNLSzFCeTZMNkVkMXhINFB3T2Q5X25Mc3A0bzhXVjU5XzFteV9vT1k4bi1ySE8zSENoMERGODlRUWJOTkVIX3h3dEloS0N3Tno5UjllemJxTEVWN2Y4QTBlMTNkWmgyeVFHM2diMHY1RW1tcXBSRDcyVFpIVWFYSXZaZ3lobUE?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Acidente entre motocicleta e carro da Energisa reacende debate sobre sinalização e organização do trânsito em Brasiléia - O Alto Acre - O Alto Acre",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-16T03:00:50-05:00",
-      "publicado_em": "2026-11-13T22:57:23+00:00",
-      "fonte": "ac24horas",
-      "tipo_fonte": "GOOGLE_NEWS",
-      "titulo": "“Melhor exemplo de militância política”, diz Jorge Viana sobre Chica Marinheiro - ac24horas",
-      "url": "https://news.google.com/rss/articles/CBMirwNBVV95cUxNZE9NTGpGX0JLcUxCdTZaT19UWUhvZ3o2U2lKTEktS0tDdFVTTGFYNFZjRFFtdFBzWEFVWGRWZnl5eC1Db0JaNzZpUWVFRFMtZ1VVU2E2Ti1BYW41ZDVLZG05aHU5eWpwS2RnQjN3VXk0Ukwzalc3TTJrZ2FMY1FCX1BoMlNXWmtSNy1UNjBna2lFOTNPcTZocmsxc1hEZjhicjJmdktlSUJrUG9qLXZxZ3NuZE84UGZUal95bXIzTVFTNE5jUXQ0UmJaX0tsSEdxV1FPSGM5THppaWdEdnNwbnM5SkN3S3RfSldWajl2d05XSGNrMV9yN2N2UkcySXZwWktxS0Y2Vk9PZWxDNUtfM0NWcDhEM1MwZ2pFMzJJQjdXREdWb2hkWElKWERvT0dBNHJvZGhhVC1uT3NBMzVwZmJmX0pkLWtNTm9ZYmxrNEpHc2VDd3pISW5XT3FyOUdTSnRKWnRYMUJjTVVCSTNIbmtMc1ZQbnJkdVBZLXFGMDd2akRSSUZSVVNJOUUxTXN6TFJSTWNZNG5NYlM1eGVFZHNTRFhpLWZsUEVQZ04wMNIBrwNBVV95cUxNZE9NTGpGX0JLcUxCdTZaT19UWUhvZ3o2U2lKTEktS0tDdFVTTGFYNFZjRFFtdFBzWEFVWGRWZnl5eC1Db0JaNzZpUWVFRFMtZ1VVU2E2Ti1BYW41ZDVLZG05aHU5eWpwS2RnQjN3VXk0Ukwzalc3TTJrZ2FMY1FCX1BoMlNXWmtSNy1UNjBna2lFOTNPcTZocmsxc1hEZjhicjJmdktlSUJrUG9qLXZxZ3NuZE84UGZUal95bXIzTVFTNE5jUXQ0UmJaX0tsSEdxV1FPSGM5THppaWdEdnNwbnM5SkN3S3RfSldWajl2d05XSGNrMV9yN2N2UkcySXZwWktxS0Y2Vk9PZWxDNUtfM0NWcDhEM1MwZ2pFMzJJQjdXREdWb2hkWElKWERvT0dBNHJvZGhhVC1uT3NBMzVwZmJmX0pkLWtNTm9ZYmxrNEpHc2VDd3pISW5XT3FyOUdTSnRKWnRYMUJjTVVCSTNIbmtMc1ZQbnJkdVBZLXFGMDd2akRSSUZSVVNJOUUxTXN6TFJSTWNZNG5NYlM1eGVFZHNTRFhpLWZsUEVQZ04wMA?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "“Melhor exemplo de militância política”, diz Jorge Viana sobre Chica Marinheiro - ac24horas",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
       "pesquisa_eleitoral": false
     }
   ]
