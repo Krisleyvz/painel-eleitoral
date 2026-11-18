@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-17T19:01:55-05:00",
+    "gerado_em": "2026-11-18T01:52:48-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 9,
-    "ocorrencias_7d": 107,
+    "ocorrencias_24h": 11,
+    "ocorrencias_7d": 79,
     "alertas_24h": 0,
-    "samir_direto_24h": 9,
+    "samir_direto_24h": 11,
     "pesquisas_24h": 0,
-    "total_base": 2821
+    "total_base": 2823
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-17T20:45:54-05:00",
+      "publicado_em": "2026-11-17T17:40:51+00:00",
+      "fonte": "Diário do Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
+      "url": "https://diariodoacre.com.br/samir-bestene-solicita-prorrogacao-do-refis-2026-ate-dezembro-em-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-17T20:45:51-05:00",
+      "publicado_em": "2026-11-17T16:17:52+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco",
+      "url": "https://noticiasdahora.com.br/politica/samir-bestene-pede-prorrogacao-do-refis-2026-ate-dezembro-para-ampliar-prazo-de-regularizacao-de-tributos-em-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-17T14:21:22-05:00",
       "publicado_em": "2026-11-17T15:40:00+00:00",
@@ -297,38 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "“Melhor exemplo de militância política”, diz Jorge Viana sobre Chica Marinheiro - ac24horas",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-16T03:00:46-05:00",
-      "publicado_em": "2026-11-16T03:12:38+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "WP_SAMIR",
-      "titulo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 crianças autistas",
-      "url": "https://oaltoacre.com/samir-bestene-mantem-compromisso-com-causas-sociais-e-garante-atendimento-especializado-a-mais-de-300-criancas-autistas/",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 crianças autistas",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-16T03:00:38-05:00",
-      "publicado_em": "2026-11-16T03:19:06+00:00",
-      "fonte": "O Alto Acre",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 - O Alto Acre",
-      "url": "https://news.google.com/rss/articles/CBMi3wFBVV95cUxQdnVpeFRWbXJSVzR1Ukt1T1ZOWVp4OUg1ajN3X1A0WUQ5VWlJVUF2ejZGcGUwOHUtcXFCSUEwWGJEeUNLdHNRU001NzhES2tybThfNEd0TWw5MXYyekJoN0E1a0ZucHQwYXRzOUNPUUdoV3pxdzhTNnI1Q0Q1MGlkLUM4LTlDdU5TU29LS3QtYjNUSWlXWXlBQ0NjTnpPOE9NdlVDT3JnZV9zLVhaVFVlNUlENzBjcVdialYxRTBmam9zM1pCcFhEVUlIbGxzZHhVa2FvdEZaaHVSZGxuZjBV0gHfAUFVX3lxTFB2dWl4VFZtclJXNHVSS3VPVk5ZWng5SDVqM3dfUDRZRDlVaUlVQXZ6NkZwZTA4dS1xcUJJQTBYYkR5Q0t0c1FTTTU3OERLa3JtOF80R3RNbDkxdjJ6Qmg3QTVrRm5wdDBhdHM5Q09RR2hXenF3OFM2cjVDRDUwaWQtQzgtOUN1TlNTb0tLdC1iM1RJaVdZeUFDQ2NOek84T012VUNPcmdlX3MtWFpUVWU1SUQ3MGNxV2JqVjFFMGZqb3MzWkJwWERVSUhsbHNkeFVrYW90RlpodVJkbG5mMFU?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene mantém compromisso com causas sociais e garante atendimento especializado a mais de 300 - O Alto Acre",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
