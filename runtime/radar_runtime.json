@@ -1,18 +1,50 @@
 {
   "meta": {
-    "gerado_em": "2026-11-20T12:49:02-05:00",
+    "gerado_em": "2026-11-20T18:24:12-05:00",
     "fonte": "Google Sheets / Radar_Politico",
     "janela_principal_horas": 24
   },
   "metricas": {
-    "ocorrencias_24h": 1,
-    "ocorrencias_7d": 84,
+    "ocorrencias_24h": 3,
+    "ocorrencias_7d": 86,
     "alertas_24h": 0,
-    "samir_direto_24h": 1,
+    "samir_direto_24h": 3,
     "pesquisas_24h": 0,
-    "total_base": 2838
+    "total_base": 2840
   },
   "itens": [
+    {
+      "coletado_em": "2026-11-20T16:17:22-05:00",
+      "publicado_em": "2026-11-20T13:11:56+00:00",
+      "fonte": "Portal Acre",
+      "tipo_fonte": "WP_SAMIR",
+      "titulo": "Com emenda parlamentar, Samir Bestene incentiva educação financeira entre alunos de escola pública em Rio Branco",
+      "url": "https://portalacre.com.br/2026/11/com-emenda-parlamentar-samir-bestene-incentiva-educacao-financeira-entre-alunos-de-escola-publica-em-rio-branco/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "Com emenda parlamentar, Samir Bestene incentiva educação financeira entre alunos de escola pública em Rio Branco",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
+    {
+      "coletado_em": "2026-11-20T16:17:08-05:00",
+      "publicado_em": "2026-11-20T17:38:23+00:00",
+      "fonte": "Notícias da Hora",
+      "tipo_fonte": "RSS_LOCAL",
+      "titulo": "“Educação financeira precisa começar na infância para formar cidadãos conscientes”, defende Samir Bestene durante feira de conhecimentos em escola da Capital",
+      "url": "https://noticiasdahora.com.br/politica/educacao-financeira-precisa-comecar-na-infancia-para-formar-cidadaos-conscientes-defende-samir-bestene-durante-feira-de-conhecimentos-em-escola-da-capital/",
+      "ator_principal": "Samir Bestene",
+      "tema": "Menção direta",
+      "tom": "INDETERMINADO",
+      "nivel": "ACOMPANHAR",
+      "resumo": "“Educação financeira precisa começar na infância para formar cidadãos conscientes”, defende Samir Bestene durante feira de conhecimentos em escola da Capital",
+      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
+      "samir_direto": true,
+      "pesquisa_eleitoral": false
+    },
     {
       "coletado_em": "2026-11-19T23:16:08-05:00",
       "publicado_em": "2026-11-18T20:16:13+00:00",
@@ -297,38 +329,6 @@
       "tom": "INDETERMINADO",
       "nivel": "ACOMPANHAR",
       "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco - diariodoacre.com.br",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-17T14:21:22-05:00",
-      "publicado_em": "2026-11-17T14:17:00+00:00",
-      "fonte": "NOTíCIAS DA HORA",
-      "tipo_fonte": "GOOGLE_NEWS_SAMIR",
-      "titulo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco - NOTíCIAS DA HORA",
-      "url": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxNdEVmV2ZLWHdRalFSMzJSazJDVEgtVkVYbUF5SlgyRzdvek9Welh0OGloeXpUbVVGZTl2X0NCaUplMDNzbDU0R0pCR3JGSDY3OGRId3l6Vm9xem93enBDczRwaWpOVjFlcHZEejk3RE1QTXYxQUM1RU9ZdnJXZ0VhdjFFTmdXX25MUWdFYWpwNFFYeldWb1I2U1JQUG5JV0VpLXhTQUdFWmE0dUZqQmhPcWZvSGd3cHg4X1NDYnRJT1o0YkpGajdfb2ZfekttSlE2REotb3lZSkFrSjNtbkZZeGdqa0pQODN6d1hYdzAwV3k?oc=5",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene pede prorrogação do Refis 2026 até dezembro para ampliar prazo de regularização de tributos em Rio Branco - NOTíCIAS DA HORA",
-      "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
-      "samir_direto": true,
-      "pesquisa_eleitoral": false
-    },
-    {
-      "coletado_em": "2026-11-17T14:21:14-05:00",
-      "publicado_em": "2026-11-17T17:40:51+00:00",
-      "fonte": "Diário do Acre",
-      "tipo_fonte": "RSS_LOCAL",
-      "titulo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
-      "url": "https://diariodoacre.com.br/samir-bestene-solicita-prorrogacao-do-refis-2026-ate-dezembro-em-rio-branco/?utm_source=rss&utm_medium=rss&utm_campaign=samir-bestene-solicita-prorrogacao-do-refis-2026-ate-dezembro-em-rio-branco",
-      "ator_principal": "Samir Bestene",
-      "tema": "Menção direta",
-      "tom": "INDETERMINADO",
-      "nivel": "ACOMPANHAR",
-      "resumo": "Samir Bestene solicita prorrogação do Refis 2026 até dezembro em Rio Branco",
       "por_que_importa": "Menção direta a Samir detectada. A análise automática detalhada ficou pendente, mas o registro foi preservado.",
       "samir_direto": true,
       "pesquisa_eleitoral": false
